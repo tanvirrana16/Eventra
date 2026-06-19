@@ -63,6 +63,11 @@ return new class extends Migration
             $table->time('event_time');
             $table->string('location');
             $table->string('image_path')->nullable();
+            $table->integer('seats_left')->default(25);
+            $table->decimal('rating', 3, 2)->default(5.00);
+            $table->json('gallery')->nullable();
+            $table->json('speakers')->nullable();
+            $table->json('tags')->nullable();
             $table->enum('status', ['draft', 'published', 'archived'])->default('draft');
             $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
             $table->foreignId('created_by')->constrained('users')->onDelete('cascade');

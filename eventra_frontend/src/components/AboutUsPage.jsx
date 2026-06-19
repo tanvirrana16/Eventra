@@ -5,6 +5,7 @@ import {
   ChevronDown, ChevronLeft, ChevronRight, Star, ArrowRight, HelpCircle,
   Mail, MapPin, Zap
 } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 import { useNavigate } from 'react-router-dom';
 
 // Team Members Data
@@ -146,6 +147,16 @@ export default function AboutUsPage() {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [expandedFaq, setExpandedFaq] = useState(null);
 
+  // Dynamic API state
+  const [heroData, setHeroData] = useState(null);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/pages/hero/about-us`)
+      .then(res => res.json())
+      .then(data => setHeroData(data))
+      .catch(err => console.warn('Failed to load about us page hero details', err));
+  }, []);
+
   // Counter animation logic
   const [counts, setCounts] = useState(STATS.map(() => 0));
 
@@ -183,6 +194,10 @@ export default function AboutUsPage() {
     setActiveTestimonial((prev) => (prev + 1) % TESTIMONIALS.length);
   };
 
+  const heroTitle = heroData?.title || 'About Eventra';
+  const heroSubtitle = heroData?.subtitle || 'Connecting people through meaningful events. Eventra helps individuals, communities, universities, startups, and organizations discover, organize, and experience memorable events with ease. We believe that every gathering creates a gateway to expand knowledge, build connections, and create growth pathways.';
+  const heroBgColor = heroData?.background_color || '#0C3B2E';
+
   return (
     <div className="flex-grow bg-slate-50 font-outfit select-none overflow-x-hidden">
 
@@ -202,7 +217,10 @@ export default function AboutUsPage() {
       `}} />
 
       {/* SECTION 1: HERO BANNER */}
-      <section className="w-full bg-[#0C3B2E] pt-20 pb-28 sm:pt-28 sm:pb-40 text-center text-white relative overflow-hidden">
+      <section 
+        className="w-full pt-20 pb-28 sm:pt-28 sm:pb-40 text-center text-white relative overflow-hidden"
+        style={{ backgroundColor: heroBgColor }}
+      >
         {/* Ambient glows */}
         <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute bottom-1/4 right-1/4 w-[350px] h-[350px] bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -216,13 +234,13 @@ export default function AboutUsPage() {
               Who We Are
             </span>
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight leading-tight bg-gradient-to-b from-white via-white to-emerald-100 bg-clip-text text-transparent">
-              About Eventra
+              {heroTitle}
             </h1>
             <div className="w-16 h-1.5 bg-[#2E6F40] rounded-full"></div>
 
             {/* Justified Description */}
             <p className="text-sm sm:text-base text-emerald-100/70 max-w-xl font-light leading-relaxed text-justify">
-              Connecting people through meaningful events. Eventra helps individuals, communities, universities, startups, and organizations discover, organize, and experience memorable events with ease. We believe that every gathering creates a gateway to expand knowledge, build connections, and create growth pathways.
+              {heroSubtitle}
             </p>
           </div>
 

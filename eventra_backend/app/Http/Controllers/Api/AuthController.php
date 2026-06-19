@@ -16,6 +16,17 @@ class AuthController extends Controller
      */
     public function signup(Request $request)
     {
+        // Normalize camelCase fields from frontend
+        if ($request->has('organizationName')) {
+            $request->merge(['organization_name' => $request->organizationName]);
+        }
+        if ($request->has('contactInfo')) {
+            $request->merge(['contact_info' => $request->contactInfo]);
+        }
+        if ($request->has('confirmPassword')) {
+            $request->merge(['password_confirmation' => $request->confirmPassword]);
+        }
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
@@ -82,7 +93,9 @@ class AuthController extends Controller
                 'status' => $user->status,
                 'interests' => $user->interests,
                 'location' => $user->location,
+                'organizationName' => $user->organization_name,
                 'organization_name' => $user->organization_name,
+                'contactInfo' => $user->contact_info,
                 'contact_info' => $user->contact_info,
             ]
         ], 201);
@@ -117,10 +130,18 @@ class AuthController extends Controller
         }
 
         $token = 'MOCK_JWT_TOKEN_' . Str::random(24);
+        $adminAutologinToken = null;
+
+        if ($user->role === 'admin') {
+            $adminAutologinToken = Str::random(60);
+            $user->remember_token = $adminAutologinToken;
+            $user->save();
+        }
 
         return response()->json([
             'message' => 'Login successful.',
             'token' => $token,
+            'adminAutologinToken' => $adminAutologinToken,
             'user' => [
                 'name' => $user->name,
                 'email' => $user->email,
@@ -129,7 +150,9 @@ class AuthController extends Controller
                 'status' => $user->status,
                 'interests' => $user->interests,
                 'location' => $user->location,
+                'organizationName' => $user->organization_name,
                 'organization_name' => $user->organization_name,
+                'contactInfo' => $user->contact_info,
                 'contact_info' => $user->contact_info,
             ]
         ]);

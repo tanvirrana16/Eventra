@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Search, SlidersHorizontal, Loader2, Check, Calendar, Music, Ticket } from 'lucide-react';
 import EventCard from './EventCard';
 import mockEvents from '../data/mockEventsExtended';
+import { API_BASE_URL } from '../config';
 
 const ALL_CATEGORIES = [
   "Concert",
@@ -34,17 +35,65 @@ export default function EventsPage({ onViewDetails }) {
   const [displayLimit, setDisplayLimit] = useState(16);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
+  // Dynamic API state
+  const [eventsList, setEventsList] = useState(mockEvents);
+  const [heroData, setHeroData] = useState(null);
+  const [isLoadingEvents, setIsLoadingEvents] = useState(true);
+
   // Refs for closing dropdown
   const dropdownRef = useRef(null);
   const toggleBtnRef = useRef(null);
 
-  // Dynamic category counts calculation from ALL events
+  // Parse category filter from URL (e.g. ?category=slug) if passed from ExploreCategories click
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const categoryQuery = params.get('category');
+    if (categoryQuery) {
+      const matchedCategory = ALL_CATEGORIES.find(
+        cat => cat.toLowerCase().replace(/ /g, '-').replace(/\//g, '-') === categoryQuery.toLowerCase()
+      );
+      if (matchedCategory) {
+        setSelectedCategories([matchedCategory]);
+      }
+    }
+  }, []);
+
+  // Fetch Page Hero and Events Registry from APIs on mount
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/pages/hero/events`)
+      .then(res => res.json())
+      .then(data => setHeroData(data))
+      .catch(err => console.warn('Failed to load events page hero details', err));
+
+    fetch(`${API_BASE_URL}/events`)
+      .then(res => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      })
+      .then(data => {
+        if (data && data.length > 0) {
+          // Normalize status field if backend doesn't output rawStatus
+          const normalized = data.map(evt => ({
+            ...evt,
+            rawStatus: evt.rawStatus || (evt.status === 'Closed' ? 'Past' : evt.status === 'Live Event' ? 'Live' : 'Upcoming')
+          }));
+          setEventsList(normalized);
+        }
+        setIsLoadingEvents(false);
+      })
+      .catch(err => {
+        console.warn('Events API connection failed, using mock events.', err);
+        setIsLoadingEvents(false);
+      });
+  }, []);
+
+  // Dynamic category counts calculation from active events list
   const categoryCounts = React.useMemo(() => {
-    return mockEvents.reduce((acc, evt) => {
+    return eventsList.reduce((acc, evt) => {
       acc[evt.category] = (acc[evt.category] || 0) + 1;
       return acc;
     }, {});
-  }, []);
+  }, [eventsList]);
 
   // Dropdown Click-Outside Handler
   useEffect(() => {
@@ -102,7 +151,7 @@ export default function EventsPage({ onViewDetails }) {
 
   // Filter & Sort Events
   const processedEvents = React.useMemo(() => {
-    let result = [...mockEvents];
+    let result = [...eventsList];
 
     // 1. Filter by Status
     if (statusFilter === 'Live') {
@@ -148,7 +197,7 @@ export default function EventsPage({ onViewDetails }) {
       // Within the same status group, sort ascending by date
       return new Date(a.date) - new Date(b.date);
     });
-  }, [statusFilter, selectedCategories, searchQuery]);
+  }, [statusFilter, selectedCategories, searchQuery, eventsList]);
 
   // Pagination Handler (Simulate API load)
   const handleLoadMore = () => {
@@ -170,10 +219,17 @@ export default function EventsPage({ onViewDetails }) {
   const displayedEvents = processedEvents.slice(0, displayLimit);
   const hasMore = processedEvents.length > displayLimit;
 
+  const heroTitle = heroData?.title || 'Explore Events';
+  const heroSubtitle = heroData?.subtitle || 'Discover amazing events happening in your local community, meet new people, verify graduation certificates, and upgrade your technical skills. From rock concerts and sports tournaments to technology hackathons and corporate seminars, Eventra hosts a universe of opportunities at your fingertips.';
+  const heroBgColor = heroData?.background_color || '#0C3B2E';
+
   return (
     <div className="flex-grow bg-slate-50 font-outfit">
       {/* Hero Banner Section */}
-      <section className="w-full bg-[#0C3B2E] pt-20 pb-28 sm:pt-28 sm:pb-40 text-left text-white relative overflow-hidden select-none">
+      <section 
+        className="w-full pt-20 pb-28 sm:pt-28 sm:pb-40 text-left text-white relative overflow-hidden select-none animate-fade-in"
+        style={{ backgroundColor: heroBgColor }}
+      >
         {/* Ambient background glows */}
         <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute bottom-1/4 right-1/4 w-[350px] h-[350px] bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -187,12 +243,12 @@ export default function EventsPage({ onViewDetails }) {
               Discover Local Events
             </span>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight leading-tight bg-gradient-to-b from-white via-white to-emerald-100 bg-clip-text text-transparent">
-              Explore Events
+              {heroTitle}
             </h1>
             <div className="w-16 h-1.5 bg-[#2E6F40] rounded-full"></div>
 
             <p className="text-sm sm:text-base text-emerald-100/70 max-w-xl font-light leading-relaxed text-justify">
-              Discover amazing events happening in your local community, meet new people, verify graduation certificates, and upgrade your technical skills. From rock concerts and sports tournaments to technology hackathons and corporate seminars, Eventra hosts a universe of opportunities at your fingertips.
+              {heroSubtitle}
             </p>
           </div>
 

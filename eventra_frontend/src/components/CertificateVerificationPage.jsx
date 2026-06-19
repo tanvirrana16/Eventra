@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Shield, Award, CheckCircle, AlertTriangle, ChevronDown, Mail, RefreshCw,
   Upload, X, ArrowRight, HelpCircle, FileText, Calendar, ShieldCheck,
   Download, ExternalLink, MessageSquare
 } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 
 // Mock Certificate Registry Database
@@ -73,6 +74,16 @@ export default function CertificateVerificationPage() {
   const [hasSearched, setHasSearched] = useState(false);
   const [expandedFaq, setExpandedFaq] = useState(null);
   const [verificationTime, setVerificationTime] = useState('');
+
+  // Dynamic API state
+  const [heroData, setHeroData] = useState(null);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/pages/hero/certificate-verification`)
+      .then(res => res.json())
+      .then(data => setHeroData(data))
+      .catch(err => console.warn('Failed to load certificate verification page hero details', err));
+  }, []);
 
   // Form submit handler - simulates API call
   const handleVerify = (e) => {
@@ -171,6 +182,10 @@ export default function CertificateVerificationPage() {
     alert(`Downloading certificate PDF for ${result?.participantName || 'Participant'}...`);
   };
 
+  const heroTitle = heroData?.title || 'Certificate Verification';
+  const heroSubtitle = heroData?.subtitle || 'Verify the authenticity of your Eventra participation certificates quickly and securely. Enter your Certificate ID below to confirm its validity.';
+  const heroBgColor = heroData?.background_color || '#0C3B2E';
+
   return (
     <div className="flex-grow bg-slate-50 font-outfit select-none">
 
@@ -194,7 +209,10 @@ export default function CertificateVerificationPage() {
       `}} />
 
       {/* SECTION 1: HERO BANNER */}
-      <section className="w-full bg-[#0C3B2E] pt-20 pb-28 sm:pt-28 sm:pb-40 text-center text-white relative overflow-hidden">
+      <section 
+        className="w-full pt-20 pb-28 sm:pt-28 sm:pb-40 text-center text-white relative overflow-hidden"
+        style={{ backgroundColor: heroBgColor }}
+      >
         {/* Soft background glows */}
         <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute bottom-1/4 right-1/4 w-[350px] h-[350px] bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -208,11 +226,11 @@ export default function CertificateVerificationPage() {
               Secure Verification
             </span>
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight leading-tight bg-gradient-to-b from-white via-white to-emerald-100 bg-clip-text text-transparent">
-              Certificate Verification
+              {heroTitle}
             </h1>
             <div className="w-16 h-1.5 bg-[#2E6F40] rounded-full"></div>
             <p className="text-sm sm:text-base text-emerald-100/70 max-w-xl font-light leading-relaxed">
-              Verify the authenticity of your Eventra participation certificates quickly and securely. Enter your Certificate ID below to confirm its validity.
+              {heroSubtitle}
             </p>
           </div>
 

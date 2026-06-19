@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
@@ -15,12 +15,26 @@ import AboutUsPage from './components/AboutUsPage';
 import ContactUsPage from './components/ContactUsPage';
 import LoginPage from './components/LoginPage';
 import SignupPage from './components/SignupPage';
+import { API_BASE_URL } from './config';
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     return localStorage.getItem('token') !== null;
   });
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [homepageData, setHomepageData] = useState(null);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/homepage`)
+      .then(res => {
+        if (!res.ok) throw new Error('API server error');
+        return res.json();
+      })
+      .then(data => setHomepageData(data))
+      .catch(err => {
+        console.warn('API connection failed: using mock fallback data.', err);
+      });
+  }, []);
 
   const handleOpenDetails = (event) => {
     setSelectedEvent(event);
@@ -46,19 +60,29 @@ export default function App() {
             <Route path="/" element={
               <>
                 {/* Hero Section */}
-                <Hero isLoggedIn={isLoggedIn} />
+                <Hero 
+                  isLoggedIn={isLoggedIn} 
+                  data={homepageData?.hero} 
+                  slider={homepageData?.slider} 
+                />
 
                 {/* Categories Section */}
-                <ExploreCategories />
+                <ExploreCategories data={homepageData?.top_categories} />
 
                 {/* Latest Events Section */}
-                <LatestEvents onViewDetails={handleOpenDetails} />
+                <LatestEvents 
+                  onViewDetails={handleOpenDetails} 
+                  data={homepageData?.latest_events} 
+                />
 
                 {/* Upcoming Events Section */}
-                <UpcomingEvents onViewDetails={handleOpenDetails} />
+                <UpcomingEvents 
+                  onViewDetails={handleOpenDetails} 
+                  data={homepageData?.upcoming_events} 
+                />
 
                 {/* Statistics Banner */}
-                <StatsCounter />
+                <StatsCounter data={homepageData?.stats} />
               </>
             } />
 
@@ -94,7 +118,7 @@ export default function App() {
       </div>
 
       {/* Footer Section */}
-      <Footer />
+      <Footer data={homepageData?.footer} />
 
       {/* Details Modal */}
       {selectedEvent && (

@@ -1,50 +1,117 @@
 import React from 'react';
-import { ArrowUpRight, Compass, Heart, Dumbbell, Activity, Users } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { 
+  ArrowUpRight, 
+  Compass, 
+  Heart, 
+  Dumbbell, 
+  Activity, 
+  Users, 
+  Music, 
+  Laptop, 
+  Trophy, 
+  Scissors, 
+  Presentation, 
+  GraduationCap, 
+  Image as ImageIcon, 
+  Rocket, 
+  Smile, 
+  GlassWater, 
+  Film 
+} from 'lucide-react';
 
-const categories = [
+const iconMap = {
+  Compass,
+  Heart,
+  Dumbbell,
+  Activity,
+  Users,
+  Music,
+  Laptop,
+  Trophy,
+  Scissors,
+  Presentation,
+  GraduationCap,
+  Image: ImageIcon,
+  Rocket,
+  Smile,
+  GlassWater,
+  Film
+};
+
+const colorSchemes = [
   {
-    title: 'Travel and Outdoor',
     accentColor: 'border-b-4 border-green-600',
     hoverAccent: 'group-hover:text-green-600',
     iconBg: 'bg-green-50 text-green-600',
-    icon: Compass,
+  },
+  {
+    accentColor: 'border-b-4 border-orange-500',
+    hoverAccent: 'group-hover:text-orange-500',
+    iconBg: 'bg-orange-50 text-orange-500',
+  },
+  {
+    accentColor: 'border-b-4 border-sky-400',
+    hoverAccent: 'group-hover:text-sky-500',
+    iconBg: 'bg-sky-50 text-sky-500',
+  },
+  {
+    accentColor: 'border-b-4 border-red-500',
+    hoverAccent: 'group-hover:text-red-500',
+    iconBg: 'bg-red-50 text-red-500',
+  },
+  {
+    accentColor: 'border-b-4 border-purple-500',
+    hoverAccent: 'group-hover:text-purple-500',
+    iconBg: 'bg-purple-50 text-purple-500',
+  }
+];
+
+const mockCategories = [
+  {
+    title: 'Travel and Outdoor',
+    iconName: 'Compass',
     description: 'Adventure trails, camping, hiking, and excursions.'
   },
   {
     title: 'Social Activities',
-    accentColor: 'border-b-4 border-orange-500',
-    hoverAccent: 'group-hover:text-orange-500',
-    iconBg: 'bg-orange-50 text-orange-500',
-    icon: Users,
+    iconName: 'Users',
     description: 'Meetups, parties, networking, and group discussions.'
   },
   {
     title: 'Hobbies and Passions',
-    accentColor: 'border-b-4 border-sky-400',
-    hoverAccent: 'group-hover:text-sky-500',
-    iconBg: 'bg-sky-50 text-sky-500',
-    icon: Heart,
+    iconName: 'Heart',
     description: 'Art, crafts, reading, cooking, and creative hobbies.'
   },
   {
     title: 'Sports and Fitness',
-    accentColor: 'border-b-4 border-red-500',
-    hoverAccent: 'group-hover:text-red-500',
-    iconBg: 'bg-red-50 text-red-500',
-    icon: Dumbbell,
+    iconName: 'Dumbbell',
     description: 'Cardio, team sports, gym sessions, and yoga.'
   },
   {
     title: 'Health and Wellbeing',
-    accentColor: 'border-b-4 border-purple-500',
-    hoverAccent: 'group-hover:text-purple-500',
-    iconBg: 'bg-purple-50 text-purple-500',
-    icon: Activity,
+    iconName: 'Activity',
     description: 'Mental health, relaxation, wellness, and self-care.'
   }
 ];
 
-export default function ExploreCategories() {
+export default function ExploreCategories({ data }) {
+  const navigate = useNavigate();
+
+  // If dynamic data is loaded, map it; otherwise fall back to mock
+  const displayCategories = data && data.length > 0 
+    ? data.map((cat, idx) => ({
+        title: cat.name,
+        slug: cat.slug,
+        iconName: cat.icon || 'Compass',
+        description: `${cat.events_count || 0} active published events in this category.`
+      }))
+    : mockCategories.map(cat => ({ ...cat, slug: cat.title.toLowerCase().replace(/ /g, '-') }));
+
+  const handleCategoryClick = (slug) => {
+    navigate(`/events?category=${slug}`);
+  };
+
   return (
     <section id="services" className="py-20 bg-slate-50 font-outfit relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -62,12 +129,14 @@ export default function ExploreCategories() {
 
         {/* Layout: 5-column grid on desktop, horizontal scroll on mobile */}
         <div className="flex overflow-x-auto pb-4 gap-6 md:grid md:grid-cols-5 md:overflow-x-visible md:pb-0 scrollbar-none snap-x snap-mandatory">
-          {categories.map((category) => {
-            const IconComponent = category.icon;
+          {displayCategories.map((category, idx) => {
+            const scheme = colorSchemes[idx % colorSchemes.length];
+            const IconComponent = iconMap[category.iconName] || Compass;
             return (
               <div
-                key={category.title}
-                className={`flex-none w-64 md:w-auto snap-start bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl border border-gray-100 hover:border-gray-200 transition-all duration-300 transform hover:-translate-y-2 flex flex-col justify-between aspect-square group cursor-pointer ${category.accentColor}`}
+                key={category.title + '-' + idx}
+                onClick={() => handleCategoryClick(category.slug)}
+                className={`flex-none w-64 md:w-auto snap-start bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl border border-gray-100 hover:border-gray-200 transition-all duration-300 transform hover:-translate-y-2 flex flex-col justify-between aspect-square group cursor-pointer ${scheme.accentColor}`}
               >
 
                 {/* Top Left: Category Title */}
@@ -88,7 +157,7 @@ export default function ExploreCategories() {
                   </div>
 
                   {/* Bottom-right: Modern minimalist illustration / styled icon */}
-                  <div className={`p-4 rounded-xl ${category.iconBg} transform group-hover:scale-110 transition-transform duration-300`}>
+                  <div className={`p-4 rounded-xl ${scheme.iconBg} transform group-hover:scale-110 transition-transform duration-300`}>
                     <IconComponent className="h-8 w-8 stroke-[1.5]" />
                   </div>
                 </div>

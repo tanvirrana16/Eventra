@@ -1,9 +1,13 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import EventCard from './EventCard';
-import { upcomingEvents } from '../data/mockEvents';
+import { upcomingEvents as mockUpcomingEvents } from '../data/mockEvents';
 
-export default function UpcomingEvents({ onViewDetails }) {
+export default function UpcomingEvents({ onViewDetails, data }) {
+  const navigate = useNavigate();
+  const events = data && data.length > 0 ? data : mockUpcomingEvents;
+
   return (
     <section className="py-20 bg-slate-50 font-outfit relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -23,22 +27,22 @@ export default function UpcomingEvents({ onViewDetails }) {
 
           {/* Right: View All link with hover transition */}
           <div className="shrink-0 self-start md:self-end">
-            <a
-              href="#events"
-              className="inline-flex items-center space-x-1.5 text-sm font-extrabold text-[#2E6F40] hover:text-[#2E6F40]/80 group transition-colors duration-300"
+            <button
+              onClick={() => navigate('/events')}
+              className="inline-flex items-center space-x-1.5 text-sm font-extrabold text-[#2E6F40] hover:text-[#2E6F40]/80 group transition-colors duration-300 bg-transparent border-none cursor-pointer"
             >
-              <span className="relative">
+              <span className="relative text-left">
                 View All Events
                 <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#2E6F40] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
               </span>
               <ArrowRight className="h-4.5 w-4.5 transform group-hover:translate-x-1.5 transition-transform duration-300" />
-            </a>
+            </button>
           </div>
         </div>
 
         {/* Cards Layout: 4 columns desktop, 2 columns tablet, horizontal scroll mobile */}
         <div className="flex overflow-x-auto pb-4 gap-6 md:grid md:grid-cols-2 lg:grid-cols-4 md:overflow-x-visible md:pb-0 scrollbar-none snap-x snap-mandatory">
-          {upcomingEvents.map((event) => (
+          {events.map((event) => (
             <div key={event.id} className="shrink-0 snap-start md:shrink-0 md:w-auto">
               <EventCard
                 event={event}

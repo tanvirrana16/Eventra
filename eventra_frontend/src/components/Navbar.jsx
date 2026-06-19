@@ -1,13 +1,21 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Search, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import logo from '../assets/logo.png';
 
 export default function Navbar({ isLoggedIn, setIsLoggedIn }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
+
+  const user = (() => {
+    try {
+      return JSON.parse(localStorage.getItem('user') || 'null');
+    } catch {
+      return null;
+    }
+  })();
+  const isAdmin = isLoggedIn && user?.role === 'admin';
 
   const handleNavLinkClick = (e, name, href) => {
     e.preventDefault();
@@ -29,12 +37,9 @@ export default function Navbar({ isLoggedIn, setIsLoggedIn }) {
     } else if (name === 'Contact') {
       navigate('/contact-us');
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (name === 'Dashboard') {
+      window.location.assign('http://localhost:8000/admin');
     }
-  };
-
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    console.log('Searching for:', searchQuery);
   };
 
   const navLinks = [
@@ -45,6 +50,10 @@ export default function Navbar({ isLoggedIn, setIsLoggedIn }) {
     { name: 'About Us', href: '/about-us' },
     { name: 'Contact', href: '/contact-us' },
   ];
+
+  if (isAdmin) {
+    navLinks.push({ name: 'Dashboard', href: 'http://localhost:8000/admin' });
+  }
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-[#E5E7EB]/90 backdrop-blur-md text-[#2E6F40] shadow-md shadow-[#2E6F40]/5 font-outfit transition-all duration-500">
@@ -96,18 +105,6 @@ export default function Navbar({ isLoggedIn, setIsLoggedIn }) {
                 );
               })}
             </ul>
-
-            {/* Search Bar */}
-            <form onSubmit={handleSearchSubmit} className="relative w-36 lg:w-48 group">
-              <input
-                type="text"
-                placeholder="Search events..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-8 pr-3 py-1.5 bg-white/70 hover:bg-white/90 focus:bg-white text-gray-800 placeholder-gray-500 rounded-full text-[11px] font-bold border border-slate-300/50 focus:outline-none focus:ring-2 focus:ring-[#2E6F40]/40 focus:border-transparent transition-all duration-300 shadow-xs focus:shadow-md"
-              />
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3 w-3 text-gray-500 group-focus-within:text-[#2E6F40] transition-colors duration-300" />
-            </form>
           </div>
 
           {/* Right Side: Authentication */}
@@ -120,7 +117,7 @@ export default function Navbar({ isLoggedIn, setIsLoggedIn }) {
                   localStorage.removeItem('user');
                   navigate('/');
                 } else {
-                  navigate('/login');
+                  window.open('/login', '_blank');
                 }
               }}
               className="text-xs font-extrabold py-2.5 px-6 rounded-full border border-[#2E6F40] text-[#2E6F40] hover:bg-[#2E6F40] hover:text-white hover:-translate-y-0.5 hover:shadow-md transition-all duration-300 cursor-pointer transform active:scale-95"
@@ -155,18 +152,6 @@ export default function Navbar({ isLoggedIn, setIsLoggedIn }) {
       {/* Mobile Menu Drawer */}
       {isMobileMenuOpen && (
         <div className="md:hidden bg-[#E5E7EB]/95 backdrop-blur-lg border-t border-[#2E6F40]/10 px-4 pt-4 pb-8 space-y-6 shadow-inner animate-fade-in">
-          {/* Search bar inside mobile drawer */}
-          <form onSubmit={handleSearchSubmit} className="relative w-full">
-            <input
-              type="text"
-              placeholder="Search events..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-white text-gray-800 placeholder-gray-500 rounded-full text-sm font-semibold border border-slate-300/60 focus:outline-none focus:ring-2 focus:ring-[#2E6F40]/40 focus:border-transparent transition-all"
-            />
-            <Search className="absolute left-3.5 top-3.5 h-4.5 w-4.5 text-gray-500" />
-          </form>
-
           {/* Navigation Links */}
           <ul className="flex flex-col space-y-3 font-bold text-[#2E6F40] pl-2 text-left">
             {navLinks.map((link) => {
@@ -205,7 +190,7 @@ export default function Navbar({ isLoggedIn, setIsLoggedIn }) {
                   localStorage.removeItem('user');
                   navigate('/');
                 } else {
-                  navigate('/login');
+                  window.open('/login', '_blank');
                 }
               }}
               className="w-full py-3 px-5 rounded-full border border-[#2E6F40] text-[#2E6F40] hover:bg-[#2E6F40] hover:text-white font-extrabold text-center text-sm transition-all"

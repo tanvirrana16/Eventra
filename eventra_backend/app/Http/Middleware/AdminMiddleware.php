@@ -18,7 +18,7 @@ class AdminMiddleware
             if ($request->expectsJson()) {
                 return response()->json(['message' => 'Unauthenticated.'], 401);
             }
-            return redirect()->route('admin.login');
+            return redirect('http://localhost:5173/login');
         }
 
         if (Auth::user()->role !== 'admin') {
@@ -26,7 +26,7 @@ class AdminMiddleware
                 return response()->json(['message' => 'Forbidden. Admins only.'], 403);
             }
             Auth::logout();
-            return redirect()->route('admin.login')->withErrors(['email' => 'Access denied. You must be an administrator.']);
+            return redirect('http://localhost:5173/login');
         }
 
         return $next($request);

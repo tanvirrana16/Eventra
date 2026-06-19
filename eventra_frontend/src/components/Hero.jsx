@@ -52,23 +52,33 @@ const sliderEvents = [
   }
 ];
 
-export default function Hero({ isLoggedIn }) {
+export default function Hero({ isLoggedIn, data, slider }) {
   const [currentSlide, setCurrentSlide] = useState(0);
+
+  const heroTitle = data?.title || "Discover Local Events, Meet New Communities";
+  const heroSubtitle = data?.subtitle || "Discover exciting events happening around you—from workshops, seminars, hackathons, networking sessions, cultural festivals, and community meetups. Connect with like-minded people, expand your network, learn new skills, and create unforgettable experiences with Eventra.";
+  const btn1Text = data?.btn1_text || "Explore Events";
+  const btn1Url = data?.btn1_url || "#events";
+  const btn2Text = data?.btn2_text || (isLoggedIn ? "Contact Us" : "Join Eventra");
+  const btn2Url = data?.btn2_url || (isLoggedIn ? "#contact" : "#signup");
+
+  const slides = slider && slider.length > 0 ? slider : sliderEvents;
 
   // Autoplay functionality
   useEffect(() => {
+    if (slides.length <= 1) return;
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % sliderEvents.length);
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, 4500);
     return () => clearInterval(timer);
-  }, []);
+  }, [slides.length]);
 
   const handlePrev = () => {
-    setCurrentSlide((prev) => (prev - 1 + sliderEvents.length) % sliderEvents.length);
+    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
   };
 
   const handleNext = () => {
-    setCurrentSlide((prev) => (prev + 1) % sliderEvents.length);
+    setCurrentSlide((prev) => (prev + 1) % slides.length);
   };
 
   return (
@@ -91,39 +101,30 @@ export default function Hero({ isLoggedIn }) {
             <span>Live event platform</span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-[1.15] tracking-tight">
-            Discover Local Events, Meet New Communities <span className="text-[#CFFFDC]">& Upgrade Your Skills</span>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-[1.15] tracking-tight text-balance">
+            {heroTitle} {heroTitle.includes('Discover Local Events') && <span className="text-[#CFFFDC]">& Upgrade Your Skills</span>}
           </h1>
 
           <p className="text-base sm:text-lg text-emerald-100/70 leading-relaxed font-normal text-justify">
-            Discover exciting events happening around you—from workshops, seminars, hackathons, networking sessions, cultural festivals, and community meetups. Connect with like-minded people, expand your network, learn new skills, and create unforgettable experiences with Eventra.
+            {heroSubtitle}
           </p>
 
           {/* Dynamic Action Buttons based on isLoggedIn */}
           <div className="flex flex-wrap gap-4 pt-2">
             <a
-              href="#events"
+              href={btn1Url}
               className="py-3.5 px-8 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-teal-600 hover:to-emerald-600 text-white font-bold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 text-sm flex items-center space-x-1.5 cursor-pointer transform active:scale-95"
             >
-              <span>Explore Meetings</span>
+              <span>{btn1Text}</span>
               <ArrowUpRight className="h-4 w-4" />
             </a>
 
-            {isLoggedIn ? (
-              <a
-                href="#contact"
-                className="py-3.5 px-8 border border-white/20 hover:border-white hover:bg-white/5 text-white font-bold rounded-full transition-all duration-300 text-sm cursor-pointer transform active:scale-95"
-              >
-                Contact Us
-              </a>
-            ) : (
-              <a
-                href="#signup"
-                className="py-3.5 px-8 bg-white text-[#0C3B2E] hover:bg-emerald-100 hover:shadow-lg hover:-translate-y-0.5 font-bold rounded-full shadow transition-all duration-300 text-sm cursor-pointer transform active:scale-95"
-              >
-                Join Eventra
-              </a>
-            )}
+            <a
+              href={btn2Url}
+              className="py-3.5 px-8 border border-white/20 hover:border-white hover:bg-white/5 text-white font-bold rounded-full transition-all duration-300 text-sm cursor-pointer transform active:scale-95"
+            >
+              {btn2Text}
+            </a>
           </div>
 
         </div>
@@ -151,9 +152,9 @@ export default function Hero({ isLoggedIn }) {
             <div className="absolute inset-0 rounded-3xl border border-emerald-500/20 group-hover:border-emerald-400/40 pointer-events-none z-30 transition-all duration-700 group-hover:shadow-[0_0_40px_rgba(16,185,129,0.15)]"></div>
 
             {/* Slides Mapping */}
-            {sliderEvents.map((slide, idx) => (
+            {slides.map((slide, idx) => (
               <div
-                key={slide.title}
+                key={slide.title + '-' + idx}
                 className={`absolute inset-0 transition-all duration-1000 ease-in-out ${idx === currentSlide ? 'opacity-100 scale-100 z-10' : 'opacity-0 scale-105 z-0'
                   }`}
               >
@@ -166,62 +167,72 @@ export default function Hero({ isLoggedIn }) {
 
                 {/* Bottom Card details gradient */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent flex flex-col justify-end p-6 text-white text-left">
-                  <div className="absolute top-4 left-4 bg-[#CFFFDC] text-[#2E6F40] font-black text-xs px-3 py-1.5 rounded-xl shadow flex flex-col items-center">
-                    <span className="text-[10px] uppercase font-bold tracking-tight">Date</span>
-                    <span className="text-sm tracking-tighter leading-none">{slide.date.split(" ")[0]}</span>
-                    <span className="text-[9px] leading-none">{slide.date.split(" ")[1]}</span>
-                  </div>
+                  {slide.date && (
+                    <div className="absolute top-4 left-4 bg-[#CFFFDC] text-[#2E6F40] font-black text-xs px-3 py-1.5 rounded-xl shadow flex flex-col items-center">
+                      <span className="text-[10px] uppercase font-bold tracking-tight">Date</span>
+                      <span className="text-sm tracking-tighter leading-none">{slide.date.split(" ")[0]}</span>
+                      <span className="text-[9px] leading-none">{slide.date.split(" ")[1]}</span>
+                    </div>
+                  )}
 
                   <h3 className="text-xl sm:text-2xl font-bold font-outfit leading-tight text-white mb-1">
                     {slide.title}
                   </h3>
                   <p className="text-xs sm:text-sm text-gray-300 font-light max-w-sm">
-                    {slide.desc}
+                    {slide.description || slide.desc}
                   </p>
                 </div>
               </div>
             ))}
 
             {/* Slider Navigation Arrows */}
-            <button
-              onClick={handlePrev}
-              className="absolute left-4 top-1/2 -translate-y-1/2 z-25 bg-black/45 hover:bg-black/75 hover:scale-105 text-white p-2.5 rounded-full backdrop-blur-sm transition-all cursor-pointer opacity-0 group-hover:opacity-100"
-              aria-label="Previous event slide"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <button
-              onClick={handleNext}
-              className="absolute right-4 top-1/2 -translate-y-1/2 z-25 bg-black/45 hover:bg-black/75 hover:scale-105 text-white p-2.5 rounded-full backdrop-blur-sm transition-all cursor-pointer opacity-0 group-hover:opacity-100"
-              aria-label="Next event slide"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
+            {slides.length > 1 && (
+              <>
+                <button
+                  onClick={handlePrev}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 z-25 bg-black/45 hover:bg-black/75 hover:scale-105 text-white p-2.5 rounded-full backdrop-blur-sm transition-all cursor-pointer opacity-0 group-hover:opacity-100"
+                  aria-label="Previous event slide"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+                <button
+                  onClick={handleNext}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 z-25 bg-black/45 hover:bg-black/75 hover:scale-105 text-white p-2.5 rounded-full backdrop-blur-sm transition-all cursor-pointer opacity-0 group-hover:opacity-100"
+                  aria-label="Next event slide"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </button>
+              </>
+            )}
 
             {/* Slider Navigation Dots */}
-            <div className="absolute bottom-4 right-6 z-25 flex space-x-2">
-              {sliderEvents.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setCurrentSlide(idx)}
-                  className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${idx === currentSlide ? 'bg-[#CFFFDC] w-6' : 'bg-white/40 w-2'
-                    }`}
-                  aria-label={`Go to slide ${idx + 1}`}
-                />
-              ))}
-            </div>
+            {slides.length > 1 && (
+              <div className="absolute bottom-4 right-6 z-25 flex space-x-2">
+                {slides.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentSlide(idx)}
+                    className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${idx === currentSlide ? 'bg-[#CFFFDC] w-6' : 'bg-white/40 w-2'
+                      }`}
+                    aria-label={`Go to slide ${idx + 1}`}
+                  />
+                ))}
+              </div>
+            )}
 
             {/* Slide Progress Bar */}
-            <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20 z-20">
-              <div
-                key={currentSlide}
-                className="h-full bg-[#CFFFDC] animate-[progress_4.5s_linear]"
-                style={{
-                  animationKey: currentSlide,
-                  width: '100%'
-                }}
-              />
-            </div>
+            {slides.length > 1 && (
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20 z-20">
+                <div
+                  key={currentSlide}
+                  className="h-full bg-[#CFFFDC] animate-[progress_4.5s_linear]"
+                  style={{
+                    animationKey: currentSlide,
+                    width: '100%'
+                  }}
+                />
+              </div>
+            )}
 
           </div>
 

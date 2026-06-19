@@ -3,14 +3,13 @@
 use App\Http\Controllers\Admin\AdminController;
 use Illuminate\Support\Facades\Route;
 
-// Redirect home to admin login
+// Redirect home to the React frontend
 Route::get('/', function () {
-    return redirect()->route('admin.login');
+    return redirect('http://localhost:5173');
 });
 
 // Admin Authentication Routes
-Route::get('/admin/login', [AdminController::class, 'showLoginForm'])->name('admin.login');
-Route::post('/admin/login', [AdminController::class, 'login'])->name('admin.login.submit');
+Route::get('/admin/autologin', [AdminController::class, 'autologin'])->name('admin.autologin');
 Route::post('/admin/logout', [AdminController::class, 'logout'])->name('admin.logout');
 
 // Protected Admin Dashboard Routes

@@ -1,7 +1,42 @@
 import React from 'react';
 import { Mail, Phone } from 'lucide-react';
 
-export default function Footer() {
+export default function Footer({ data }) {
+  // Graceful fallbacks for brand details
+  const brandTitle = data?.brand?.title || "EVENTRA";
+  const brandDesc = data?.brand?.description || "Join our event management community for exclusive updates, special offers, and the latest news delivered straight to your inbox.";
+  const brandCopyright = data?.brand?.copyright || "© 2026 Eventra Private Limited. All Rights Reserved.";
+
+  // Global contact details
+  const globalHeading = data?.contact_global?.heading || "GLOBAL";
+  const globalPhone = data?.contact_global?.phone || "+1 (323) 772-8781";
+  const globalEmail = data?.contact_global?.email || "hello@eventra.live";
+
+  // Bangladesh contact details
+  const bdHeading = data?.contact_bd?.heading || "BANGLADESH";
+  const bdPhone = data?.contact_bd?.phone || "+880 1703-916173";
+  const bdEmail = data?.contact_bd?.email || "hello@eventrabd.com";
+
+  // Support and Eventra menus
+  const supportLinks = data?.support_links && data.support_links.length > 0 
+    ? data.support_links 
+    : [
+        { name: "Help Center / FAQs", url: "#faqs" },
+        { name: "Contact Us", url: "#contact" },
+        { name: "Terms & Conditions", url: "#terms" },
+        { name: "Privacy Policy", url: "#privacy" },
+        { name: "Refund Policy", url: "#refund" }
+      ];
+
+  const eventraLinks = data?.eventra_links && data.eventra_links.length > 0
+    ? data.eventra_links
+    : [
+        { name: "About Us", url: "#about" },
+        { name: "Blog", url: "#blog" },
+        { name: "How It Works", url: "#how" },
+        { name: "Explore Events", url: "#explore" }
+      ];
+
   return (
     <footer className="bg-[#111827] text-gray-300 font-outfit relative">
       {/* Premium top border (subtle green outline + glowing brand gradient) */}
@@ -17,10 +52,10 @@ export default function Footer() {
           <div className="col-span-1 md:col-span-6 space-y-6 text-left">
             <div>
               <h2 className="text-3xl font-black tracking-wider font-outfit bg-gradient-to-r from-emerald-400 via-emerald-300 to-[#CFFFDC] bg-clip-text text-transparent">
-                EVENTRA
+                {brandTitle}
               </h2>
               <p className="mt-3 text-sm text-gray-400 font-normal leading-relaxed max-w-md">
-                Join our event management community for exclusive updates, special offers, and the latest news delivered straight to your inbox.
+                {brandDesc}
               </p>
             </div>
 
@@ -30,30 +65,30 @@ export default function Footer() {
               {/* GLOBAL Info */}
               <div className="space-y-2.5">
                 <p className="text-xs font-bold text-emerald-400 tracking-widest uppercase">
-                  GLOBAL
+                  {globalHeading}
                 </p>
                 <div className="flex items-center space-x-2 text-xs font-medium text-gray-400">
                   <Phone className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-                  <a href="tel:+13237728781" className="hover:text-emerald-400 transition-colors">+1 (323) 772-8781</a>
+                  <a href={`tel:${globalPhone.replace(/\s+/g, '')}`} className="hover:text-emerald-400 transition-colors">{globalPhone}</a>
                 </div>
                 <div className="flex items-center space-x-2 text-xs font-medium text-gray-400">
                   <Mail className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-                  <a href="mailto:hello@eventra.live" className="hover:text-emerald-400 transition-colors">hello@eventra.live</a>
+                  <a href={`mailto:${globalEmail}`} className="hover:text-emerald-400 transition-colors">{globalEmail}</a>
                 </div>
               </div>
 
               {/* BANGLADESH Info */}
               <div className="space-y-2.5">
                 <p className="text-xs font-bold text-emerald-400 tracking-widest uppercase">
-                  BANGLADESH
+                  {bdHeading}
                 </p>
                 <div className="flex items-center space-x-2 text-xs font-medium text-gray-400">
                   <Phone className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-                  <a href="tel:+8801703916173" className="hover:text-emerald-400 transition-colors">+880 1703-916173</a>
+                  <a href={`tel:${bdPhone.replace(/\s+/g, '')}`} className="hover:text-emerald-400 transition-colors">{bdPhone}</a>
                 </div>
                 <div className="flex items-center space-x-2 text-xs font-medium text-gray-400">
                   <Mail className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-                  <a href="mailto:hello@eventrabd.com" className="hover:text-emerald-400 transition-colors">hello@eventrabd.com</a>
+                  <a href={`mailto:${bdEmail}`} className="hover:text-emerald-400 transition-colors">{bdEmail}</a>
                 </div>
               </div>
 
@@ -66,41 +101,25 @@ export default function Footer() {
               SUPPORT
             </h3>
             <ul className="mt-4 space-y-2.5 text-sm font-medium">
-              <li>
-                <a href="#faqs" className="text-gray-400 hover:text-emerald-400 transition-colors">Help Center / FAQs</a>
-              </li>
-              <li>
-                <a href="#contact" className="text-gray-400 hover:text-emerald-400 transition-colors">Contact Us</a>
-              </li>
-              <li>
-                <a href="#terms" className="text-gray-400 hover:text-emerald-400 transition-colors">Terms & Conditions</a>
-              </li>
-              <li>
-                <a href="#privacy" className="text-gray-400 hover:text-emerald-400 transition-colors">Privacy Policy</a>
-              </li>
-              <li>
-                <a href="#refund" className="text-gray-400 hover:text-emerald-400 transition-colors">Refund Policy</a>
-              </li>
+              {supportLinks.map((link, idx) => (
+                <li key={idx}>
+                  <a href={link.url} className="text-gray-400 hover:text-emerald-400 transition-colors">{link.name}</a>
+                </li>
+              ))}
             </ul>
           </div>
 
+          {/* Eventra Columns */}
           <div className="col-span-1 md:col-span-3 text-left">
             <h3 className="text-xs font-black text-white uppercase tracking-widest border-b border-gray-800 pb-2.5">
               EVENTRA
             </h3>
             <ul className="mt-4 space-y-2.5 text-sm font-medium">
-              <li>
-                <a href="#about" className="text-gray-400 hover:text-emerald-400 transition-colors">About Us</a>
-              </li>
-              <li>
-                <a href="#blog" className="text-gray-400 hover:text-emerald-400 transition-colors">Blog</a>
-              </li>
-              <li>
-                <a href="#how" className="text-gray-400 hover:text-emerald-400 transition-colors">How It Works</a>
-              </li>
-              <li>
-                <a href="#explore" className="text-gray-400 hover:text-emerald-400 transition-colors">Explore Events</a>
-              </li>
+              {eventraLinks.map((link, idx) => (
+                <li key={idx}>
+                  <a href={link.url} className="text-gray-400 hover:text-emerald-400 transition-colors">{link.name}</a>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -148,7 +167,7 @@ export default function Footer() {
 
           {/* Right: Copyright */}
           <div className="text-center md:text-right">
-            <p>© 2026 Eventra Private Limited. All Rights Reserved.</p>
+            <p>{brandCopyright}</p>
           </div>
 
         </div>

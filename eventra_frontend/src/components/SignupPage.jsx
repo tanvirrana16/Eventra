@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, Check, ShieldCheck, AlertCircle, Loader2, User, KeyRound, Phone, Users, Calendar, Sparkles, MapPin, Building2, Globe } from 'lucide-react';
 import logo from '../assets/logo.png';
+import { API_BASE_URL } from '../config';
 
 export default function SignupPage({ setIsLoggedIn }) {
   const navigate = useNavigate();
@@ -98,29 +99,77 @@ export default function SignupPage({ setIsLoggedIn }) {
     setAlertVisible(false);
     setStatus(null);
 
-    // Simulate POST /api/signup API Request
-    setTimeout(() => {
-      // Mock successful signup flow
-      setIsLoading(false);
-      setStatus('success');
-      setStatusMsg('Account created successfully! Logging you in...');
-      setAlertVisible(true);
-      
-      setTimeout(() => {
-        localStorage.setItem('token', 'MOCK_JWT_TOKEN_ABC123');
-        const userData = { name: name, email: email, phone: phone, role: role };
-        if (role === 'participant') {
-          userData.interests = interests;
-          userData.location = location;
-        } else if (role === 'organizer') {
-          userData.organizationName = organizationName;
-          userData.contactInfo = contactInfo;
+    // Prepare dynamic request data
+    const bodyData = { name, email, phone, role, password, confirmPassword };
+    if (role === 'participant') {
+      bodyData.interests = interests;
+      bodyData.location = location;
+    } else if (role === 'organizer') {
+      bodyData.organizationName = organizationName;
+      bodyData.contactInfo = contactInfo;
+    }
+
+    // Call the registration API endpoint
+    fetch(`${API_BASE_URL}/auth/signup`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(bodyData),
+    })
+      .then(async (res) => {
+        const data = await res.json();
+        if (res.ok) {
+          setIsLoading(false);
+          setStatus('success');
+          // Handle organizer approval message
+          const msg = role === 'organizer' 
+            ? 'Registration successful! Your organizer account is pending admin approval.'
+            : 'Account created successfully! Logging you in...';
+          setStatusMsg(msg);
+          setAlertVisible(true);
+          
+          if (role !== 'organizer') {
+            setTimeout(() => {
+              localStorage.setItem('token', data.token);
+              localStorage.setItem('user', JSON.stringify(data.user));
+              setIsLoggedIn(true);
+              navigate('/');
+            }, 1800);
+          } else {
+            // Organizer redirects to login after 3 seconds since they are pending approval
+            setTimeout(() => {
+              navigate('/login');
+            }, 3000);
+          }
+        } else {
+          setIsLoading(false);
+          setStatus('error');
+          if (data.errors) {
+            // Map validation errors from Laravel to the react inputs
+            const formErrors = {};
+            Object.keys(data.errors).forEach((key) => {
+              // Map snake_case Laravel keys back to camelCase React fields if necessary
+              const reactKey = key === 'organization_name' ? 'organizationName' 
+                             : key === 'contact_info' ? 'contactInfo' 
+                             : key;
+              formErrors[reactKey] = data.errors[key][0];
+            });
+            setErrors(formErrors);
+            setStatusMsg('Please fix the errors below.');
+          } else {
+            setStatusMsg(data.message || 'An error occurred during registration.');
+          }
+          setAlertVisible(true);
         }
-        localStorage.setItem('user', JSON.stringify(userData));
-        setIsLoggedIn(true);
-        navigate('/');
-      }, 1500);
-    }, 1500);
+      })
+      .catch((err) => {
+        setIsLoading(false);
+        setStatus('error');
+        setStatusMsg('Network error. Please make sure the backend is running.');
+        setAlertVisible(true);
+        console.error(err);
+      });
   };
 
   return (

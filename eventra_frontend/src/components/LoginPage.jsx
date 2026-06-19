@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, Check, ShieldCheck, AlertCircle, Loader2 } from 'lucide-react';
 import logo from '../assets/logo.png';
+import { API_BASE_URL } from '../config';
 
 export default function LoginPage({ setIsLoggedIn }) {
   const navigate = useNavigate();
@@ -52,35 +53,47 @@ export default function LoginPage({ setIsLoggedIn }) {
     setAlertVisible(false);
     setStatus(null);
 
-    // Simulate POST /api/login API Request
-    setTimeout(() => {
-      if (email === 'user@example.com' && password === 'password123') {
-        setIsLoading(false);
-        setStatus('success');
-        setStatusMsg('Welcome Back! Redirecting to Dashboard...');
-        setAlertVisible(true);
-        
-        setTimeout(() => {
-          localStorage.setItem('token', 'MOCK_JWT_TOKEN_ABC123');
-          localStorage.setItem('user', JSON.stringify({ name: 'John Doe', email: email }));
-          setIsLoggedIn(true);
-          navigate('/');
-        }, 1500);
-      } else {
+    // Call the login API endpoint
+    fetch(`${API_BASE_URL}/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    })
+      .then(async (res) => {
+        const data = await res.json();
+        if (res.ok) {
+          setIsLoading(false);
+          setStatus('success');
+          setStatusMsg('Welcome Back! Redirecting to Dashboard...');
+          setAlertVisible(true);
+          
+          setTimeout(() => {
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            setIsLoggedIn(true);
+            if (data.user.role === 'admin' && data.adminAutologinToken) {
+              window.open(`http://localhost:8000/admin/autologin?email=${encodeURIComponent(data.user.email)}&token=${data.adminAutologinToken}`, '_blank');
+              navigate('/');
+            } else {
+              navigate('/');
+            }
+          }, 1500);
+        } else {
+          setIsLoading(false);
+          setStatus('error');
+          setStatusMsg(data.message || 'Invalid email or password.');
+          setAlertVisible(true);
+        }
+      })
+      .catch((err) => {
         setIsLoading(false);
         setStatus('error');
-        
-        if (email !== 'user@example.com') {
-          setStatusMsg('Email address not found. Register a new account to continue.');
-        } else if (password !== 'password123') {
-          setStatusMsg('Password is incorrect. Please try again.');
-        } else {
-          setStatusMsg('Invalid email or password.');
-        }
-        
+        setStatusMsg('Network error. Please make sure the backend is running.');
         setAlertVisible(true);
-      }
-    }, 1500);
+        console.error(err);
+      });
   };
 
   const handleForgotPassword = (e) => {
@@ -353,6 +366,7 @@ export default function LoginPage({ setIsLoggedIn }) {
                 </label>
                 
                 <button
+                  type="button"
                   onClick={handleForgotPassword}
                   disabled={isLoading}
                   className="text-xs sm:text-sm font-bold text-[#2E6F40] hover:text-emerald-700 transition-colors bg-transparent border-none focus:outline-none"

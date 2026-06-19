@@ -98,6 +98,12 @@
                 <i data-lucide="menu-square" class="h-5 w-5"></i>
                 <span>Footer Settings</span>
             </a>
+
+            <!-- Visit Live Website -->
+            <a href="http://localhost:5173" target="_blank" class="flex items-center space-x-3.5 px-4.5 py-3 rounded-xl text-sm font-semibold transition-all text-emerald-200/90 hover:bg-white/5 hover:text-white border-t border-emerald-800/40 pt-4 mt-2">
+                <i data-lucide="external-link" class="h-5 w-5 text-emerald-400"></i>
+                <span>Visit Live Site</span>
+            </a>
         </nav>
 
         <!-- Sidebar Footer -->

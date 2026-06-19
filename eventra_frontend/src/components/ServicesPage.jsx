@@ -6,6 +6,7 @@ import {
   ChevronRight, Star, ChevronDown, CheckCircle, Zap, Trophy, ShieldCheck,
   Clock, DollarSign, Award, MessageSquare, Check, Plus, Minus, Calendar, Settings
 } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 // Core Services Data with rotated color grids
 const CORE_SERVICES = [
@@ -286,6 +287,16 @@ export default function ServicesPage() {
   // FAQ Accordion State (Only one expanded at a time)
   const [expandedFaq, setExpandedFaq] = useState(null);
 
+  // Dynamic API state
+  const [heroData, setHeroData] = useState(null);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/pages/hero/services`)
+      .then(res => res.json())
+      .then(data => setHeroData(data))
+      .catch(err => console.warn('Failed to load services page hero details', err));
+  }, []);
+
   const toggleFaq = (index) => {
     setExpandedFaq(expandedFaq === index ? null : index);
   };
@@ -298,11 +309,18 @@ export default function ServicesPage() {
     setActiveTestimonial((prev) => (prev + 1) % TESTIMONIALS.length);
   };
 
+  const heroTitle = heroData?.title || 'Professional Event Management';
+  const heroSubtitle = heroData?.subtitle || 'From intimate family celebrations to large-scale corporate conferences and concerts, Eventra provides complete, high-end event management solutions tailored to your unique requirements. We orchestrate every single detail—venue bookings, schedules, AV logistics, and decoration—so you can focus on enjoying your guests.';
+  const heroBgColor = heroData?.background_color || '#0C3B2E';
+
   return (
     <div className="flex-grow bg-slate-50 font-outfit select-none">
 
       {/* SECTION 1: HERO BANNER */}
-      <section className="w-full bg-[#0C3B2E] pt-18 pb-15 sm:pt-15 sm:pb-36 text-left text-white relative overflow-hidden">
+      <section 
+        className="w-full pt-18 pb-15 sm:pt-15 sm:pb-36 text-left text-white relative overflow-hidden"
+        style={{ backgroundColor: heroBgColor }}
+      >
         {/* Ambient glows */}
         <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute bottom-1/4 right-1/4 w-[350px] h-[350px] bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -316,12 +334,12 @@ export default function ServicesPage() {
               Our Services
             </span>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight bg-gradient-to-b from-white via-white to-emerald-100 bg-clip-text text-transparent">
-              Professional Event Management
+              {heroTitle}
             </h1>
             <div className="w-16 h-1.5 bg-[#2E6F40] rounded-full"></div>
 
             <p className="text-sm sm:text-base text-emerald-100/70 max-w-xl font-light leading-relaxed text-justify">
-              From intimate family celebrations to large-scale corporate conferences and concerts, Eventra provides complete, high-end event management solutions tailored to your unique requirements. We orchestrate every single detail—venue bookings, schedules, AV logistics, and decoration—so you can focus on enjoying your guests.
+              {heroSubtitle}
             </p>
 
             <div className="flex flex-wrap items-center justify-start gap-4 pt-2">

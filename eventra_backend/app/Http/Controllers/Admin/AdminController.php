@@ -20,38 +20,26 @@ use Illuminate\Support\Str;
 class AdminController extends Controller
 {
     /**
-     * Show admin login form.
+     * Handle autologin from frontend.
      */
-    public function showLoginForm()
+    public function autologin(Request $request)
     {
-        if (Auth::check() && Auth::user()->role === 'admin') {
+        $email = $request->query('email');
+        $token = $request->query('token');
+
+        $user = User::where('email', $email)->where('remember_token', $token)->first();
+
+        if ($user && $user->role === 'admin') {
+            // Clear temporary autologin token
+            $user->remember_token = null;
+            $user->save();
+            
+            Auth::login($user);
+            $request->session()->regenerate();
             return redirect()->route('admin.dashboard');
         }
-        return view('admin.login');
-    }
 
-    /**
-     * Handle login authentication.
-     */
-    public function login(Request $request)
-    {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            if ($user->role === 'admin') {
-                $request->session()->regenerate();
-                return redirect()->intended(route('admin.dashboard'));
-            }
-
-            Auth::logout();
-            return back()->withErrors(['email' => 'Access denied. You must be an administrator.']);
-        }
-
-        return back()->withErrors(['email' => 'The provided credentials do not match our records.'])->onlyInput('email');
+        return redirect('http://localhost:5173/login');
     }
 
     /**
@@ -62,7 +50,7 @@ class AdminController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect()->route('admin.login');
+        return redirect('http://localhost:5173/login');
     }
 
     /**

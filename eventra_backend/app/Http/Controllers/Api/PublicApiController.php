@@ -166,6 +166,29 @@ class PublicApiController extends Controller
         $day = $date->format('d');
         $month = strtoupper($date->format('M'));
 
+        // Dynamically calculate status based on date and seats
+        $today = now()->startOfDay();
+        $eventDate = \Carbon\Carbon::parse($event->event_date)->startOfDay();
+
+        if ($eventDate->lt($today)) {
+            $status = 'Closed';
+        } elseif ($eventDate->equalTo($today)) {
+            $status = 'Live Event';
+        } else {
+            $status = ($event->seats_left > 0 && $event->id % 3 === 0) ? 'Registration Open' : 'Upcoming';
+        }
+
+        // Map organizer avatars dynamically based on name
+        $organizerAvatars = [
+            'Eventra Team' => 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&h=80&q=80',
+            'Green Future Org' => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=80&h=80&q=80',
+            'Tech Frontiers' => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=80&h=80&q=80',
+            'Global Rhythms' => 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=80&h=80&q=80',
+        ];
+        $organizerName = $event->organizer->name;
+        $defaultAvatar = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&h=80&q=80';
+        $avatar = $organizerAvatars[$organizerName] ?? $defaultAvatar;
+
         return [
             'id' => $event->id,
             'title' => $event->title,
@@ -178,11 +201,19 @@ class PublicApiController extends Controller
             'image' => $event->image_path,
             'organizer' => [
                 'name' => $event->organizer->name,
-                'avatar' => 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&h=80&q=80', // Default mock avatar
+                'avatar' => $avatar,
+                'organizationName' => $event->organizer->organization_name,
                 'organization_name' => $event->organizer->organization_name,
+                'contactInfo' => $event->organizer->contact_info,
+                'contact_info' => $event->organizer->contact_info,
             ],
+            'seatsLeft' => (int) $event->seats_left,
+            'rating' => (float) $event->rating,
+            'gallery' => $event->gallery ?? [],
+            'speakers' => $event->speakers ?? [],
+            'tags' => $event->tags ?? [],
             'description' => $event->description,
-            'status' => 'Upcoming', // Placeholder status for Phase 1
+            'status' => $status,
         ];
     }
 }

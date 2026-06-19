@@ -176,6 +176,18 @@ class DatabaseSeeder extends Seeder
                 'image_path' => 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800&q=80',
                 'status' => 'published',
                 'category_name' => 'Conferences',
+                'seats_left' => 12,
+                'rating' => 5.00,
+                'gallery' => [
+                    'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=300&q=80',
+                    'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=300&q=80',
+                    'https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=300&q=80'
+                ],
+                'speakers' => [
+                    ['name' => 'Dr. Sarah Jenkins', 'role' => 'AI Research Lead at Google', 'avatar' => 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=80&h=80&q=80'],
+                    ['name' => 'Marcus Vance', 'role' => 'CTO, FutureTech Solutions', 'avatar' => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=80&h=80&q=80']
+                ],
+                'tags' => ['music', 'live', 'concert', 'performance', 'rock', 'jazz', 'dance']
             ],
             [
                 'title' => 'UI/UX & Creative Product Design Masterclass',
@@ -186,6 +198,16 @@ class DatabaseSeeder extends Seeder
                 'image_path' => 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=800&q=80',
                 'status' => 'published',
                 'category_name' => 'Workshops',
+                'seats_left' => 8,
+                'rating' => 4.80,
+                'gallery' => [
+                    'https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=300&q=80',
+                    'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=300&q=80'
+                ],
+                'speakers' => [
+                    ['name' => 'Elena Rostova', 'role' => 'Principal Product Designer at Airbnb', 'avatar' => 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&h=80&q=80']
+                ],
+                'tags' => ['learning', 'workshop', 'design', 'coding', 'masterclass', 'tech', 'figma']
             ],
             [
                 'title' => 'SaaS Startup Pitch & Venture Investor Meetup',
@@ -196,6 +218,16 @@ class DatabaseSeeder extends Seeder
                 'image_path' => 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80',
                 'status' => 'published',
                 'category_name' => 'Conferences',
+                'seats_left' => 15,
+                'rating' => 4.90,
+                'gallery' => [
+                    'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=300&q=80',
+                    'https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=300&q=80'
+                ],
+                'speakers' => [
+                    ['name' => 'David Chen', 'role' => 'Managing Partner at Sequoia Lite', 'avatar' => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=80&h=80&q=80']
+                ],
+                'tags' => ['competition', 'hackathon', 'gaming', 'robotics', 'pitch', 'championship', 'awards']
             ],
             [
                 'title' => 'Sustainable Green Energy Solutions Summit',
@@ -206,6 +238,15 @@ class DatabaseSeeder extends Seeder
                 'image_path' => 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=800&q=80',
                 'status' => 'published',
                 'category_name' => 'Conferences',
+                'seats_left' => 22,
+                'rating' => 4.70,
+                'gallery' => [
+                    'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=300&q=80'
+                ],
+                'speakers' => [
+                    ['name' => 'Prof. Alan Vance', 'role' => 'Professor of Ecology at Stanford University', 'avatar' => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=80&h=80&q=80']
+                ],
+                'tags' => ['conference', 'summit', 'keynote', 'networking', 'industry', 'panel', 'business']
             ],
             [
                 'title' => 'Creative Writing Workshop & Poetry Slam Night',
@@ -216,6 +257,15 @@ class DatabaseSeeder extends Seeder
                 'image_path' => 'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=800&q=80',
                 'status' => 'published',
                 'category_name' => 'Workshops',
+                'seats_left' => 10,
+                'rating' => 4.60,
+                'gallery' => [
+                    'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=300&q=80'
+                ],
+                'speakers' => [
+                    ['name' => 'Clara Bennett', 'role' => 'Award-winning Author & Poet', 'avatar' => 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=80&h=80&q=80']
+                ],
+                'tags' => ['learning', 'workshop', 'design', 'coding', 'masterclass', 'tech', 'figma']
             ],
             [
                 'title' => 'Urban Hiking & Wilderness Photography Expedition',
@@ -226,6 +276,15 @@ class DatabaseSeeder extends Seeder
                 'image_path' => 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80',
                 'status' => 'published',
                 'category_name' => 'Sports',
+                'seats_left' => 6,
+                'rating' => 4.95,
+                'gallery' => [
+                    'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=300&q=80'
+                ],
+                'speakers' => [
+                    ['name' => 'Jason Brooks', 'role' => 'National Geographic Contributor', 'avatar' => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=80&h=80&q=80']
+                ],
+                'tags' => ['sports', 'fitness', 'athletics', 'game', 'match', 'championship', 'running']
             ],
             [
                 'title' => 'Deep Meditation, Mindfulness & Yoga Retreat',
@@ -236,6 +295,15 @@ class DatabaseSeeder extends Seeder
                 'image_path' => 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
                 'status' => 'published',
                 'category_name' => 'Workshops',
+                'seats_left' => 18,
+                'rating' => 4.85,
+                'gallery' => [
+                    'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=300&q=80'
+                ],
+                'speakers' => [
+                    ['name' => 'Swara Devi', 'role' => 'Certified Meditation & Yoga Therapist', 'avatar' => 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&h=80&q=80']
+                ],
+                'tags' => ['learning', 'workshop', 'design', 'coding', 'masterclass', 'tech', 'figma']
             ],
             [
                 'title' => 'CrossFit Championship & Fitness Expo 2026',
@@ -246,6 +314,15 @@ class DatabaseSeeder extends Seeder
                 'image_path' => 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
                 'status' => 'published',
                 'category_name' => 'Sports',
+                'seats_left' => 35,
+                'rating' => 4.90,
+                'gallery' => [
+                    'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=300&q=80'
+                ],
+                'speakers' => [
+                    ['name' => 'Coach Ray Hudson', 'role' => 'Head Coach, Texas Strength Club', 'avatar' => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=80&h=80&q=80']
+                ],
+                'tags' => ['sports', 'fitness', 'athletics', 'game', 'match', 'championship', 'running']
             ],
         ];
 
@@ -260,6 +337,11 @@ class DatabaseSeeder extends Seeder
                 'event_time' => $ev['event_time'],
                 'location' => $ev['location'],
                 'image_path' => $ev['image_path'],
+                'seats_left' => $ev['seats_left'],
+                'rating' => $ev['rating'],
+                'gallery' => $ev['gallery'],
+                'speakers' => $ev['speakers'],
+                'tags' => $ev['tags'],
                 'status' => $ev['status'],
                 'category_id' => $catId,
                 'created_by' => $organizer1->id,
