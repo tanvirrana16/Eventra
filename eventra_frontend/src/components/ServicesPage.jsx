@@ -288,7 +288,11 @@ export default function ServicesPage() {
   const [expandedFaq, setExpandedFaq] = useState(null);
 
   // Dynamic API state
-  const [heroData, setHeroData] = useState(null);
+  const [heroData, setHeroData] = useState({
+    title: 'Professional Event Management',
+    subtitle: 'From intimate family celebrations to large-scale corporate conferences and concerts, Eventra provides complete, high-end event management solutions tailored to your unique requirements. We orchestrate every single detail—venue bookings, schedules, AV logistics, and decoration—so you can focus on enjoying your guests.',
+    background_color: '#0C3B2E'
+  });
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/pages/hero/services`)

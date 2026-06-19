@@ -37,7 +37,11 @@ export default function EventsPage({ onViewDetails }) {
 
   // Dynamic API state
   const [eventsList, setEventsList] = useState(mockEvents);
-  const [heroData, setHeroData] = useState(null);
+  const [heroData, setHeroData] = useState({
+    title: 'Explore Events',
+    subtitle: 'Discover amazing events happening in your local community, meet new people, verify graduation certificates, and upgrade your technical skills. From rock concerts and sports tournaments to technology hackathons and corporate seminars, Eventra hosts a universe of opportunities at your fingertips.',
+    background_color: '#0C3B2E'
+  });
   const [isLoadingEvents, setIsLoadingEvents] = useState(true);
 
   // Refs for closing dropdown

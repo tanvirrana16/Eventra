@@ -76,7 +76,11 @@ export default function CertificateVerificationPage() {
   const [verificationTime, setVerificationTime] = useState('');
 
   // Dynamic API state
-  const [heroData, setHeroData] = useState(null);
+  const [heroData, setHeroData] = useState({
+    title: 'Certificate Verification',
+    subtitle: 'Verify the authenticity of your Eventra participation certificates quickly and securely. Enter your Certificate ID below to confirm its validity.',
+    background_color: '#0C3B2E'
+  });
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/pages/hero/certificate-verification`)

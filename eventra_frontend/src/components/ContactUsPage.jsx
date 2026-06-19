@@ -53,7 +53,11 @@ export default function ContactUsPage() {
   const [submitStatus, setSubmitStatus] = useState('idle'); // 'idle' | 'success' | 'error'
 
   // Dynamic API state
-  const [heroData, setHeroData] = useState(null);
+  const [heroData, setHeroData] = useState({
+    title: 'Contact Us',
+    subtitle: "Have a question, need support, or want to collaborate with Eventra? We'd love to hear from you. Reach out to our team, and we'll get back to you as soon as possible. Our technical customer support agents are ready to assist you.",
+    background_color: '#0C3B2E'
+  });
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/pages/hero/contact-us`)

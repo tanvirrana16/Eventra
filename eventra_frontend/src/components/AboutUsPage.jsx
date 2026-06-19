@@ -148,7 +148,11 @@ export default function AboutUsPage() {
   const [expandedFaq, setExpandedFaq] = useState(null);
 
   // Dynamic API state
-  const [heroData, setHeroData] = useState(null);
+  const [heroData, setHeroData] = useState({
+    title: 'About Eventra',
+    subtitle: 'Connecting people through meaningful events. Eventra helps individuals, communities, universities, startups, and organizations discover, organize, and experience memorable events with ease. We believe that every gathering creates a gateway to expand knowledge, build connections, and create growth pathways.',
+    background_color: '#0C3B2E'
+  });
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/pages/hero/about-us`)

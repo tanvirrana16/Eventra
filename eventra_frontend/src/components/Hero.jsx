@@ -55,12 +55,12 @@ const sliderEvents = [
 export default function Hero({ data, slider }) {
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  const heroTitle = data?.title || "";
-  const heroSubtitle = data?.subtitle || "";
-  const btn1Text = data?.btn1_text || "";
-  const btn1Url = data?.btn1_url || "";
-  const btn2Text = data?.btn2_text || "";
-  const btn2Url = data?.btn2_url || "";
+  const heroTitle = data?.title || "Discover Local Events, Meet New Communities";
+  const heroSubtitle = data?.subtitle || "Discover exciting events happening around you—from workshops, seminars, hackathons, networking sessions, cultural festivals, and community meetups. Connect with like-minded people, expand your network, learn new skills, and create unforgettable experiences with Eventra.";
+  const btn1Text = data?.btn1_text || "Explore Events";
+  const btn1Url = data?.btn1_url || "#events";
+  const btn2Text = data?.btn2_text || "Host Event";
+  const btn2Url = data?.btn2_url || "/signup";
 
   const slides = slider && slider.length > 0 ? slider : sliderEvents;
 
