@@ -98,8 +98,8 @@ export default function ContactUsPage() {
     }, 1250);
   };
 
-  const heroTitle = heroData?.title || 'Contact Us';
-  const heroSubtitle = heroData?.subtitle || "Have a question, need support, or want to collaborate with Eventra? We'd love to hear from you. Reach out to our team, and we'll get back to you as soon as possible. Our technical customer support agents are ready to assist you.";
+  const heroTitle = heroData?.title || '';
+  const heroSubtitle = heroData?.subtitle || '';
   const heroBgColor = heroData?.background_color || '#0C3B2E';
 
   return (

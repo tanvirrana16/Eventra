@@ -219,8 +219,8 @@ export default function EventsPage({ onViewDetails }) {
   const displayedEvents = processedEvents.slice(0, displayLimit);
   const hasMore = processedEvents.length > displayLimit;
 
-  const heroTitle = heroData?.title || 'Explore Events';
-  const heroSubtitle = heroData?.subtitle || 'Discover amazing events happening in your local community, meet new people, verify graduation certificates, and upgrade your technical skills. From rock concerts and sports tournaments to technology hackathons and corporate seminars, Eventra hosts a universe of opportunities at your fingertips.';
+  const heroTitle = heroData?.title || '';
+  const heroSubtitle = heroData?.subtitle || '';
   const heroBgColor = heroData?.background_color || '#0C3B2E';
 
   return (

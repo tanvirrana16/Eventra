@@ -182,8 +182,8 @@ export default function CertificateVerificationPage() {
     alert(`Downloading certificate PDF for ${result?.participantName || 'Participant'}...`);
   };
 
-  const heroTitle = heroData?.title || 'Certificate Verification';
-  const heroSubtitle = heroData?.subtitle || 'Verify the authenticity of your Eventra participation certificates quickly and securely. Enter your Certificate ID below to confirm its validity.';
+  const heroTitle = heroData?.title || '';
+  const heroSubtitle = heroData?.subtitle || '';
   const heroBgColor = heroData?.background_color || '#0C3B2E';
 
   return (

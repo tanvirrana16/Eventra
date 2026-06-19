@@ -194,8 +194,8 @@ export default function AboutUsPage() {
     setActiveTestimonial((prev) => (prev + 1) % TESTIMONIALS.length);
   };
 
-  const heroTitle = heroData?.title || 'About Eventra';
-  const heroSubtitle = heroData?.subtitle || 'Connecting people through meaningful events. Eventra helps individuals, communities, universities, startups, and organizations discover, organize, and experience memorable events with ease. We believe that every gathering creates a gateway to expand knowledge, build connections, and create growth pathways.';
+  const heroTitle = heroData?.title || '';
+  const heroSubtitle = heroData?.subtitle || '';
   const heroBgColor = heroData?.background_color || '#0C3B2E';
 
   return (

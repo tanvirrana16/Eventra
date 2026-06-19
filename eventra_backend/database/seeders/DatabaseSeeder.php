@@ -107,32 +107,32 @@ class DatabaseSeeder extends Seeder
         // 4. Seed Reusable Page Heroes
         PageHero::create([
             'page' => 'events',
-            'title' => 'Explore Upcoming Events',
-            'subtitle' => 'Find local workshops, professional tech summits, lifestyle retreats, and sports tournaments.',
+            'title' => 'Explore Events',
+            'subtitle' => 'Discover amazing events happening in your local community, meet new people, verify graduation certificates, and upgrade your technical skills. From rock concerts and sports tournaments to technology hackathons and corporate seminars, Eventra hosts a universe of opportunities at your fingertips.',
             'background_color' => '#0C3B2E',
         ]);
         PageHero::create([
             'page' => 'services',
-            'title' => 'Our Premium Services',
-            'subtitle' => 'Check out our advanced ticketing, event tracking, certificates, and community features.',
+            'title' => 'Professional Event Management',
+            'subtitle' => 'From intimate family celebrations to large-scale corporate conferences and concerts, Eventra provides complete, high-end event management solutions tailored to your unique requirements. We orchestrate every single detail—venue bookings, schedules, AV logistics, and decoration—so you can focus on enjoying your guests.',
             'background_color' => '#0C3B2E',
         ]);
         PageHero::create([
             'page' => 'certificate-verification',
             'title' => 'Certificate Verification',
-            'subtitle' => 'Verify credentials, milestones, and credentials issued by the Eventra platform.',
+            'subtitle' => 'Verify the authenticity of your Eventra participation certificates quickly and securely. Enter your Certificate ID below to confirm its validity.',
             'background_color' => '#0C3B2E',
         ]);
         PageHero::create([
             'page' => 'about-us',
             'title' => 'About Eventra',
-            'subtitle' => 'We connect creators, organizers, and communities to elevate learning and events.',
+            'subtitle' => 'Connecting people through meaningful events. Eventra helps individuals, communities, universities, startups, and organizations discover, organize, and experience memorable events with ease. We believe that every gathering creates a gateway to expand knowledge, build connections, and create growth pathways.',
             'background_color' => '#0C3B2E',
         ]);
         PageHero::create([
             'page' => 'contact-us',
-            'title' => 'Contact Our Team',
-            'subtitle' => 'Get in touch with organizers, query support, or file general issues.',
+            'title' => 'Contact Us',
+            'subtitle' => "Have a question, need support, or want to collaborate with Eventra? We'd love to hear from you. Reach out to our team, and we'll get back to you as soon as possible. Our technical customer support agents are ready to assist you.",
             'background_color' => '#0C3B2E',
         ]);
 

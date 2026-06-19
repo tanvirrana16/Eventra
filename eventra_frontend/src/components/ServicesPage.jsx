@@ -309,8 +309,8 @@ export default function ServicesPage() {
     setActiveTestimonial((prev) => (prev + 1) % TESTIMONIALS.length);
   };
 
-  const heroTitle = heroData?.title || 'Professional Event Management';
-  const heroSubtitle = heroData?.subtitle || 'From intimate family celebrations to large-scale corporate conferences and concerts, Eventra provides complete, high-end event management solutions tailored to your unique requirements. We orchestrate every single detail—venue bookings, schedules, AV logistics, and decoration—so you can focus on enjoying your guests.';
+  const heroTitle = heroData?.title || '';
+  const heroSubtitle = heroData?.subtitle || '';
   const heroBgColor = heroData?.background_color || '#0C3B2E';
 
   return (
