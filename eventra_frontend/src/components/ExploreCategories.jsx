@@ -17,7 +17,8 @@ import {
   Rocket, 
   Smile, 
   GlassWater, 
-  Film 
+  Film,
+  Sparkles
 } from 'lucide-react';
 
 const iconMap = {
@@ -36,7 +37,8 @@ const iconMap = {
   Rocket,
   Smile,
   GlassWater,
-  Film
+  Film,
+  Sparkles
 };
 
 const colorSchemes = [

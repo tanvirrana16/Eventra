@@ -155,16 +155,6 @@ export default function Footer({ data }) {
               </svg>
             </a>
           </div>
-
-          {/* Center: Legal quick links */}
-          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-gray-400">
-            <a href="#terms" className="hover:text-emerald-400 transition-colors">Terms of Service</a>
-            <span>•</span>
-            <a href="#privacy" className="hover:text-emerald-400 transition-colors">Privacy Policy</a>
-            <span>•</span>
-            <a href="#refund" className="hover:text-emerald-400 transition-colors">Return and Refund</a>
-          </div>
-
           {/* Right: Copyright */}
           <div className="text-center md:text-right">
             <p>{brandCopyright}</p>
