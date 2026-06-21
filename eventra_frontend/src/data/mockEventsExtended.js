@@ -1,22 +1,4 @@
 // Extended mock events generator to yield exactly 200 events with specified counts per category
-const CATEGORY_COUNTS = {
-  "Concert": 41,
-  "Festivals": 43,
-  "Competitions": 41,
-  "Workshops": 14,
-  "Conferences": 13,
-  "Sports": 11,
-  "Movie / Drama": 10,
-  "Exhibitions": 7,
-  "Party": 7,
-  "Seminars": 5,
-  "Stand-up": 3,
-  "Fashion Shows": 2,
-  "Pop Culture": 2,
-  "Fundraisers": 1,
-  "Reunions": 0,
-  "Launching": 0
-};
 
 const CATEGORY_DETAILS = {
   "Concert": {
@@ -270,7 +252,7 @@ function createEventObject(id, category, details, dateObj, rawStatus) {
   const dateText = `${weekday}, ${monthNames[dateObj.getMonth()]} ${dateObj.getDate()}, 2026`;
 
   // status text in badge
-  let status = "Upcoming";
+  let status;
   if (rawStatus === "Live") {
     status = "Live Event";
   } else if (rawStatus === "Past") {

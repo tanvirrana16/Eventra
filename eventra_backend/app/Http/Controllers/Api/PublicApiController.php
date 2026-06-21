@@ -131,6 +131,10 @@ class PublicApiController extends Controller
             return $this->formatEventCard($event);
         });
 
+        // Sort: Upcoming → Live → Past for better UX
+        $sortOrder = ['Upcoming' => 0, 'Live' => 1, 'Past' => 2];
+        $events = $events->sortBy(fn($e) => $sortOrder[$e['status']] ?? 3)->values();
+
         return response()->json($events);
     }
 
@@ -166,17 +170,50 @@ class PublicApiController extends Controller
         $day = $date->format('d');
         $month = strtoupper($date->format('M'));
 
-        // Dynamically calculate status based on date and seats
-        $today = now()->startOfDay();
-        $eventDate = \Carbon\Carbon::parse($event->event_date)->startOfDay();
+        // Dynamically calculate status based on start/end date and time
+        $now = now();
+        $startStr = $event->event_date->format('Y-m-d') . ' ' . $event->event_time;
+        $start = \Carbon\Carbon::parse($startStr);
 
-        if ($eventDate->lt($today)) {
-            $status = 'Closed';
-        } elseif ($eventDate->equalTo($today)) {
-            $status = 'Live Event';
+        if ($event->event_end_date && $event->event_end_time) {
+            $endStr = $event->event_end_date->format('Y-m-d') . ' ' . $event->event_end_time;
+            $end = \Carbon\Carbon::parse($endStr);
         } else {
-            $status = ($event->seats_left > 0 && $event->id % 3 === 0) ? 'Registration Open' : 'Upcoming';
+            $end = (clone $start)->addHours(3);
         }
+
+        if ($now->lt($start)) {
+            $rawStatus = 'Upcoming';
+            $status = 'Upcoming';
+        } elseif ($now->between($start, $end)) {
+            $rawStatus = 'Live';
+            $status = 'Live';
+        } else {
+            $rawStatus = 'Past';
+            $status = 'Past';
+        }
+
+        // Predefined Category to Tags map
+        $categoryTags = [
+            'Concert' => ['Concert', 'Music', 'Live', 'Performance', 'Show', 'Sound', 'Vibe'],
+            'Sports' => ['Sports', 'Athletics', 'Game', 'Match', 'Fitness', 'Tournament', 'Championship'],
+            'Workshops' => ['Workshop', 'Learning', 'Skills', 'Masterclass', 'Education', 'Training', 'Hands-on'],
+            'Fundraisers' => ['Fundraiser', 'Charity', 'Donation', 'Support', 'Community', 'Cause', 'Help'],
+            'Festivals' => ['Festival', 'Celebration', 'Culture', 'Food', 'Fun', 'Art', 'Holiday'],
+            'Competitions' => ['Competition', 'Contest', 'Trophy', 'Battle', 'Challenge', 'Awards', 'Win'],
+            'Fashion Shows' => ['Fashion', 'Show', 'Style', 'Runway', 'Design', 'Model', 'Trends'],
+            'Conferences' => ['Conference', 'Networking', 'Keynote', 'Industry', 'Panel', 'Summit', 'Business'],
+            'Seminars' => ['Seminar', 'Education', 'Lecture', 'Academic', 'Learning', 'Speaker', 'Research'],
+            'Reunions' => ['Reunion', 'Meetup', 'Alumni', 'Gathering', 'Friends', 'Social', 'Family'],
+            'Exhibitions' => ['Exhibition', 'Art', 'Gallery', 'Showcase', 'Display', 'Museum', 'Expo'],
+            'Launching' => ['Launch', 'Release', 'New', 'Startup', 'Product', 'Unveiling', 'Innovation'],
+            'Stand-up' => ['Stand-up', 'Comedy', 'Laughter', 'Show', 'Jokes', 'Humor', 'Comedian'],
+            'Party' => ['Party', 'Celebration', 'Music', 'Dance', 'Nightlife', 'Drinks', 'Social'],
+            'Pop Culture' => ['Pop Culture', 'Comic', 'Cosplay', 'Gaming', 'Fandom', 'Geek', 'Anime'],
+            'Movie / Drama' => ['Movie', 'Drama', 'Film', 'Cinema', 'Screening', 'Theater', 'Acting']
+        ];
+        $categoryName = $event->category->name;
+        $tags = $categoryTags[$categoryName] ?? ($event->tags ?? []);
 
         // Map organizer avatars dynamically based on name
         $organizerAvatars = [
@@ -185,7 +222,7 @@ class PublicApiController extends Controller
             'Tech Frontiers' => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=80&h=80&q=80',
             'Global Rhythms' => 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=80&h=80&q=80',
         ];
-        $organizerName = $event->organizer->name;
+        $organizerName = $event->organizer?->name ?? 'Unknown Organizer';
         $defaultAvatar = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&h=80&q=80';
         $avatar = $organizerAvatars[$organizerName] ?? $defaultAvatar;
 
@@ -196,24 +233,169 @@ class PublicApiController extends Controller
             'category' => $event->category->name,
             'dateBadge' => ['day' => $day, 'month' => $month],
             'dateText' => $date->format('l, F j, Y'),
+            'date' => $event->event_date->format('Y-m-d'),
             'time' => date('h:i A', strtotime($event->event_time)),
             'venue' => $event->location,
             'image' => $event->image_path,
             'organizer' => [
-                'name' => $event->organizer->name,
+                'name' => $event->organizer?->name ?? 'Eventra Team',
                 'avatar' => $avatar,
-                'organizationName' => $event->organizer->organization_name,
-                'organization_name' => $event->organizer->organization_name,
-                'contactInfo' => $event->organizer->contact_info,
-                'contact_info' => $event->organizer->contact_info,
+                'organizationName' => $event->organizer?->organization_name,
+                'organization_name' => $event->organizer?->organization_name,
+                'contactInfo' => $event->organizer?->contact_info,
+                'contact_info' => $event->organizer?->contact_info,
             ],
             'seatsLeft' => (int) $event->seats_left,
+            'totalSeats' => (int) $event->total_seats,
+            'ticketType' => $event->ticket_type,
+            'ticket_type' => $event->ticket_type,
+            'ticketPrice' => (float) $event->ticket_price,
+            'ticket_price' => (float) $event->ticket_price,
+            'eventEndDate' => $event->event_end_date ? $event->event_end_date->format('Y-m-d') : null,
+            'eventEndTime' => $event->event_end_time ? date('h:i A', strtotime($event->event_end_time)) : null,
             'rating' => (float) $event->rating,
             'gallery' => $event->gallery ?? [],
             'speakers' => $event->speakers ?? [],
-            'tags' => $event->tags ?? [],
+            'tags' => $tags,
+            'rules' => $event->rules ?? [],
             'description' => $event->description,
             'status' => $status,
+            'rawStatus' => $rawStatus,
         ];
+    }
+
+    /**
+     * Get all content required to render the About Us page.
+     */
+    public function getAboutUsPage()
+    {
+        $hero = PageHero::where('page', 'about-us')->first();
+        return response()->json([
+            'hero' => $hero ? [
+                'title' => $hero->title,
+                'subtitle' => $hero->subtitle,
+                'background_color' => $hero->background_color,
+                'background_image' => $hero->background_image_path,
+            ] : null,
+            'team_members' => json_decode(Setting::getValue('about_us_team_members', '[]'), true),
+            'choose_features' => json_decode(Setting::getValue('about_us_choose_features', '[]'), true),
+            'timeline_steps' => json_decode(Setting::getValue('about_us_timeline_steps', '[]'), true),
+            'partners' => json_decode(Setting::getValue('about_us_partners', '[]'), true),
+            'testimonials' => json_decode(Setting::getValue('about_us_testimonials', '[]'), true),
+            'faq_items' => json_decode(Setting::getValue('about_us_faq_items', '[]'), true),
+            'stats' => json_decode(Setting::getValue('about_us_stats', '[]'), true),
+        ]);
+    }
+
+    /**
+     * Get all content required to render the Services page.
+     */
+    public function getServicesPage()
+    {
+        $hero = PageHero::where('page', 'services')->first();
+        return response()->json([
+            'hero' => $hero ? [
+                'title' => $hero->title,
+                'subtitle' => $hero->subtitle,
+                'background_color' => $hero->background_color,
+                'background_image' => $hero->background_image_path,
+            ] : null,
+            'core_services' => json_decode(Setting::getValue('services_core', '[]'), true),
+            'additional_services' => json_decode(Setting::getValue('services_additional', '[]'), true),
+            'timeline_steps' => json_decode(Setting::getValue('services_timeline_steps', '[]'), true),
+            'why_choose_us' => json_decode(Setting::getValue('services_why_choose_us', '[]'), true),
+            'portfolio_projects' => json_decode(Setting::getValue('services_portfolio_projects', '[]'), true),
+            'pricing_packages' => json_decode(Setting::getValue('services_pricing_packages', '[]'), true),
+            'testimonials' => json_decode(Setting::getValue('services_testimonials', '[]'), true),
+            'faq_items' => json_decode(Setting::getValue('services_faq_items', '[]'), true),
+        ]);
+    }
+
+    /**
+     * Get all content required to render the Contact Us page.
+     */
+    public function getContactUsPage()
+    {
+        $hero = PageHero::where('page', 'contact-us')->first();
+        return response()->json([
+            'hero' => $hero ? [
+                'title' => $hero->title,
+                'subtitle' => $hero->subtitle,
+                'background_color' => $hero->background_color,
+                'background_image' => $hero->background_image_path,
+            ] : null,
+            'contact_info' => json_decode(Setting::getValue('contact_info', '[]'), true),
+        ]);
+    }
+
+    /**
+     * Get all content required to render the Certificate Verification page.
+     */
+    public function getCertificateVerificationPage()
+    {
+        $hero = PageHero::where('page', 'certificate-verification')->first();
+        return response()->json([
+            'hero' => $hero ? [
+                'title' => $hero->title,
+                'subtitle' => $hero->subtitle,
+                'background_color' => $hero->background_color,
+                'background_image' => $hero->background_image_path,
+            ] : null,
+            'faq_items' => json_decode(Setting::getValue('certificate_verification_faq_items', '[]'), true),
+        ]);
+    }
+
+    /**
+     * Get all categories list.
+     */
+    public function getCategories()
+    {
+        $categories = Category::all()->pluck('name')->toArray();
+        return response()->json($categories);
+    }
+
+    /**
+     * Verify a certificate.
+     */
+    public function verifyCertificate(Request $request)
+    {
+        $request->validate([
+            'certificate_code' => 'required|string',
+        ]);
+
+        $certificate = Certificate::with(['event.category', 'event.organizer', 'user'])
+            ->where('certificate_code', $request->certificate_code)
+            ->first();
+
+        if (!$certificate) {
+            return response()->json(['message' => 'Certificate not found'], 404);
+        }
+
+        return response()->json([
+            'id' => $certificate->certificate_code,
+            'participantName' => $certificate->user->name,
+            'eventName' => $certificate->event->title,
+            'eventCategory' => $certificate->event->category->name,
+            'organizer' => $certificate->event->organizer->organization_name ?? $certificate->event->organizer->name,
+            'issueDate' => $certificate->issued_at ? $certificate->issued_at->format('F j, Y') : now()->format('F j, Y'),
+            'status' => 'Verified',
+        ]);
+    }
+
+    /**
+     * Handle contact form submissions.
+     */
+    public function submitContactForm(Request $request)
+    {
+        $request->validate([
+            'fullName' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'message' => 'required|string',
+            'subject' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:50',
+        ]);
+
+        // Simply return success since there is no database storage specified for contacts
+        return response()->json(['message' => 'Your message was sent successfully!']);
     }
 }

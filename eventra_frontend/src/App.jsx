@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import ExploreCategories from './components/ExploreCategories';
@@ -15,12 +15,15 @@ import AboutUsPage from './components/AboutUsPage';
 import ContactUsPage from './components/ContactUsPage';
 import LoginPage from './components/LoginPage';
 import SignupPage from './components/SignupPage';
+import DashboardLayout from './components/Dashboard/DashboardLayout';
+import OrganizerDashboardLayout from './components/OrganizerDashboard/OrganizerDashboardLayout';
 import { API_BASE_URL } from './config';
 
-export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    return localStorage.getItem('token') !== null;
-  });
+function AppContent({ isLoggedIn, setIsLoggedIn }) {
+  const location = useLocation();
+  const isDashboard = 
+    location.pathname.replace(/\/$/, '') === '/dashboard' || 
+    location.pathname.replace(/\/$/, '') === '/organizer-dashboard';
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [homepageData, setHomepageData] = useState(null);
 
@@ -36,98 +39,84 @@ export default function App() {
       });
   }, []);
 
-  const handleOpenDetails = (event) => {
-    setSelectedEvent(event);
-  };
+  const handleOpenDetails = (event) => setSelectedEvent(event);
+  const handleCloseDetails = () => setSelectedEvent(null);
 
-  const handleCloseDetails = () => {
-    setSelectedEvent(null);
-  };
+  // Dashboard: full-screen, no Navbar/Footer
+  if (isDashboard) {
+    return (
+      <Routes>
+        <Route path="/dashboard" element={
+          <DashboardLayout setIsLoggedIn={setIsLoggedIn} />
+        } />
+        <Route path="/organizer-dashboard" element={
+          <OrganizerDashboardLayout setIsLoggedIn={setIsLoggedIn} />
+        } />
+      </Routes>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-between selection:bg-emerald-500/20 selection:text-emerald-900 overflow-x-hidden">
-      
-      {/* Main Page Layout */}
       <div>
         {/* Navigation Bar */}
-        <Navbar 
-          isLoggedIn={isLoggedIn} 
-          setIsLoggedIn={setIsLoggedIn} 
+        <Navbar
+          isLoggedIn={isLoggedIn}
+          setIsLoggedIn={setIsLoggedIn}
         />
 
         <div className="pt-16">
           <Routes>
             <Route path="/" element={
               <>
-                {/* Hero Section */}
-                <Hero 
-                  isLoggedIn={isLoggedIn} 
-                  data={homepageData?.hero} 
-                  slider={homepageData?.slider} 
+                <Hero
+                  isLoggedIn={isLoggedIn}
+                  data={homepageData?.hero}
+                  slider={homepageData?.slider}
                 />
-
-                {/* Categories Section */}
                 <ExploreCategories data={homepageData?.top_categories} />
-
-                {/* Latest Events Section */}
-                <LatestEvents 
-                  onViewDetails={handleOpenDetails} 
-                  data={homepageData?.latest_events} 
+                <LatestEvents
+                  onViewDetails={handleOpenDetails}
+                  data={homepageData?.latest_events}
                 />
-
-                {/* Upcoming Events Section */}
-                <UpcomingEvents 
-                  onViewDetails={handleOpenDetails} 
-                  data={homepageData?.upcoming_events} 
+                <UpcomingEvents
+                  onViewDetails={handleOpenDetails}
+                  data={homepageData?.upcoming_events}
                 />
-
-                {/* Statistics Banner */}
                 <StatsCounter data={homepageData?.stats} />
               </>
             } />
 
-            <Route path="/events" element={
-              <EventsPage onViewDetails={handleOpenDetails} />
-            } />
-
-            <Route path="/services" element={
-              <ServicesPage />
-            } />
-
-            <Route path="/certificate-verification" element={
-              <CertificateVerificationPage />
-            } />
-
-            <Route path="/about-us" element={
-              <AboutUsPage />
-            } />
-
-            <Route path="/contact-us" element={
-              <ContactUsPage />
-            } />
-
-            <Route path="/login" element={
-              <LoginPage setIsLoggedIn={setIsLoggedIn} />
-            } />
-
-            <Route path="/signup" element={
-              <SignupPage setIsLoggedIn={setIsLoggedIn} />
-            } />
+            <Route path="/events" element={<EventsPage onViewDetails={handleOpenDetails} />} />
+            <Route path="/services" element={<ServicesPage />} />
+            <Route path="/certificate-verification" element={<CertificateVerificationPage />} />
+            <Route path="/about-us" element={<AboutUsPage />} />
+            <Route path="/contact-us" element={<ContactUsPage />} />
+            <Route path="/login" element={<LoginPage setIsLoggedIn={setIsLoggedIn} />} />
+            <Route path="/signup" element={<SignupPage setIsLoggedIn={setIsLoggedIn} />} />
           </Routes>
         </div>
       </div>
 
-      {/* Footer Section */}
+      {/* Footer */}
       <Footer data={homepageData?.footer} />
 
-      {/* Details Modal */}
+      {/* Event Details Modal */}
       {selectedEvent && (
-        <EventDetailsModal 
-          event={selectedEvent} 
-          onClose={handleCloseDetails} 
+        <EventDetailsModal
+          event={selectedEvent}
+          onClose={handleCloseDetails}
         />
       )}
-
     </div>
   );
 }
+
+export default function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return localStorage.getItem('token') !== null;
+  });
+
+  return <AppContent isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />;
+}
+

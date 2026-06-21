@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, Check, ShieldCheck, AlertCircle, Loader2, User, KeyRound, Phone, Users, Calendar, Sparkles, MapPin, Building2, Globe } from 'lucide-react';
 import logo from '../assets/logo.png';
@@ -130,17 +130,15 @@ export default function SignupPage({ setIsLoggedIn }) {
           setAlertVisible(true);
           
           if (role !== 'organizer') {
-            setTimeout(() => {
-              localStorage.setItem('token', data.token);
-              localStorage.setItem('user', JSON.stringify(data.user));
-              setIsLoggedIn(true);
-              navigate('/');
-            }, 1800);
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            setIsLoggedIn(true);
+            navigate('/dashboard');
           } else {
-            // Organizer redirects to login after 3 seconds since they are pending approval
+            // Organizer redirects to login after 1.5 seconds since they are pending approval
             setTimeout(() => {
               navigate('/login');
-            }, 3000);
+            }, 1500);
           }
         } else {
           setIsLoading(false);

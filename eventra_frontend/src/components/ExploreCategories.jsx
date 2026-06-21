@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   ArrowUpRight, 
@@ -102,7 +101,7 @@ export default function ExploreCategories({ data }) {
 
   // If dynamic data is loaded, map it; otherwise fall back to mock
   const displayCategories = data && data.length > 0 
-    ? data.map((cat, idx) => ({
+    ? data.map((cat) => ({
         title: cat.name,
         slug: cat.slug,
         iconName: cat.icon || 'Compass',

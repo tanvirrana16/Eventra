@@ -1,44 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Shield, Award, CheckCircle, AlertTriangle, ChevronDown, Mail, RefreshCw,
-  Upload, X, ArrowRight, HelpCircle, FileText, Calendar, ShieldCheck,
-  Download, ExternalLink, MessageSquare
+  Upload, X, ArrowRight, FileText, ShieldCheck,
+  Download, ExternalLink, MessageSquare, Loader2
 } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 
-
-// Mock Certificate Registry Database
-const MOCK_CERTIFICATES = {
-  "EVT-2026-000123": {
-    id: "EVT-2026-000123",
-    participantName: "Jane Smith",
-    eventName: "AI in Design Workshop",
-    eventCategory: "Workshops",
-    organizer: "Design Innovations Ltd.",
-    issueDate: "June 17, 2026",
-    status: "Verified"
-  },
-  "EVT-2026-000456": {
-    id: "EVT-2026-000456",
-    participantName: "Alex Johnson",
-    eventName: "Global Tech Developers Summit",
-    eventCategory: "Conferences",
-    organizer: "Tech Leaders Association",
-    issueDate: "May 10, 2026",
-    status: "Verified"
-  },
-  "EVT-2026-000789": {
-    id: "EVT-2026-000789",
-    participantName: "Emily Brown",
-    eventName: "Neon Horizon Music Festival",
-    eventCategory: "Concerts",
-    organizer: "Eventra Music Group",
-    issueDate: "June 05, 2026",
-    status: "Verified"
-  }
-};
-
-const FAQ_ITEMS = [
+const DEFAULT_FAQ_ITEMS = [
   {
     question: "Where can I find my Certificate ID?",
     answer: "Your Certificate ID is located at the bottom-left corner of the certificate document issued to you via email after the event completion. It typically follows the format EVT-2026-XXXXXX."
@@ -70,10 +38,12 @@ export default function CertificateVerificationPage() {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
   const [result, setResult] = useState(null);
   const [hasSearched, setHasSearched] = useState(false);
   const [expandedFaq, setExpandedFaq] = useState(null);
   const [verificationTime, setVerificationTime] = useState('');
+  const [faqItems, setFaqItems] = useState([]);
 
   // Dynamic API state
   const [heroData, setHeroData] = useState({
@@ -83,17 +53,66 @@ export default function CertificateVerificationPage() {
   });
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/pages/hero/certificate-verification`)
-      .then(res => res.json())
-      .then(data => setHeroData(data))
-      .catch(err => console.warn('Failed to load certificate verification page hero details', err));
+    fetch(`${API_BASE_URL}/certificate-verification`)
+      .then(res => {
+        if (!res.ok) throw new Error('API server error');
+        return res.json();
+      })
+      .then(data => {
+        if (data.hero) {
+          setHeroData(data.hero);
+        }
+        setFaqItems(data.faq_items || []);
+        setPageLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to load certificate verification page details', err);
+        setPageLoading(false);
+      });
+
+    // Check for search query params to auto-verify
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    if (code) {
+      Promise.resolve().then(() => {
+        setCertificateId(code);
+        setIsLoading(true);
+        setResult(null);
+        setHasSearched(false);
+      });
+
+      fetch(`${API_BASE_URL}/certificates/verify`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ certificate_code: code.toUpperCase() })
+      })
+        .then(res => {
+          if (res.status === 404) return { error: true };
+          if (!res.ok) throw new Error('API server error');
+          return res.json();
+        })
+        .then(data => {
+          setResult(data);
+          setVerificationTime(new Date().toLocaleString());
+          setIsLoading(false);
+          setHasSearched(true);
+        })
+        .catch(err => {
+          console.error('Failed to verify certificate', err);
+          setResult({ error: true });
+          setVerificationTime(new Date().toLocaleString());
+          setIsLoading(false);
+          setHasSearched(true);
+        });
+    }
   }, []);
 
-  // Form submit handler - simulates API call
   const handleVerify = (e) => {
     if (e) e.preventDefault();
 
-    // Require either text ID or file
     if (!certificateId.trim() && !uploadedFile) {
       alert("Please enter a Certificate ID or upload a certificate file first.");
       return;
@@ -103,29 +122,36 @@ export default function CertificateVerificationPage() {
     setResult(null);
     setHasSearched(false);
 
-    // Simulate POST /api/certificates/verify
-    setTimeout(() => {
-      const queryId = certificateId.trim().toUpperCase();
-      const mockMatch = MOCK_CERTIFICATES[queryId];
+    const queryId = certificateId.trim().toUpperCase();
 
-      // Also check if they uploaded a file and verify a mock file success state
-      if (!mockMatch && uploadedFile) {
-        // If a file is uploaded, we match the file name logic or fallback to success for EVT-2026-000123 as demo
-        const demoMatch = MOCK_CERTIFICATES["EVT-2026-000123"];
-        setResult({
-          ...demoMatch,
-          participantName: "Jane Smith (Verified via Uploaded File)"
-        });
-      } else if (mockMatch) {
-        setResult(mockMatch);
-      } else {
+    fetch(`${API_BASE_URL}/certificates/verify`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ certificate_code: queryId })
+    })
+      .then(res => {
+        if (res.status === 404) {
+          return { error: true };
+        }
+        if (!res.ok) throw new Error('API server error');
+        return res.json();
+      })
+      .then(data => {
+        setResult(data);
+        setVerificationTime(new Date().toLocaleString());
+        setIsLoading(false);
+        setHasSearched(true);
+      })
+      .catch(err => {
+        console.error('Failed to verify certificate', err);
         setResult({ error: true });
-      }
-
-      setVerificationTime(new Date().toLocaleString());
-      setIsLoading(false);
-      setHasSearched(true);
-    }, 1250);
+        setVerificationTime(new Date().toLocaleString());
+        setIsLoading(false);
+        setHasSearched(true);
+      });
   };
 
   const handleReset = () => {
@@ -151,12 +177,10 @@ export default function CertificateVerificationPage() {
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const file = e.dataTransfer.files[0];
       setUploadedFile(file);
-      // Auto fill mock ID for better UX demo if available
-      if (file.name.toLowerCase().includes('evt')) {
-        const matchedId = file.name.toUpperCase().match(/EVT-\d{4}-\d{6}/);
-        if (matchedId) {
-          setCertificateId(matchedId[0]);
-        }
+      
+      const matched = file.name.toUpperCase().match(/(EVT-\d{4}-\d{6}|CERT-[A-Z0-9]{8})/);
+      if (matched) {
+        setCertificateId(matched[0]);
       }
     }
   };
@@ -165,11 +189,10 @@ export default function CertificateVerificationPage() {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setUploadedFile(file);
-      if (file.name.toLowerCase().includes('evt')) {
-        const matchedId = file.name.toUpperCase().match(/EVT-\d{4}-\d{6}/);
-        if (matchedId) {
-          setCertificateId(matchedId[0]);
-        }
+      
+      const matched = file.name.toUpperCase().match(/(EVT-\d{4}-\d{6}|CERT-[A-Z0-9]{8})/);
+      if (matched) {
+        setCertificateId(matched[0]);
       }
     }
   };
@@ -189,6 +212,15 @@ export default function CertificateVerificationPage() {
   const heroTitle = heroData?.title || '';
   const heroSubtitle = heroData?.subtitle || '';
   const heroBgColor = heroData?.background_color || '#0C3B2E';
+
+  if (pageLoading) {
+    return (
+      <div className="flex-grow flex flex-col justify-center items-center py-40 bg-slate-50">
+        <Loader2 className="h-10 w-10 animate-spin text-[#2E6F40] mb-4" />
+        <span className="text-sm text-gray-500 font-bold">Loading verification tools...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-grow bg-slate-50 font-outfit select-none">
@@ -602,7 +634,7 @@ export default function CertificateVerificationPage() {
 
           {/* Accordion list */}
           <div className="space-y-4">
-            {FAQ_ITEMS.map((faq, idx) => {
+            {(faqItems.length > 0 ? faqItems : DEFAULT_FAQ_ITEMS).map((faq, idx) => {
               const isExpanded = expandedFaq === idx;
               return (
                 <div

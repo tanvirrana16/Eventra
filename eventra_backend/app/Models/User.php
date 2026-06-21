@@ -10,8 +10,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'phone', 'role', 'status', 'interests', 'location', 'organization_name', 'contact_info', 'password'])]
-#[Hidden(['password', 'remember_token'])]
+#[Fillable(['name', 'email', 'phone', 'role', 'status', 'interests', 'location', 'organization_name', 'contact_info', 'password', 'api_token', 'date_of_birth', 'gender', 'occupation', 'address', 'profile_photo', 'website', 'social_links', 'two_factor_enabled', 'email_notifications', 'sms_notifications', 'event_recommendations'])]
+#[Hidden(['password', 'remember_token', 'api_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
@@ -47,6 +47,16 @@ class User extends Authenticatable
         return $this->hasMany(Certificate::class);
     }
 
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    public function activities()
+    {
+        return $this->hasMany(UserActivity::class);
+    }
+
     /**
      * Get the attributes that should be cast.
      *
@@ -57,6 +67,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'social_links' => 'array',
         ];
     }
 }

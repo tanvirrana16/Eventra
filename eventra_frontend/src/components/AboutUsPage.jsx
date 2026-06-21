@@ -1,64 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Compass, Eye, Heart, Shield, Award, Calendar, Users, Settings, Search,
   ShieldCheck, MessageSquare, LineChart, Laptop, Trophy, Globe, Briefcase,
   ChevronDown, ChevronLeft, ChevronRight, Star, ArrowRight, HelpCircle,
-  Mail, MapPin, Zap
+  Mail, MapPin, Zap, Loader2
 } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import { useNavigate } from 'react-router-dom';
-
-// Team Members Data
-const TEAM_MEMBERS = [
-  {
-    name: "Alexander Vance",
-    role: "Founder & CEO",
-    image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&h=300&q=80",
-    bio: "Visionary entrepreneur with 10+ years managing large-scale global event technologies. Driven by connecting people through innovation.",
-    socials: { linkedin: "#", twitter: "#", github: "#" }
-  },
-  {
-    name: "Elena Rostova",
-    role: "Project Manager",
-    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&h=300&q=80",
-    bio: "Certified Scrum Master ensuring timeline enforcement, vendor compliance, and seamless on-day management checklists.",
-    socials: { linkedin: "#", twitter: "#", facebook: "#" }
-  },
-  {
-    name: "Sarah Jenkins",
-    role: "UI/UX Lead Designer",
-    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&h=300&q=80",
-    bio: "Passionate about building highly intuitive, premium user experiences and layout grids that make event discovery enjoyable.",
-    socials: { linkedin: "#", twitter: "#" }
-  },
-  {
-    name: "Marcus Cole",
-    role: "Lead Frontend Developer",
-    image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&h=300&q=80",
-    bio: "Vite and React specialist crafting smooth micro-interactions, responsive CSS components, and highly accessible structures.",
-    socials: { linkedin: "#", github: "#", twitter: "#" }
-  }
-];
-
-// Why Choose Us Data
-const CHOOSE_FEATURES = [
-  { title: "Modern Event Management", desc: "Easily organize events from a unified portal with smart settings and layout customization.", icon: Settings },
-  { title: "Easy Event Discovery", desc: "Instantly filter events based on tags, categories, live status, and physical location.", icon: Search },
-  { title: "Secure Registration", desc: "High-grade registration forms and payment portals keeping client details completely private.", icon: ShieldCheck },
-  { title: "Digital Certificates", desc: "Secure cryptographic certificate generation validating participant achievements instantly.", icon: Award },
-  { title: "Professional Support", desc: "Our coordination helpdesk operates 24/7 assisting organizers with logistics setup.", icon: MessageSquare },
-  { title: "Smart Event Analytics", desc: "Track attendees, ticket sales, registration trends, and feedback ratings in real-time.", icon: LineChart },
-  { title: "Responsive Platform", desc: "Optimized mobile drawer viewports and fluid designs suitable for any size device screen.", icon: Laptop },
-  { title: "Trusted by Communities", desc: "Active integration networks with university clubs, tech communities, and corporate brands.", icon: Users }
-];
-
-// Horizontal Timeline Data
-const TIMELINE_STEPS = [
-  { year: "2025", title: "Idea Born", desc: "Eventra project conceived to build an unified event coordinator platform.", icon: LightbulbIcon },
-  { year: "2026", title: "Official Launch", desc: "Version 1.0 released globally with instant search and ticket registry systems.", icon: Zap },
-  { year: "2026", title: "Community Growth", desc: "Hosted over 100+ community meets and deployed secure digital certificate systems.", icon: Trophy },
-  { year: "Future", title: "Global Expansion", desc: "Integrating automated AI matchmaking and expanding corporate events portfolios.", icon: Globe }
-];
 
 // Helper icon component since Lightbulb isn't imported from standard list
 function LightbulbIcon(props) {
@@ -69,102 +17,47 @@ function LightbulbIcon(props) {
   );
 }
 
-// Partners Mock Logos
-const PARTNERS = [
-  { name: "Apex University", logoText: "APEX", desc: "Academic Partner" },
-  { name: "Delta Startups", logoText: "DELTA", desc: "Startup Ecosystem" },
-  { name: "Zenith Corp", logoText: "ZENITH", desc: "Corporate Sponsor" },
-  { name: "Omni Media", logoText: "OMNI", desc: "Media Broadcaster" },
-  { name: "NextTech", logoText: "NEXT", desc: "Tech Incubator" },
-  { name: "Genesis Lab", logoText: "GENESIS", desc: "Research Partner" }
-];
-
-// Testimonials Data
-const TESTIMONIALS = [
-  {
-    name: "Professor Albert Sterling",
-    org: "Dean of Computer Science at Stanford",
-    photo: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=100&h=100&q=80",
-    rating: 5,
-    review: "Eventra made organizing our university tech conference effortless. The platform is intuitive, reliable, and professional. The digital certificate generation was highly appreciated by the students."
-  },
-  {
-    name: "Clara Oswald",
-    org: "Co-Founder of Zenith Tech Meetups",
-    photo: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=100&h=100&q=80",
-    rating: 5,
-    review: "As an event organizer, tracking registrations used to be a nightmare. Deployed Eventra for our tech hackathon and the experience was absolute bliss. Dynamic check-ins ran without a lag."
-  },
-  {
-    name: "Julian Sterling",
-    org: "Director of HR at Nexa Corp",
-    photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&h=100&q=80",
-    rating: 5,
-    review: "The annual corporate team camp we hosted using Eventra was coordinated flawlessly. The scheduling flows and feedback analytics gave us key insights into team engagement."
-  }
-];
-
-// FAQ Data
-const FAQ_ITEMS = [
-  {
-    question: "What is Eventra?",
-    answer: "Eventra is a modern, premium event management platform built to simplify event discovery, registration, scheduling, and digital certificate verification. We serve communities, corporate groups, startups, and academic groups alike."
-  },
-  {
-    question: "How do I create an event?",
-    answer: "You can create an event by registering an Organizer profile. Once approved by our compliance review team, you will receive full access to our dashboard to draft schedules, customize landing pages, upload maps, and track invites."
-  },
-  {
-    question: "Is Eventra free to use?",
-    answer: "Eventra offers a free tier for community meetups and standard local events. For premium features such as sound/lighting equipment bookings, custom LED rendering, certificate generation, or payment portals, we offer flexible subscription packages."
-  },
-  {
-    question: "Can organizations use Eventra?",
-    answer: "Absolutely! Eventra has a dedicated organizational suite built to handle high-volume user traffic, VIP scheduling, sponsor banners, multiple on-site coordinators, and detailed post-event analytical spreadsheets."
-  },
-  {
-    question: "How do certificate verification and registration work?",
-    answer: "When a participant completes an event, a unique Certificate ID is registered in our database. The participant receives a digital link. Anyone can verify this link or input the Certificate ID on our Certificate Verification page to retrieve instant registry validation."
-  },
-  {
-    question: "How can I become a partner?",
-    answer: "We welcome partnerships with universities, corporate sponsors, tech incubators, and media networks. Click the 'Contact Us' button in our call-to-action banner below, or reach out to partners@eventra.com to request collaboration terms."
-  }
-];
-
-// Achievements Numbers Data
-const STATS = [
-  { count: 100, label: "Events Organized", suffix: "+", color: "text-indigo-600 bg-indigo-50 border-indigo-100" },
-  { count: 10000, label: "Participants Connected", suffix: "+", color: "text-emerald-700 bg-emerald-50 border-emerald-100" },
-  { count: 150, label: "Registered Organizers", suffix: "+", color: "text-amber-700 bg-amber-50 border-amber-100" },
-  { count: 98, label: "Satisfaction Rate", suffix: "%", color: "text-rose-600 bg-rose-50 border-rose-100" },
-  { count: 500, label: "Certificates Issued", suffix: "+", color: "text-purple-600 bg-purple-50 border-purple-100" },
-  { count: 25, label: "Partner Organizations", suffix: "+", color: "text-teal-600 bg-teal-50 border-teal-100" }
-];
+// Icon mapper for dynamic string icon lookup
+const iconMap = {
+  Compass, Eye, Heart, Shield, Award, Calendar, Users, Settings, Search,
+  ShieldCheck, MessageSquare, LineChart, Laptop, Trophy, Globe, Briefcase,
+  ChevronDown, ChevronLeft, ChevronRight, Star, ArrowRight, HelpCircle,
+  Mail, MapPin, Zap, Lightbulb: LightbulbIcon
+};
 
 export default function AboutUsPage() {
   const navigate = useNavigate();
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [expandedFaq, setExpandedFaq] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Dynamic API state
-  const [heroData, setHeroData] = useState({
-    title: 'About Eventra',
-    subtitle: 'Connecting people through meaningful events. Eventra helps individuals, communities, universities, startups, and organizations discover, organize, and experience memorable events with ease. We believe that every gathering creates a gateway to expand knowledge, build connections, and create growth pathways.',
-    background_color: '#0C3B2E'
-  });
+  const [pageData, setPageData] = useState(null);
+  const [counts, setCounts] = useState([]);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/pages/hero/about-us`)
-      .then(res => res.json())
-      .then(data => setHeroData(data))
-      .catch(err => console.warn('Failed to load about us page hero details', err));
+    fetch(`${API_BASE_URL}/about-us`)
+      .then(res => {
+        if (!res.ok) throw new Error('API server error');
+        return res.json();
+      })
+      .then(data => {
+        setPageData(data);
+        setIsLoading(false);
+        if (data.stats && data.stats.length > 0) {
+          setCounts(data.stats.map(() => 0));
+        }
+      })
+      .catch(err => {
+        console.error('Failed to load about-us page data', err);
+        setIsLoading(false);
+      });
   }, []);
 
-  // Counter animation logic
-  const [counts, setCounts] = useState(STATS.map(() => 0));
-
+  // Counter animation logic triggered when pageData loads
   useEffect(() => {
+    if (!pageData || !pageData.stats || pageData.stats.length === 0) return;
+
     const duration = 2000; // 2 seconds counting
     const steps = 50;
     const intervalTime = duration / steps;
@@ -172,7 +65,7 @@ export default function AboutUsPage() {
 
     const timer = setInterval(() => {
       currentStep++;
-      setCounts(STATS.map((stat) => {
+      setCounts(pageData.stats.map((stat) => {
         const target = stat.count;
         const currentVal = Math.round((target / steps) * currentStep);
         return currentVal >= target ? target : currentVal;
@@ -184,23 +77,42 @@ export default function AboutUsPage() {
     }, intervalTime);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [pageData]);
 
   const toggleFaq = (index) => {
     setExpandedFaq(expandedFaq === index ? null : index);
   };
 
   const handlePrevTestimonial = () => {
-    setActiveTestimonial((prev) => (prev - 1 + TESTIMONIALS.length) % TESTIMONIALS.length);
+    if (!pageData?.testimonials) return;
+    setActiveTestimonial((prev) => (prev - 1 + pageData.testimonials.length) % pageData.testimonials.length);
   };
 
   const handleNextTestimonial = () => {
-    setActiveTestimonial((prev) => (prev + 1) % TESTIMONIALS.length);
+    if (!pageData?.testimonials) return;
+    setActiveTestimonial((prev) => (prev + 1) % pageData.testimonials.length);
   };
 
-  const heroTitle = heroData?.title || '';
-  const heroSubtitle = heroData?.subtitle || '';
-  const heroBgColor = heroData?.background_color || '#0C3B2E';
+  if (isLoading) {
+    return (
+      <div className="flex-grow flex flex-col justify-center items-center py-40 bg-slate-50">
+        <Loader2 className="h-10 w-10 animate-spin text-[#2E6F40] mb-4" />
+        <span className="text-sm text-gray-500 font-bold">Loading About Us details...</span>
+      </div>
+    );
+  }
+
+  const heroTitle = pageData?.hero?.title || 'About Eventra';
+  const heroSubtitle = pageData?.hero?.subtitle || 'Connecting people through meaningful events.';
+  const heroBgColor = pageData?.hero?.background_color || '#0C3B2E';
+  
+  const teamMembers = pageData?.team_members || [];
+  const chooseFeatures = pageData?.choose_features || [];
+  const timelineSteps = pageData?.timeline_steps || [];
+  const partners = pageData?.partners || [];
+  const testimonials = pageData?.testimonials || [];
+  const faqItems = pageData?.faq_items || [];
+  const stats = pageData?.stats || [];
 
   return (
     <div className="flex-grow bg-slate-50 font-outfit select-none overflow-x-hidden">
@@ -446,8 +358,8 @@ export default function AboutUsPage() {
 
         {/* Feature Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {CHOOSE_FEATURES.map((feat, idx) => {
-            const IconComponent = feat.icon;
+          {chooseFeatures.map((feat, idx) => {
+            const IconComponent = iconMap[feat.icon] || Compass;
             return (
               <div
                 key={idx}
@@ -486,8 +398,8 @@ export default function AboutUsPage() {
 
           {/* Horizontal timeline cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 relative max-w-5xl mx-auto">
-            {TIMELINE_STEPS.map((step, idx) => {
-              const IconComponent = step.icon;
+            {timelineSteps.map((step, idx) => {
+              const IconComponent = iconMap[step.icon] || Compass;
               return (
                 <div key={idx} className="flex flex-col items-center text-center relative group">
 
@@ -538,7 +450,7 @@ export default function AboutUsPage() {
 
         {/* Team Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {TEAM_MEMBERS.map((tm, idx) => (
+          {teamMembers.map((tm, idx) => (
             <div
               key={idx}
               className="group bg-white rounded-3xl overflow-hidden border border-slate-100 hover:border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1.5 flex flex-col justify-between relative"
@@ -555,28 +467,28 @@ export default function AboutUsPage() {
                 {/* Social media overlay triggers on hover */}
                 <div className="absolute inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <div className="flex items-center space-x-3 text-white">
-                    {tm.socials.linkedin && (
+                    {tm.socials?.linkedin && (
                       <a href={tm.socials.linkedin} className="p-2 bg-white/10 hover:bg-white/20 hover:scale-115 rounded-xl transition-all" aria-label="LinkedIn">
                         <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
                           <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.779-1.75-1.75s.784-1.75 1.75-1.75 1.75.779 1.75 1.75-.784 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
                         </svg>
                       </a>
                     )}
-                    {tm.socials.twitter && (
+                    {tm.socials?.twitter && (
                       <a href={tm.socials.twitter} className="p-2 bg-white/10 hover:bg-white/20 hover:scale-115 rounded-xl transition-all" aria-label="Twitter">
                         <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
                           <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                         </svg>
                       </a>
                     )}
-                    {tm.socials.github && (
+                    {tm.socials?.github && (
                       <a href={tm.socials.github} className="p-2 bg-white/10 hover:bg-white/20 hover:scale-115 rounded-xl transition-all" aria-label="GitHub">
                         <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
                           <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
                         </svg>
                       </a>
                     )}
-                    {tm.socials.facebook && (
+                    {tm.socials?.facebook && (
                       <a href={tm.socials.facebook} className="p-2 bg-white/10 hover:bg-white/20 hover:scale-115 rounded-xl transition-all" aria-label="Facebook">
                         <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
                           <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.75z" />
@@ -613,7 +525,7 @@ export default function AboutUsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-            {STATS.map((stat, idx) => (
+            {stats.map((stat, idx) => (
               <div
                 key={idx}
                 className="group relative bg-slate-950 rounded-2xl p-5 border border-emerald-950/20 hover:border-emerald-500/20 flex flex-col justify-center items-center text-center transition-all duration-300 hover:shadow-[0_4px_20px_rgba(16,185,129,0.05)] cursor-pointer"
@@ -621,7 +533,7 @@ export default function AboutUsPage() {
 
                 {/* Numerical count output */}
                 <span className="text-2xl sm:text-3xl font-black tracking-tight leading-none block">
-                  {counts[idx].toLocaleString()}{stat.suffix}
+                  {counts[idx]?.toLocaleString() || 0}{stat.suffix}
                 </span>
 
                 <span className="text-[10px] text-gray-400 font-extrabold uppercase tracking-wider block mt-2 text-center leading-normal">
@@ -652,7 +564,7 @@ export default function AboutUsPage() {
 
           {/* Grayscale partner grids */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            {PARTNERS.map((pt, idx) => (
+            {partners.map((pt, idx) => (
               <div
                 key={idx}
                 className="group border border-slate-100 bg-slate-50 hover:bg-white hover:border-emerald-500/20 rounded-2xl p-4 flex flex-col items-center justify-center text-center transition-all duration-300 hover:shadow-md cursor-pointer aspect-video"
@@ -671,126 +583,130 @@ export default function AboutUsPage() {
       </section>
 
       {/* SECTION 9: CLIENT TESTIMONIALS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-
-        {/* Header */}
-        <div className="text-center mb-16">
-          <span className="inline-block bg-[#CFFFDC] text-[#2E6F40] text-xs font-black uppercase tracking-widest px-3.5 py-1.5 rounded-md border border-[#2E6F40]/10 shadow-2xs">
-            Reviews
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-[#111827] mt-1.5">
-            What They Say
-          </h2>
-          <div className="w-16 h-1.5 bg-[#2E6F40] mt-3 rounded-full mx-auto"></div>
-        </div>
-
-        {/* Carousel Container */}
-        <div className="max-w-3xl mx-auto bg-white border border-slate-100 shadow-md rounded-3xl p-8 sm:p-12 relative overflow-hidden text-left">
-
-          <div className="space-y-6 animate-fade-in" key={activeTestimonial}>
-
-            {/* Star ratings */}
-            <div className="flex items-center space-x-1 text-amber-500">
-              {[...Array(TESTIMONIALS[activeTestimonial].rating)].map((_, i) => (
-                <Star key={i} className="h-4 w-4 fill-amber-500" />
-              ))}
-            </div>
-
-            {/* Testimonial Review text-justify */}
-            <p className="text-sm sm:text-base text-gray-700 italic font-light leading-relaxed text-justify">
-              "{TESTIMONIALS[activeTestimonial].review}"
-            </p>
-
-            <div className="border-t border-gray-100 pt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-
-              {/* Profile details */}
-              <div className="flex items-center space-x-3">
-                <img
-                  src={TESTIMONIALS[activeTestimonial].photo}
-                  alt={TESTIMONIALS[activeTestimonial].name}
-                  className="w-12 h-12 rounded-full object-cover ring-2 ring-emerald-500/20"
-                />
-                <div>
-                  <h4 className="text-xs sm:text-sm font-bold text-gray-900">{TESTIMONIALS[activeTestimonial].name}</h4>
-                  <p className="text-[9px] text-gray-400 font-extrabold uppercase tracking-wider">{TESTIMONIALS[activeTestimonial].org}</p>
-                </div>
-              </div>
-
-              {/* Slider actions */}
-              <div className="flex items-center space-x-2 self-end sm:self-center">
-                <button
-                  onClick={handlePrevTestimonial}
-                  className="p-2.5 rounded-full border border-slate-200 hover:border-[#2E6F40] hover:text-[#2E6F40] transition-colors cursor-pointer bg-white"
-                  aria-label="Previous Testimonial"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={handleNextTestimonial}
-                  className="p-2.5 rounded-full border border-slate-200 hover:border-[#2E6F40] hover:text-[#2E6F40] transition-colors cursor-pointer bg-white"
-                  aria-label="Next Testimonial"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-      </section>
-
-      {/* SECTION 10: FREQUENTLY ASKED QUESTIONS */}
-      <section className="bg-white py-20 border-t border-slate-100">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
+      {testimonials.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
 
           {/* Header */}
           <div className="text-center mb-16">
             <span className="inline-block bg-[#CFFFDC] text-[#2E6F40] text-xs font-black uppercase tracking-widest px-3.5 py-1.5 rounded-md border border-[#2E6F40]/10 shadow-2xs">
-              Answers
+              Reviews
             </span>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-[#111827] mt-1.5">
-              Frequently Asked Questions
+              What They Say
             </h2>
             <div className="w-16 h-1.5 bg-[#2E6F40] mt-3 rounded-full mx-auto"></div>
           </div>
 
-          {/* Accordions list */}
-          <div className="space-y-4">
-            {FAQ_ITEMS.map((faq, idx) => {
-              const isExpanded = expandedFaq === idx;
-              return (
-                <div
-                  key={idx}
-                  className="border border-slate-200/80 rounded-2xl overflow-hidden transition-all duration-300"
-                >
-                  <button
-                    onClick={() => toggleFaq(idx)}
-                    className="w-full flex items-center justify-between p-5 text-left font-bold text-gray-900 hover:text-emerald-800 transition-colors bg-white cursor-pointer focus:outline-none"
-                  >
-                    <span className="text-sm font-bold pr-4">{faq.question}</span>
-                    <span className={`p-1 bg-slate-50 text-gray-500 rounded-lg transition-transform duration-300 ${isExpanded ? 'rotate-180 bg-emerald-50 text-[#2E6F40]' : ''
-                      }`}>
-                      <ChevronDown className="h-4 w-4" />
-                    </span>
-                  </button>
+          {/* Carousel Container */}
+          <div className="max-w-3xl mx-auto bg-white border border-slate-100 shadow-md rounded-3xl p-8 sm:p-12 relative overflow-hidden text-left">
 
-                  <div
-                    className={`transition-all duration-300 ease-in-out overflow-hidden bg-slate-50/50 ${isExpanded ? 'max-h-40 border-t border-gray-100 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
-                      }`}
-                  >
-                    <p className="p-5 text-xs sm:text-sm text-gray-600 leading-relaxed font-normal text-justify">
-                      {faq.answer}
-                    </p>
+            <div className="space-y-6 animate-fade-in" key={activeTestimonial}>
+
+              {/* Star ratings */}
+              <div className="flex items-center space-x-1 text-amber-500">
+                {[...Array(testimonials[activeTestimonial].rating)].map((_, i) => (
+                  <Star key={i} className="h-4 w-4 fill-amber-500" />
+                ))}
+              </div>
+
+              {/* Testimonial Review text-justify */}
+              <p className="text-sm sm:text-base text-gray-700 italic font-light leading-relaxed text-justify">
+                "{testimonials[activeTestimonial].review}"
+              </p>
+
+              <div className="border-t border-gray-100 pt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+
+                {/* Profile details */}
+                <div className="flex items-center space-x-3">
+                  <img
+                    src={testimonials[activeTestimonial].photo}
+                    alt={testimonials[activeTestimonial].name}
+                    className="w-12 h-12 rounded-full object-cover ring-2 ring-emerald-500/20"
+                  />
+                  <div>
+                    <h4 className="text-xs sm:text-sm font-bold text-gray-900">{testimonials[activeTestimonial].name}</h4>
+                    <p className="text-[9px] text-gray-400 font-extrabold uppercase tracking-wider">{testimonials[activeTestimonial].org}</p>
                   </div>
                 </div>
-              );
-            })}
-          </div>
 
-        </div>
-      </section>
+                {/* Slider actions */}
+                <div className="flex items-center space-x-2 self-end sm:self-center">
+                  <button
+                    onClick={handlePrevTestimonial}
+                    className="p-2.5 rounded-full border border-slate-200 hover:border-[#2E6F40] hover:text-[#2E6F40] transition-colors cursor-pointer bg-white"
+                    aria-label="Previous Testimonial"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={handleNextTestimonial}
+                    className="p-2.5 rounded-full border border-slate-200 hover:border-[#2E6F40] hover:text-[#2E6F40] transition-colors cursor-pointer bg-white"
+                    aria-label="Next Testimonial"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+        </section>
+      )}
+
+      {/* SECTION 10: FREQUENTLY ASKED QUESTIONS */}
+      {faqItems.length > 0 && (
+        <section className="bg-white py-20 border-t border-slate-100">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6">
+
+            {/* Header */}
+            <div className="text-center mb-16">
+              <span className="inline-block bg-[#CFFFDC] text-[#2E6F40] text-xs font-black uppercase tracking-widest px-3.5 py-1.5 rounded-md border border-[#2E6F40]/10 shadow-2xs">
+                Answers
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-[#111827] mt-1.5">
+                Frequently Asked Questions
+              </h2>
+              <div className="w-16 h-1.5 bg-[#2E6F40] mt-3 rounded-full mx-auto"></div>
+            </div>
+
+            {/* Accordions list */}
+            <div className="space-y-4">
+              {faqItems.map((faq, idx) => {
+                const isExpanded = expandedFaq === idx;
+                return (
+                  <div
+                    key={idx}
+                    className="border border-slate-200/80 rounded-2xl overflow-hidden transition-all duration-300"
+                  >
+                    <button
+                      onClick={() => toggleFaq(idx)}
+                      className="w-full flex items-center justify-between p-5 text-left font-bold text-gray-900 hover:text-emerald-800 transition-colors bg-white cursor-pointer focus:outline-none"
+                    >
+                      <span className="text-sm font-bold pr-4">{faq.question}</span>
+                      <span className={`p-1 bg-slate-50 text-gray-500 rounded-lg transition-transform duration-300 ${isExpanded ? 'rotate-180 bg-emerald-50 text-[#2E6F40]' : ''
+                        }`}>
+                        <ChevronDown className="h-4 w-4" />
+                      </span>
+                    </button>
+
+                    <div
+                      className={`transition-all duration-300 ease-in-out overflow-hidden bg-slate-50/50 ${isExpanded ? 'max-h-40 border-t border-gray-100 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
+                        }`}
+                    >
+                      <p className="p-5 text-xs sm:text-sm text-gray-600 leading-relaxed font-normal text-justify">
+                        {faq.answer}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+          </div>
+        </section>
+      )}
 
       {/* SECTION 11: CALL-TO-ACTION PROMOTIONAL BANNER */}
       <section className="w-full bg-[#0C3B2E] py-20 text-center text-white relative overflow-hidden select-none border-t border-emerald-500/10">
@@ -816,7 +732,7 @@ export default function AboutUsPage() {
               <ArrowRight className="h-4 w-4" />
             </button>
             <button
-              onClick={() => alert("Opening support ticketing...")}
+              onClick={() => navigate('/contact-us')}
               className="py-3 px-8 border border-white/20 hover:border-white hover:bg-white/5 text-white font-bold rounded-full transition-all duration-300 text-xs cursor-pointer transform active:scale-95 flex items-center space-x-1.5"
             >
               <Mail className="h-4 w-4" />

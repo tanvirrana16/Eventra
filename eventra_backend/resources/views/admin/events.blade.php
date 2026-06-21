@@ -245,12 +245,9 @@
         document.getElementById('edit_title').value = event.title;
         document.getElementById('edit_category_id').value = event.category_id;
         
-        // Format date string as YYYY-MM-DD
-        const eventDateObj = new Date(event.event_date);
-        const yyyy = eventDateObj.getFullYear();
-        const mm = String(eventDateObj.getMonth() + 1).padStart(2, '0');
-        const dd = String(eventDateObj.getDate()).padStart(2, '0');
-        document.getElementById('edit_event_date').value = `${yyyy}-${mm}-${dd}`;
+        // Format date string as YYYY-MM-DD (timezone-safe extraction)
+        const dateString = event.event_date.split(' ')[0].split('T')[0];
+        document.getElementById('edit_event_date').value = dateString;
         
         document.getElementById('edit_event_time').value = event.event_time;
         document.getElementById('edit_location').value = event.location;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, Check, ShieldCheck, AlertCircle, Loader2 } from 'lucide-react';
 import logo from '../assets/logo.png';
@@ -9,7 +9,14 @@ export default function LoginPage({ setIsLoggedIn }) {
   
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
+    // Only reset auth state if the user is NOT already logged in.
+    // Previously this was clearing the token unconditionally, causing
+    // the user to get logged out whenever they visited /login after already being logged in.
+    if (!localStorage.getItem('token')) {
+      setIsLoggedIn(false);
+    }
+  }, [setIsLoggedIn]);
+
 
   // Form inputs
   const [email, setEmail] = useState('');
@@ -69,17 +76,20 @@ export default function LoginPage({ setIsLoggedIn }) {
           setStatusMsg('Welcome Back! Redirecting to Dashboard...');
           setAlertVisible(true);
           
-          setTimeout(() => {
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
-            setIsLoggedIn(true);
-            if (data.user.role === 'admin' && data.adminAutologinToken) {
-              window.open(`http://localhost:8000/admin/autologin?email=${encodeURIComponent(data.user.email)}&token=${data.adminAutologinToken}`, '_blank');
-              navigate('/');
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+          setIsLoggedIn(true);
+          if (data.user.role === 'admin') {
+            if (data.adminAutologinToken) {
+              window.location.href = `http://localhost:8000/admin/autologin?email=${encodeURIComponent(data.user.email)}&token=${data.adminAutologinToken}`;
             } else {
               navigate('/');
             }
-          }, 1500);
+          } else if (data.user.role === 'organizer') {
+            navigate('/organizer-dashboard');
+          } else {
+            navigate('/dashboard');
+          }
         } else {
           setIsLoading(false);
           setStatus('error');

@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Calendar, Users, Star, ArrowUpRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ChevronLeft, ChevronRight, Star, ArrowUpRight } from 'lucide-react';
 
 const sliderEvents = [
   {
@@ -53,6 +54,7 @@ const sliderEvents = [
 ];
 
 export default function Hero({ data, slider }) {
+  const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const heroTitle = data?.title || "Discover Local Events, Meet New Communities";
@@ -111,20 +113,20 @@ export default function Hero({ data, slider }) {
 
           {/* Dynamic Action Buttons based on isLoggedIn */}
           <div className="flex flex-wrap gap-4 pt-2">
-            <a
-              href={btn1Url}
+            <button
+              onClick={() => btn1Url.startsWith('http') ? window.open(btn1Url, '_blank') : navigate(btn1Url)}
               className="py-3.5 px-8 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-teal-600 hover:to-emerald-600 text-white font-bold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 text-sm flex items-center space-x-1.5 cursor-pointer transform active:scale-95"
             >
               <span>{btn1Text}</span>
               <ArrowUpRight className="h-4 w-4" />
-            </a>
+            </button>
 
-            <a
-              href={btn2Url}
+            <button
+              onClick={() => btn2Url.startsWith('http') ? window.open(btn2Url, '_blank') : navigate(btn2Url)}
               className="py-3.5 px-8 border border-white/20 hover:border-white hover:bg-white/5 text-white font-bold rounded-full transition-all duration-300 text-sm cursor-pointer transform active:scale-95"
             >
               {btn2Text}
-            </a>
+            </button>
           </div>
 
         </div>

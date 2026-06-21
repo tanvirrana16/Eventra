@@ -5,16 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 
-#[Fillable(['title', 'slug', 'description', 'event_date', 'event_time', 'location', 'image_path', 'seats_left', 'rating', 'gallery', 'speakers', 'tags', 'status', 'category_id', 'created_by'])]
+#[Fillable(['title', 'slug', 'description', 'event_date', 'event_time', 'location', 'image_path', 'seats_left', 'total_seats', 'event_end_date', 'event_end_time', 'ticket_type', 'ticket_price', 'currency', 'payment_methods', 'rating', 'gallery', 'speakers', 'tags', 'rules', 'certificate_template', 'status', 'category_id', 'created_by'])]
 class Event extends Model
 {
     protected $casts = [
         'event_date' => 'date',
+        'event_end_date' => 'date',
         'seats_left' => 'integer',
+        'total_seats' => 'integer',
+        'ticket_price' => 'decimal:2',
         'rating' => 'decimal:2',
         'gallery' => 'array',
         'speakers' => 'array',
         'tags' => 'array',
+        'rules' => 'array',
+        'payment_methods' => 'array',
+        'certificate_template' => 'array',
     ];
 
     public function category()

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Search, SlidersHorizontal, Loader2, Check, Calendar, Music, Ticket } from 'lucide-react';
 import EventCard from './EventCard';
 import mockEvents from '../data/mockEventsExtended';
@@ -27,7 +27,17 @@ export default function EventsPage({ onViewDetails }) {
   // Filters & State
   const [statusFilter, setStatusFilter] = useState('All'); // 'All' | 'Live' | 'Upcoming'
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategories, setSelectedCategories] = useState([]); // Array of strings
+  const [selectedCategories, setSelectedCategories] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    const categoryQuery = params.get('category');
+    if (categoryQuery) {
+      const matchedCategory = ALL_CATEGORIES.find(
+        cat => cat.toLowerCase().replace(/ /g, '-').replace(/\//g, '-') === categoryQuery.toLowerCase()
+      );
+      return matchedCategory ? [matchedCategory] : [];
+    }
+    return [];
+  });
   const [localCategories, setLocalCategories] = useState([]); // Local state for dropdown before applying
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -37,6 +47,7 @@ export default function EventsPage({ onViewDetails }) {
 
   // Dynamic API state
   const [eventsList, setEventsList] = useState(mockEvents);
+  const [categories, setCategories] = useState([]);
   const [heroData, setHeroData] = useState({
     title: 'Explore Events',
     subtitle: 'Discover amazing events happening in your local community, meet new people, verify graduation certificates, and upgrade your technical skills. From rock concerts and sports tournaments to technology hackathons and corporate seminars, Eventra hosts a universe of opportunities at your fingertips.',
@@ -52,15 +63,17 @@ export default function EventsPage({ onViewDetails }) {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const categoryQuery = params.get('category');
-    if (categoryQuery) {
-      const matchedCategory = ALL_CATEGORIES.find(
+    if (categoryQuery && categories.length > 0) {
+      const matchedCategory = categories.find(
         cat => cat.toLowerCase().replace(/ /g, '-').replace(/\//g, '-') === categoryQuery.toLowerCase()
       );
       if (matchedCategory) {
-        setSelectedCategories([matchedCategory]);
+        Promise.resolve().then(() => {
+          setSelectedCategories([matchedCategory]);
+        });
       }
     }
-  }, []);
+  }, [categories]);
 
   // Fetch Page Hero and Events Registry from APIs on mount
   useEffect(() => {
@@ -89,10 +102,24 @@ export default function EventsPage({ onViewDetails }) {
         console.warn('Events API connection failed, using mock events.', err);
         setIsLoadingEvents(false);
       });
+
+    fetch(`${API_BASE_URL}/categories`)
+      .then(res => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      })
+      .then(data => {
+        if (data && data.length > 0) {
+          setCategories(data);
+        }
+      })
+      .catch(err => {
+        console.warn('Categories API connection failed, using mock categories.', err);
+      });
   }, []);
 
   // Dynamic category counts calculation from active events list
-  const categoryCounts = React.useMemo(() => {
+  const categoryCounts = useMemo(() => {
     return eventsList.reduce((acc, evt) => {
       acc[evt.category] = (acc[evt.category] || 0) + 1;
       return acc;
@@ -115,12 +142,7 @@ export default function EventsPage({ onViewDetails }) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Sync local categories with actual applied categories when dropdown opens
-  useEffect(() => {
-    if (isDropdownOpen) {
-      setLocalCategories(selectedCategories);
-    }
-  }, [isDropdownOpen, selectedCategories]);
+  // Dropdown open sync useEffect removed (handled in click handler directly)
 
   // Handle local checkbox toggle in the dropdown
   const handleCheckboxToggle = (cat) => {
@@ -154,7 +176,7 @@ export default function EventsPage({ onViewDetails }) {
   };
 
   // Filter & Sort Events
-  const processedEvents = React.useMemo(() => {
+  const processedEvents = useMemo(() => {
     let result = [...eventsList];
 
     // 1. Filter by Status
@@ -337,7 +359,13 @@ export default function EventsPage({ onViewDetails }) {
             {/* Filter Settings Button */}
             <button
               ref={toggleBtnRef}
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              onClick={() => {
+                const next = !isDropdownOpen;
+                setIsDropdownOpen(next);
+                if (next) {
+                  setLocalCategories(selectedCategories);
+                }
+              }}
               className={`p-3 bg-white border border-slate-200 hover:border-[#2E6F40] rounded-2xl hover:text-[#2E6F40] transition-all cursor-pointer transform active:scale-95 flex items-center justify-center shadow-xs ${isDropdownOpen || selectedCategories.length > 0
                   ? 'border-[#2E6F40] text-[#2E6F40] bg-emerald-50/20'
                   : 'text-gray-500'
@@ -386,12 +414,13 @@ export default function EventsPage({ onViewDetails }) {
 
           {/* Categories Grid List */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-            {ALL_CATEGORIES.map((cat) => {
+            {(categories.length > 0 ? categories : ALL_CATEGORIES).map((cat) => {
               const count = categoryCounts[cat] || 0;
               const isChecked = localCategories.includes(cat);
               return (
                 <label
                   key={cat}
+                  onClick={() => handleCheckboxToggle(cat)}
                   className={`flex items-center justify-between py-2.5 px-3.5 rounded-xl hover:bg-slate-50 border transition-all cursor-pointer group text-xs font-bold text-gray-700 ${isChecked
                       ? 'border-[#2E6F40] bg-emerald-50/10'
                       : 'border-slate-100 hover:border-slate-200 bg-white'
@@ -450,7 +479,12 @@ export default function EventsPage({ onViewDetails }) {
         )}
 
         {/* Dynamic Cards Grid */}
-        {processedEvents.length > 0 ? (
+        {isLoadingEvents ? (
+          <div className="py-24 text-center max-w-md mx-auto space-y-3">
+            <Loader2 className="h-10 w-10 animate-spin text-[#2E6F40] mx-auto" />
+            <p className="text-sm font-bold text-slate-500">Syncing live events registry...</p>
+          </div>
+        ) : processedEvents.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 justify-items-center">
             {displayedEvents.map((evt) => (
               <EventCard

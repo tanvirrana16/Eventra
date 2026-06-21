@@ -1,304 +1,43 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Heart, Briefcase, Presentation, Mic, Music, Cake, Code, Dumbbell, Users,
   Camera, Utensils, Paintbrush, Layers, Lightbulb, Volume2, Tv, Tickets,
   FileText, ShieldAlert, Armchair, Flower, PenTool, ArrowRight, ChevronLeft,
   ChevronRight, Star, ChevronDown, CheckCircle, Zap, Trophy, ShieldCheck,
-  Clock, DollarSign, Award, MessageSquare, Check, Plus, Minus, Calendar, Settings
+  Clock, DollarSign, Award, MessageSquare, Check, Plus, Minus, Calendar, Settings,
+  Loader2
 } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 
-// Core Services Data with rotated color grids
-const CORE_SERVICES = [
-  {
-    title: "Wedding Planning",
-    icon: Heart,
-    gradient: "from-purple-500/10 to-indigo-500/5 border-purple-500/15 text-purple-700 hover:border-purple-400/40 hover:shadow-purple-500/5",
-    badgeBg: "bg-purple-50 text-purple-700",
-    description: "We manage every aspect of your wedding, including decor, guest lists, catering, and schedule planning for your special day.",
-    features: ["Venue Selection", "Custom Decoration", "Catering & Menu Design", "Guest Invitations", "On-Day Coordination", "Photography Setup"]
-  },
-  {
-    title: "Corporate Events",
-    icon: Briefcase,
-    gradient: "from-amber-500/10 to-orange-500/5 border-amber-500/15 text-amber-700 hover:border-amber-400/40 hover:shadow-amber-500/5",
-    badgeBg: "bg-amber-50 text-amber-700",
-    description: "Professional corporate event organization from product launches, annual dinners, board meetups, to team-building activities.",
-    features: ["AV Setup & Support", "Guest Speaker booking", "Catering & Logistics", "Branding & Signage", "On-Site Management", "VIP Coordination"]
-  },
-  {
-    title: "Conferences & Seminars",
-    icon: Presentation,
-    gradient: "from-teal-500/10 to-emerald-500/5 border-teal-500/15 text-teal-700 hover:border-teal-400/40 hover:shadow-teal-500/5",
-    badgeBg: "bg-teal-50 text-teal-700",
-    description: "Flawless seminar execution featuring high-end streaming setups, registration, speaker support, and feedback management.",
-    features: ["Digital Registration", "Live Streaming Setups", "Speaker Coordination", "Feedback Forms", "Stage Design", "Security Services"]
-  },
-  {
-    title: "Concert Management",
-    icon: Music,
-    gradient: "from-purple-500/10 to-indigo-500/5 border-purple-500/15 text-purple-700 hover:border-purple-400/40 hover:shadow-purple-500/5",
-    badgeBg: "bg-purple-50 text-purple-700",
-    description: "Large scale concert logistics, including stadium booking, ticket portal integration, professional audio systems, and security.",
-    features: ["Acoustics & Lighting", "Ticket Portal Setup", "Artist Management", "Crowd Security", "VIP Seating Deck", "Permit Management"]
-  },
-  {
-    title: "Cultural Programs",
-    icon: Tv,
-    gradient: "from-amber-500/10 to-orange-500/5 border-amber-500/15 text-amber-700 hover:border-amber-400/40 hover:shadow-amber-500/5",
-    badgeBg: "bg-amber-50 text-amber-700",
-    description: "Vibrant traditional and national cultural program setups featuring customized theme decor, local artists, and stage design.",
-    features: ["Custom Stage Sets", "Traditional Decor", "Artist Management", "Event Flow Control", "Photography & Video", "Sound Engineering"]
-  },
-  {
-    title: "Birthday Parties",
-    icon: Cake,
-    gradient: "from-teal-500/10 to-emerald-500/5 border-teal-500/15 text-teal-700 hover:border-teal-400/40 hover:shadow-teal-500/5",
-    badgeBg: "bg-teal-50 text-teal-700",
-    description: "Creating magical birthday setups matching your customized themes, catering, entertainment shows, and cake presentation.",
-    features: ["Theme Decoration", "Kids Entertainment", "Cake Setup Design", "Photo Booths", "Catering Services", "Invitation Cards"]
-  },
-  {
-    title: "Startup & Tech Events",
-    icon: Code,
-    gradient: "from-purple-500/10 to-indigo-500/5 border-purple-500/15 text-purple-700 hover:border-purple-400/40 hover:shadow-purple-500/5",
-    badgeBg: "bg-purple-50 text-purple-700",
-    description: "Hackathons, networking sessions, pitch cups, and product demos. We coordinate power backups, high-speed networks, and VC invites.",
-    features: ["Pitch Deck Stages", "VC Coordinator", "High Speed Internet", "Power Backups", "Live Demo Zones", "Event Promotion"]
-  },
-  {
-    title: "Sports Events",
-    icon: Dumbbell,
-    gradient: "from-amber-500/10 to-orange-500/5 border-amber-500/15 text-amber-700 hover:border-amber-400/40 hover:shadow-amber-500/5",
-    badgeBg: "bg-amber-50 text-amber-700",
-    description: "Planning tournaments, championships, runs, or marathons. We coordinate stadium logistics, safety, and athlete badges.",
-    features: ["Stadium Booking", "Athlete Badges", "Medical/Safety staff", "Score Boards", "Sponsorship Banners", "Press Deck Setup"]
-  },
-  {
-    title: "Community Meetups",
-    icon: Users,
-    gradient: "from-teal-500/10 to-emerald-500/5 border-teal-500/15 text-teal-700 hover:border-teal-400/40 hover:shadow-teal-500/5",
-    badgeBg: "bg-teal-50 text-teal-700",
-    description: "Intimate and social group gatherings. We find cozy cafes, organize discussion cards, registration tables, and catering setups.",
-    features: ["Cafe Bookings", "Icebreakers Cards", "Guest Support", "Catering & Snacks", "Promotion Services", "Audio Microphones"]
-  }
-];
-
-// Additional Services Data
-const ADDITIONAL_SERVICES = [
-  { name: "Photography & Videography", icon: Camera },
-  { name: "Catering Services", icon: Utensils },
-  { name: "Event Decoration", icon: Paintbrush },
-  { name: "Stage Design", icon: Layers },
-  { name: "Lighting Setup", icon: Lightbulb },
-  { name: "Professional Sound System", icon: Volume2 },
-  { name: "DJ & Live Entertainment", icon: Music },
-  { name: "LED Display Solutions", icon: Tv },
-  { name: "Ticket Management", icon: Tickets },
-  { name: "Event Registration", icon: FileText },
-  { name: "Security Services", icon: ShieldAlert },
-  { name: "Furniture Rental", icon: Armchair },
-  { name: "Floral Decoration", icon: Flower },
-  { name: "Custom Invitation Design", icon: PenTool }
-];
-
-// How it Works Data
-const TIMELINE_STEPS = [
-  {
-    step: "Step 1",
-    title: "Consultation",
-    description: "We meet to understand your vision, goals, and budget constraints.",
-    icon: MessageSquare
-  },
-  {
-    step: "Step 2",
-    title: "Planning",
-    description: "Our team designs a detailed roadmap and secures top-tier resources.",
-    icon: Calendar
-  },
-  {
-    step: "Step 3",
-    title: "Execution",
-    description: "We bring the plan to life with flawless on-site coordination.",
-    icon: Zap
-  },
-  {
-    step: "Step 4",
-    title: "Successful Event",
-    description: "Relax and enjoy a seamlessly delivered, unforgettable guest experience.",
-    icon: Trophy
-  }
-];
-
-// Why Choose Eventra Data
-const WHY_CHOOSE_US = [
-  { title: "Experienced Event Managers", description: "Our certified planners have coordinated over 500+ events globally.", icon: Users },
-  { title: "Customized Event Planning", description: "Every roadmap, stage design, and decor is built tailored specifically to your needs.", icon: PenTool },
-  { title: "Transparent Pricing", description: "No hidden charges, flexible packages, and transparent quotations upfront.", icon: DollarSign },
-  { title: "Modern Equipment", description: "Utilizing top-grade audio systems, LED displays, and custom laser lighting.", icon: Settings },
-  { title: "Creative Event Concepts", description: "Innovative themes and designs that leave a lasting memory on all attendees.", icon: Lightbulb },
-  { title: "Trusted by Organizations", description: "Active partners with over 80+ top multinational corporate brands.", icon: Award },
-  { title: "Professional Team", description: "Dedicated on-site coordinators who manage all micro-logistics on event day.", icon: ShieldCheck },
-  { title: "On-Time Event Execution", description: "Strict timeline compliance and prompt execution schedules.", icon: Clock }
-];
-
-// Portfolio Data
-const PORTFOLIO_PROJECTS = [
-  {
-    title: "Annual Tech Innovators Summit 2026",
-    category: "Conferences",
-    image: "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80",
-    location: "Convention Hall A, San Francisco",
-    attendees: "1,200 Attendees",
-    date: "March 15, 2026"
-  },
-  {
-    title: "Serenade Woods Luxury Wedding",
-    category: "Wedding Planning",
-    image: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80",
-    location: "Whispering Pines Forest, Oregon",
-    attendees: "350 Guests",
-    date: "May 28, 2026"
-  },
-  {
-    title: "Neon Horizon Music & Arts Fest",
-    category: "Concerts",
-    image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80",
-    location: "Riverfront Arena Amphitheatre",
-    attendees: "8,500 Attendees",
-    date: "June 05, 2026"
-  }
-];
-
-// Pricing Packages Data
-const PRICING_PACKAGES = [
-  {
-    name: "Basic",
-    price: "$1,500",
-    suitable: "Suitable for small events",
-    features: [
-      "Initial Event Planning & Strategy",
-      "Standard Backdrop & Stage Decor",
-      "Basic Photography (4 hours coverage)",
-      "Standard Guest Support Check-in",
-      "Catering Vendor Selection Support"
-    ],
-    buttonText: "Choose Plan",
-    popular: false
-  },
-  {
-    name: "Professional",
-    price: "$4,500",
-    suitable: "Suitable for medium-sized events",
-    features: [
-      "Premium Stage Backdrop & Theme Decor",
-      "High-Res Photography & Videography",
-      "Full Catering Logistics Coordination",
-      "Stage Lighting & Basic Sound Setup",
-      "Digital Invites & RSVP Management",
-      "2 Dedicated On-Site Coordinators"
-    ],
-    buttonText: "Choose Plan",
-    popular: true
-  },
-  {
-    name: "Enterprise",
-    price: "$10,000",
-    suitable: "Suitable for large corporate events",
-    features: [
-      "Dedicated Full-Time Event Director",
-      "Custom Visual 3D Stage Rendering",
-      "VIP/Premium Guest Care Services",
-      "High-Grade Security & Crowd Management",
-      "LED Screen & Professional Sound Arrays",
-      "Live Streaming & AV Setup",
-      "Custom End-to-End Solutions"
-    ],
-    buttonText: "Contact Sales",
-    popular: false
-  }
-];
-
-// Testimonials Data
-const TESTIMONIALS = [
-  {
-    name: "Rachel Morrison",
-    org: "VP of Operations at Google Cloud",
-    photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&h=80&q=80",
-    rating: 5,
-    review: "Eventra managed our annual tech conference flawlessly. The team was highly professional, incredibly organized, and exceeded all our expectations from scheduling down to stage setups."
-  },
-  {
-    name: "Michael Chen",
-    org: "Founder of Delta Startups",
-    photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=80&h=80&q=80",
-    rating: 5,
-    review: "The pitch cup and mixer organized by Eventra was a massive success! Their AV support was perfect, internet speed ran smoothly, and on-site logistics went without a single issue."
-  },
-  {
-    name: "Sophie & Daniel",
-    org: "Married Couples",
-    photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=80&h=80&q=80",
-    rating: 5,
-    review: "Our wedding decor and execution were absolutely magical. Eventra handled all guest check-ins, food coordinate timings, and decor layout exactly as we had designed in the roadmaps."
-  }
-];
-
-// FAQ Data
-const FAQ_ITEMS = [
-  {
-    question: "How do I book an event management service?",
-    answer: "You can book by clicking the 'Book a Service' button in our hero section or navigating to our Contact page. Our executive event planners will set up an online video call to draft initial proposals."
-  },
-  {
-    question: "Can I customize my package?",
-    answer: "Absolutely! All basic, professional, and enterprise plans serve as structured guides. We customize every detail—decoration themes, speaker decks, permits, catering—to match your exact target goals."
-  },
-  {
-    question: "Do you organize corporate events?",
-    answer: "Yes, corporate events are one of our core specialties. We host conferences, seminars, stakeholder meetups, team-building camps, and formal award dinners."
-  },
-  {
-    question: "Do you provide catering services?",
-    answer: "While we do not prepare food directly in-house, we coordinate directly with elite, licensed local catering vendors. We draft menus, sample food quality, and direct catering serving timelines."
-  },
-  {
-    question: "How early should I book?",
-    answer: "For large conferences, weddings, or concerts, we highly recommend booking at least 3 to 6 months in advance. For minor workshops, startup mixers, or birthday parties, 1 month is generally sufficient."
-  },
-  {
-    question: "Can you manage university events?",
-    answer: "Yes, we coordinate university convocations, talent sports cups, and tech hackathons. We offer discounted pricing models specifically for academic institutions."
-  },
-  {
-    question: "What payment methods do you accept?",
-    answer: "We accept bank wire transfers, major credit cards, mobile wallets, and corporate cheques. Payments are generally structured in a 50% booking advance and a 50% post-event clearance format."
-  },
-  {
-    question: "Can I cancel or reschedule my booking?",
-    answer: "Yes. Cancelations up to 30 days before the event receive full refunds minus deposits. Rescheduling is free of charge up to 15 days prior, subject to venue availability."
-  }
-];
+// Icon mapper for dynamic string icon lookup
+const iconMap = {
+  Heart, Briefcase, Presentation, Mic, Music, Cake, Code, Dumbbell, Users,
+  Camera, Utensils, Paintbrush, Layers, Lightbulb, Volume2, Tv, Tickets,
+  FileText, ShieldAlert, Armchair, Flower, PenTool, ArrowRight, ChevronLeft,
+  ChevronRight, Star, ChevronDown, CheckCircle, Zap, Trophy, ShieldCheck,
+  Clock, DollarSign, Award, MessageSquare, Check, Plus, Minus, Calendar, Settings
+};
 
 export default function ServicesPage() {
-  // Testimonial State
   const [activeTestimonial, setActiveTestimonial] = useState(0);
-
-  // FAQ Accordion State (Only one expanded at a time)
   const [expandedFaq, setExpandedFaq] = useState(null);
-
-  // Dynamic API state
-  const [heroData, setHeroData] = useState({
-    title: 'Professional Event Management',
-    subtitle: 'From intimate family celebrations to large-scale corporate conferences and concerts, Eventra provides complete, high-end event management solutions tailored to your unique requirements. We orchestrate every single detail—venue bookings, schedules, AV logistics, and decoration—so you can focus on enjoying your guests.',
-    background_color: '#0C3B2E'
-  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [pageData, setPageData] = useState(null);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/pages/hero/services`)
-      .then(res => res.json())
-      .then(data => setHeroData(data))
-      .catch(err => console.warn('Failed to load services page hero details', err));
+    fetch(`${API_BASE_URL}/services`)
+      .then(res => {
+        if (!res.ok) throw new Error('API server error');
+        return res.json();
+      })
+      .then(data => {
+        setPageData(data);
+        setIsLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to load services page data', err);
+        setIsLoading(false);
+      });
   }, []);
 
   const toggleFaq = (index) => {
@@ -306,16 +45,36 @@ export default function ServicesPage() {
   };
 
   const handlePrevTestimonial = () => {
-    setActiveTestimonial((prev) => (prev - 1 + TESTIMONIALS.length) % TESTIMONIALS.length);
+    if (!pageData?.testimonials) return;
+    setActiveTestimonial((prev) => (prev - 1 + pageData.testimonials.length) % pageData.testimonials.length);
   };
 
   const handleNextTestimonial = () => {
-    setActiveTestimonial((prev) => (prev + 1) % TESTIMONIALS.length);
+    if (!pageData?.testimonials) return;
+    setActiveTestimonial((prev) => (prev + 1) % pageData.testimonials.length);
   };
 
-  const heroTitle = heroData?.title || '';
-  const heroSubtitle = heroData?.subtitle || '';
-  const heroBgColor = heroData?.background_color || '#0C3B2E';
+  if (isLoading) {
+    return (
+      <div className="flex-grow flex flex-col justify-center items-center py-40 bg-slate-50">
+        <Loader2 className="h-10 w-10 animate-spin text-[#2E6F40] mb-4" />
+        <span className="text-sm text-gray-500 font-bold">Loading Services details...</span>
+      </div>
+    );
+  }
+
+  const heroTitle = pageData?.hero?.title || 'Professional Event Management';
+  const heroSubtitle = pageData?.hero?.subtitle || 'Complete high-end event management solutions tailored to your unique requirements.';
+  const heroBgColor = pageData?.hero?.background_color || '#0C3B2E';
+
+  const coreServices = pageData?.core_services || [];
+  const additionalServices = pageData?.additional_services || [];
+  const timelineSteps = pageData?.timeline_steps || [];
+  const whyChooseUs = pageData?.why_choose_us || [];
+  const portfolioProjects = pageData?.portfolio_projects || [];
+  const pricingPackages = pageData?.pricing_packages || [];
+  const testimonials = pageData?.testimonials || [];
+  const faqItems = pageData?.faq_items || [];
 
   return (
     <div className="flex-grow bg-slate-50 font-outfit select-none">
@@ -441,8 +200,8 @@ export default function ServicesPage() {
 
         {/* Core Services Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {CORE_SERVICES.map((srv, idx) => {
-            const IconComponent = srv.icon;
+          {coreServices.map((srv, idx) => {
+            const IconComponent = iconMap[srv.icon] || Heart;
             return (
               <div
                 key={idx}
@@ -509,8 +268,8 @@ export default function ServicesPage() {
 
           {/* Grid of features */}
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4">
-            {ADDITIONAL_SERVICES.map((srv, idx) => {
-              const IconComponent = srv.icon;
+            {additionalServices.map((srv, idx) => {
+              const IconComponent = iconMap[srv.icon] || Camera;
               return (
                 <div
                   key={idx}
@@ -547,8 +306,8 @@ export default function ServicesPage() {
 
         {/* Timeline Horizontal/Vertical Layout */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 relative max-w-5xl mx-auto">
-          {TIMELINE_STEPS.map((step, idx) => {
-            const IconComponent = step.icon;
+          {timelineSteps.map((step, idx) => {
+            const IconComponent = iconMap[step.icon] || Zap;
             return (
               <div key={idx} className="flex flex-col items-center text-center relative group">
 
@@ -601,8 +360,8 @@ export default function ServicesPage() {
 
           {/* Grid of features */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {WHY_CHOOSE_US.map((ch, idx) => {
-              const IconComponent = ch.icon;
+            {whyChooseUs.map((ch, idx) => {
+              const IconComponent = iconMap[ch.icon] || Users;
               return (
                 <div
                   key={idx}
@@ -642,7 +401,7 @@ export default function ServicesPage() {
 
         {/* Projects Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {PORTFOLIO_PROJECTS.map((pj, idx) => (
+          {portfolioProjects.map((pj, idx) => (
             <div
               key={idx}
               className="group bg-white rounded-3xl overflow-hidden border border-slate-100 hover:border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1.5 flex flex-col justify-between"
@@ -705,7 +464,7 @@ export default function ServicesPage() {
 
           {/* Pricing Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto items-stretch">
-            {PRICING_PACKAGES.map((pkg, idx) => (
+            {pricingPackages.map((pkg, idx) => (
               <div
                 key={idx}
                 className={`relative bg-white rounded-3xl p-6 sm:p-8 border transition-all duration-300 flex flex-col justify-between cursor-pointer ${pkg.popular
@@ -762,125 +521,129 @@ export default function ServicesPage() {
       </section>
 
       {/* SECTION 8: CLIENT TESTIMONIALS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="text-center mb-16">
-          <span className="inline-block bg-[#CFFFDC] text-[#2E6F40] text-xs font-black uppercase tracking-widest px-3.5 py-1.5 rounded-md border border-[#2E6F40]/10 shadow-2xs">
-            Reviews
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-[#111827] mt-1.5">
-            Client Testimonials
-          </h2>
-          <div className="w-16 h-1.5 bg-[#2E6F40] mt-3 rounded-full mx-auto"></div>
-        </div>
-
-        {/* Sliding Review Card Container */}
-        <div className="max-w-3xl mx-auto bg-white border border-slate-100 shadow-md rounded-3xl p-8 sm:p-12 relative overflow-hidden text-left font-outfit">
-
-          {/* Testimonial Active Slide Mapping with fade transition */}
-          <div className="space-y-6 animate-fade-in" key={activeTestimonial}>
-
-            {/* Stars rating */}
-            <div className="flex items-center space-x-1 text-amber-500">
-              {[...Array(TESTIMONIALS[activeTestimonial].rating)].map((_, i) => (
-                <Star key={i} className="h-4 w-4 fill-amber-500" />
-              ))}
-            </div>
-
-            {/* Testimonial Review */}
-            <p className="text-base sm:text-lg text-gray-700 italic font-light leading-relaxed">
-              "{TESTIMONIALS[activeTestimonial].review}"
-            </p>
-
-            <div className="border-t border-gray-100 pt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-
-              {/* Profile Avatar */}
-              <div className="flex items-center space-x-3.5">
-                <img
-                  src={TESTIMONIALS[activeTestimonial].photo}
-                  alt={TESTIMONIALS[activeTestimonial].name}
-                  className="w-12 h-12 rounded-full object-cover ring-2 ring-emerald-500/20"
-                />
-                <div>
-                  <h4 className="text-sm font-bold text-gray-900">{TESTIMONIALS[activeTestimonial].name}</h4>
-                  <p className="text-[10px] text-gray-400 font-extrabold uppercase tracking-wider">{TESTIMONIALS[activeTestimonial].org}</p>
-                </div>
-              </div>
-
-              {/* Slider Controls */}
-              <div className="flex items-center space-x-2 self-end sm:self-center">
-                <button
-                  onClick={handlePrevTestimonial}
-                  className="p-2.5 rounded-full border border-slate-200 hover:border-[#2E6F40] hover:text-[#2E6F40] transition-colors cursor-pointer bg-white"
-                  aria-label="Previous Testimonial"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={handleNextTestimonial}
-                  className="p-2.5 rounded-full border border-slate-200 hover:border-[#2E6F40] hover:text-[#2E6F40] transition-colors cursor-pointer bg-white"
-                  aria-label="Next Testimonial"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-      </section>
-
-      {/* SECTION 9: FREQUENTLY ASKED QUESTIONS */}
-      <section className="bg-white py-20 border-t border-slate-100">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
-
+      {testimonials.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center mb-16">
             <span className="inline-block bg-[#CFFFDC] text-[#2E6F40] text-xs font-black uppercase tracking-widest px-3.5 py-1.5 rounded-md border border-[#2E6F40]/10 shadow-2xs">
-              Got Questions?
+              Reviews
             </span>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-[#111827] mt-1.5">
-              Frequently Asked Questions
+              Client Testimonials
             </h2>
             <div className="w-16 h-1.5 bg-[#2E6F40] mt-3 rounded-full mx-auto"></div>
           </div>
 
-          {/* Accordion List */}
-          <div className="space-y-4">
-            {FAQ_ITEMS.map((faq, idx) => {
-              const isExpanded = expandedFaq === idx;
-              return (
-                <div
-                  key={idx}
-                  className="border border-slate-200/80 rounded-2xl overflow-hidden transition-all duration-300"
-                >
-                  <button
-                    onClick={() => toggleFaq(idx)}
-                    className="w-full flex items-center justify-between p-5 text-left font-bold text-gray-900 hover:text-emerald-800 transition-colors bg-white cursor-pointer"
-                  >
-                    <span className="text-sm font-bold pr-4">{faq.question}</span>
-                    <span className={`p-1 bg-slate-50 text-gray-500 rounded-lg transition-transform duration-300 ${isExpanded ? 'rotate-180 bg-emerald-50 text-[#2E6F40]' : ''
-                      }`}>
-                      <ChevronDown className="h-4 w-4" />
-                    </span>
-                  </button>
+          {/* Sliding Review Card Container */}
+          <div className="max-w-3xl mx-auto bg-white border border-slate-100 shadow-md rounded-3xl p-8 sm:p-12 relative overflow-hidden text-left font-outfit">
 
-                  {/* Expandable answer panel */}
-                  <div
-                    className={`transition-all duration-300 ease-in-out overflow-hidden bg-slate-50/50 ${isExpanded ? 'max-h-40 border-t border-gray-100 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
-                      }`}
-                  >
-                    <p className="p-5 text-xs sm:text-sm text-gray-600 leading-relaxed font-normal">
-                      {faq.answer}
-                    </p>
+            {/* Testimonial Active Slide Mapping with fade transition */}
+            <div className="space-y-6 animate-fade-in" key={activeTestimonial}>
+
+              {/* Stars rating */}
+              <div className="flex items-center space-x-1 text-amber-500">
+                {[...Array(testimonials[activeTestimonial].rating)].map((_, i) => (
+                  <Star key={i} className="h-4 w-4 fill-amber-500" />
+                ))}
+              </div>
+
+              {/* Testimonial Review */}
+              <p className="text-base sm:text-lg text-gray-700 italic font-light leading-relaxed">
+                "{testimonials[activeTestimonial].review}"
+              </p>
+
+              <div className="border-t border-gray-100 pt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+
+                {/* Profile Avatar */}
+                <div className="flex items-center space-x-3.5">
+                  <img
+                    src={testimonials[activeTestimonial].photo}
+                    alt={testimonials[activeTestimonial].name}
+                    className="w-12 h-12 rounded-full object-cover ring-2 ring-emerald-500/20"
+                  />
+                  <div>
+                    <h4 className="text-sm font-bold text-gray-900">{testimonials[activeTestimonial].name}</h4>
+                    <p className="text-[10px] text-gray-400 font-extrabold uppercase tracking-wider">{testimonials[activeTestimonial].org}</p>
                   </div>
                 </div>
-              );
-            })}
-          </div>
 
-        </div>
-      </section>
+                {/* Slider Controls */}
+                <div className="flex items-center space-x-2 self-end sm:self-center">
+                  <button
+                    onClick={handlePrevTestimonial}
+                    className="p-2.5 rounded-full border border-slate-200 hover:border-[#2E6F40] hover:text-[#2E6F40] transition-colors cursor-pointer bg-white"
+                    aria-label="Previous Testimonial"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={handleNextTestimonial}
+                    className="p-2.5 rounded-full border border-slate-200 hover:border-[#2E6F40] hover:text-[#2E6F40] transition-colors cursor-pointer bg-white"
+                    aria-label="Next Testimonial"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+        </section>
+      )}
+
+      {/* SECTION 9: FREQUENTLY ASKED QUESTIONS */}
+      {faqItems.length > 0 && (
+        <section className="bg-white py-20 border-t border-slate-100">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6">
+
+            <div className="text-center mb-16">
+              <span className="inline-block bg-[#CFFFDC] text-[#2E6F40] text-xs font-black uppercase tracking-widest px-3.5 py-1.5 rounded-md border border-[#2E6F40]/10 shadow-2xs">
+                Got Questions?
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-[#111827] mt-1.5">
+                Frequently Asked Questions
+              </h2>
+              <div className="w-16 h-1.5 bg-[#2E6F40] mt-3 rounded-full mx-auto"></div>
+            </div>
+
+            {/* Accordion List */}
+            <div className="space-y-4">
+              {faqItems.map((faq, idx) => {
+                const isExpanded = expandedFaq === idx;
+                return (
+                  <div
+                    key={idx}
+                    className="border border-slate-200/80 rounded-2xl overflow-hidden transition-all duration-300"
+                  >
+                    <button
+                      onClick={() => toggleFaq(idx)}
+                      className="w-full flex items-center justify-between p-5 text-left font-bold text-gray-900 hover:text-emerald-800 transition-colors bg-white cursor-pointer"
+                    >
+                      <span className="text-sm font-bold pr-4">{faq.question}</span>
+                      <span className={`p-1 bg-slate-50 text-gray-500 rounded-lg transition-transform duration-300 ${isExpanded ? 'rotate-180 bg-emerald-50 text-[#2E6F40]' : ''
+                        }`}>
+                        <ChevronDown className="h-4 w-4" />
+                      </span>
+                    </button>
+
+                    {/* Expandable answer panel */}
+                    <div
+                      className={`transition-all duration-300 ease-in-out overflow-hidden bg-slate-50/50 ${isExpanded ? 'max-h-40 border-t border-gray-100 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
+                        }`}
+                    >
+                      <p className="p-5 text-xs sm:text-sm text-gray-600 leading-relaxed font-normal text-justify">
+                        {faq.answer}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+          </div>
+        </section>
+      )}
 
       {/* SECTION 10: CALL-TO-ACTION BANNER */}
       <section className="w-full bg-[#0C3B2E] py-20 text-center text-white relative overflow-hidden select-none border-t border-emerald-500/10">
@@ -900,10 +663,16 @@ export default function ServicesPage() {
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
-            <button className="py-3 px-8 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-teal-600 hover:to-emerald-600 text-white font-bold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 text-xs cursor-pointer transform active:scale-95">
+            <button 
+              onClick={() => window.location.href = '/contact-us'}
+              className="py-3 px-8 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-teal-600 hover:to-emerald-600 text-white font-bold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 text-xs cursor-pointer transform active:scale-95"
+            >
               Book a Service
             </button>
-            <button className="py-3 px-8 border border-white/20 hover:border-white hover:bg-white/5 text-white font-bold rounded-full transition-all duration-300 text-xs cursor-pointer transform active:scale-95">
+            <button 
+              onClick={() => window.location.href = '/contact-us'}
+              className="py-3 px-8 border border-white/20 hover:border-white hover:bg-white/5 text-white font-bold rounded-full transition-all duration-300 text-xs cursor-pointer transform active:scale-95"
+            >
               Contact Us
             </button>
           </div>

@@ -81,6 +81,8 @@ class AuthController extends Controller
 
         // For Phase 1 API design, return a mock JWT token and user info
         $token = 'MOCK_JWT_TOKEN_' . Str::random(24);
+        $user->api_token = $token;
+        $user->save();
 
         return response()->json([
             'message' => 'Registration successful.',
@@ -130,13 +132,14 @@ class AuthController extends Controller
         }
 
         $token = 'MOCK_JWT_TOKEN_' . Str::random(24);
-        $adminAutologinToken = null;
+        $user->api_token = $token;
 
+        $adminAutologinToken = null;
         if ($user->role === 'admin') {
             $adminAutologinToken = Str::random(60);
             $user->remember_token = $adminAutologinToken;
-            $user->save();
         }
+        $user->save();
 
         return response()->json([
             'message' => 'Login successful.',

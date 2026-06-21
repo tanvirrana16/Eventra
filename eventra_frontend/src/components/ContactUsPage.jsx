@@ -1,13 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Mail, Phone, MapPin, Clock, ChevronDown, RefreshCw, CheckCircle,
   AlertTriangle, ArrowRight, MessageSquare, Shield, User, HelpCircle,
-  Send, Calendar
+  Send, Calendar, Loader2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
 
-const CONTACT_INFO = [
+const iconMap = {
+  Mail, Phone, MapPin, Clock, ChevronDown, RefreshCw, CheckCircle,
+  AlertTriangle, ArrowRight, MessageSquare, Shield, User, HelpCircle,
+  Send, Calendar
+};
+
+const DEFAULT_CONTACT_INFO = [
   {
     title: "Email Us",
     details: ["hello@eventra.live", "support@eventra.live"],
@@ -51,6 +57,8 @@ export default function ContactUsPage() {
   // Submit Status Machine
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState('idle'); // 'idle' | 'success' | 'error'
+  const [isLoading, setIsLoading] = useState(true);
+  const [contactInfo, setContactInfo] = useState([]);
 
   // Dynamic API state
   const [heroData, setHeroData] = useState({
@@ -60,10 +68,22 @@ export default function ContactUsPage() {
   });
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/pages/hero/contact-us`)
-      .then(res => res.json())
-      .then(data => setHeroData(data))
-      .catch(err => console.warn('Failed to load contact us page hero details', err));
+    fetch(`${API_BASE_URL}/contact-us`)
+      .then(res => {
+        if (!res.ok) throw new Error('API server error');
+        return res.json();
+      })
+      .then(data => {
+        if (data.hero) {
+          setHeroData(data.hero);
+        }
+        setContactInfo(data.contact_info || []);
+        setIsLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to load contact us page details', err);
+        setIsLoading(false);
+      });
   }, []);
 
   const handleSubmit = (e) => {
@@ -78,12 +98,25 @@ export default function ContactUsPage() {
     setIsSubmitting(true);
     setSubmitStatus('idle');
 
-    // Simulate API POST /api/contact
-    setTimeout(() => {
-      // Demo trigger for error state: if email address contains "error", simulate API failure
-      if (emailAddress.toLowerCase().includes('error')) {
-        setSubmitStatus('error');
-      } else {
+    fetch(`${API_BASE_URL}/contact`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        fullName,
+        email: emailAddress,
+        phone: phoneNumber,
+        subject,
+        message
+      })
+    })
+      .then(res => {
+        if (!res.ok) throw new Error('API server error');
+        return res.json();
+      })
+      .then(() => {
         setSubmitStatus('success');
         // Clear fields on success
         setFullName('');
@@ -91,20 +124,37 @@ export default function ContactUsPage() {
         setPhoneNumber('');
         setSubject('General Inquiry');
         setMessage('');
-      }
-      setIsSubmitting(false);
+        setIsSubmitting(false);
 
-      // Reset feedback alert state after 6 seconds
-      setTimeout(() => {
-        setSubmitStatus('idle');
-      }, 6000);
+        // Reset feedback alert state after 6 seconds
+        setTimeout(() => {
+          setSubmitStatus('idle');
+        }, 6000);
+      })
+      .catch(err => {
+        console.error('Failed to submit contact form', err);
+        setSubmitStatus('error');
+        setIsSubmitting(false);
 
-    }, 1250);
+        // Reset feedback alert state after 6 seconds
+        setTimeout(() => {
+          setSubmitStatus('idle');
+        }, 6000);
+      });
   };
 
   const heroTitle = heroData?.title || '';
   const heroSubtitle = heroData?.subtitle || '';
   const heroBgColor = heroData?.background_color || '#0C3B2E';
+
+  if (isLoading) {
+    return (
+      <div className="flex-grow flex flex-col justify-center items-center py-40 bg-slate-50">
+        <Loader2 className="h-10 w-10 animate-spin text-[#2E6F40] mb-4" />
+        <span className="text-sm text-gray-500 font-bold">Loading contact details...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-grow bg-slate-50 font-outfit select-none overflow-x-hidden">
@@ -196,8 +246,8 @@ export default function ContactUsPage() {
       {/* SECTION 2: CONTACT INFORMATION CARDS */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 -mt-16 sm:-mt-24 relative z-30">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {CONTACT_INFO.map((info, idx) => {
-            const IconComponent = info.icon;
+          {(contactInfo.length > 0 ? contactInfo : DEFAULT_CONTACT_INFO).map((info, idx) => {
+            const IconComponent = iconMap[info.icon] || (typeof info.icon === 'string' ? Mail : info.icon);
             return (
               <div
                 key={idx}

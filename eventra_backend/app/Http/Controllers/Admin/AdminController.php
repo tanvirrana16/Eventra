@@ -291,6 +291,9 @@ class AdminController extends Controller
             'description' => 'nullable|string',
             'image' => 'nullable|image|max:5120',
             'status' => 'required|in:draft,published,archived',
+            'total_seats' => 'nullable|integer|min:1',
+            'ticket_type' => 'nullable|in:free,paid',
+            'ticket_price' => 'nullable|numeric|min:0',
         ]);
 
         $imagePath = '';
@@ -302,6 +305,7 @@ class AdminController extends Controller
             $imagePath = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800&q=80';
         }
 
+        $totalSeats = (int) ($request->total_seats ?? 100);
         Event::create([
             'title' => $request->title,
             'slug' => Str::slug($request->title) . '-' . rand(100, 999),
@@ -312,7 +316,11 @@ class AdminController extends Controller
             'description' => $request->description,
             'image_path' => $imagePath,
             'status' => $request->status,
-            'created_by' => Auth::id(), // Created by the admin
+            'total_seats' => $totalSeats,
+            'seats_left' => $totalSeats,
+            'ticket_type' => $request->ticket_type ?? 'free',
+            'ticket_price' => $request->ticket_price ?? 0.00,
+            'created_by' => Auth::id(),
         ]);
 
         return back()->with('success', 'Event created successfully.');

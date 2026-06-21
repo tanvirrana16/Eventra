@@ -1,60 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Calendar, Users, ShieldCheck, Award } from 'lucide-react';
 
-const statsData = [
-  {
-    target: 200,
-    suffix: '+',
-    label: 'TOTAL EVENTS',
-    icon: Calendar,
-    gradient: 'from-[#2563EB] to-[#3B82F6]',
-    glowColor: 'hover:shadow-blue-500/10',
-    borderColor: 'hover:border-blue-500/10',
-    iconBg: 'bg-blue-50 text-blue-600',
-    labelColor: 'group-hover:text-blue-600',
-    cornerGradient: 'from-blue-400 to-transparent',
-    borderGlow: 'group-hover:border-blue-500/30'
-  },
-  {
-    target: 15400,
-    suffix: '+',
-    label: 'PARTICIPANTS',
-    icon: Users,
-    gradient: 'from-[#2E6F40] to-emerald-500',
-    glowColor: 'hover:shadow-emerald-500/10',
-    borderColor: 'hover:border-emerald-500/10',
-    iconBg: 'bg-emerald-50 text-emerald-600',
-    labelColor: 'group-hover:text-emerald-700',
-    cornerGradient: 'from-emerald-400 to-transparent',
-    borderGlow: 'group-hover:border-emerald-500/30'
-  },
-  {
-    target: 85,
-    suffix: '+',
-    label: 'ORGANIZERS',
-    icon: ShieldCheck,
-    gradient: 'from-[#D97706] to-[#F59E0B]',
-    glowColor: 'hover:shadow-amber-500/10',
-    borderColor: 'hover:border-amber-500/10',
-    iconBg: 'bg-amber-50 text-amber-600',
-    labelColor: 'group-hover:text-amber-600',
-    cornerGradient: 'from-amber-400 to-transparent',
-    borderGlow: 'group-hover:border-amber-500/30'
-  },
-  {
-    target: 12800,
-    suffix: '+',
-    label: 'CERTIFICATES Issued',
-    icon: Award,
-    gradient: 'from-[#7C3AED] to-[#EC4899]',
-    glowColor: 'hover:shadow-purple-500/10',
-    borderColor: 'hover:border-purple-500/10',
-    iconBg: 'bg-purple-50 text-purple-600',
-    labelColor: 'group-hover:text-purple-600',
-    cornerGradient: 'from-purple-400 to-transparent',
-    borderGlow: 'group-hover:border-purple-500/30'
-  }
-];
+
 
 function SingleStat({ 
   target, 
@@ -70,9 +17,21 @@ function SingleStat({
   borderGlow 
 }) {
   const [count, setCount] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef(null);
+
+  // Only start counting when visible in viewport
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setIsVisible(true); },
+      { threshold: 0.3 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
-    if (target === 0) return;
+    if (!isVisible || target === 0) return;
     
     let start = 0;
     const duration = 2200; // 2.2 seconds (smooth medium speed)
@@ -91,10 +50,10 @@ function SingleStat({
     }, frameRate);
 
     return () => clearInterval(timer);
-  }, [target]);
+  }, [isVisible, target]);
 
   return (
-    <div className={`group relative bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1.5 flex flex-col justify-between items-center text-center overflow-hidden cursor-pointer ${borderColor} ${glowColor}`}>
+    <div ref={ref} className={`group relative bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1.5 flex flex-col justify-between items-center text-center overflow-hidden cursor-pointer ${borderColor} ${glowColor}`}>
       
       {/* Animated corner borders */}
       <div className={`absolute top-0 left-0 w-8 h-[1.5px] bg-gradient-to-r ${cornerGradient} transition-all group-hover:w-16 duration-700 z-30`}></div>
