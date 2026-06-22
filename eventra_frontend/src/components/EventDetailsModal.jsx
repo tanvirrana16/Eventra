@@ -311,11 +311,16 @@ export default function EventDetailsModal({ event, onClose }) {
                   alt={event.organizer?.name}
                   className="w-10 h-10 rounded-full object-cover ring-2 ring-[#2E6F40]/10"
                 />
-                <div>
+                <div className="flex-1 min-w-0">
                   <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Hosted By</p>
                   <p className="text-sm font-bold text-gray-900">{event.organizer?.name}</p>
                   {event.organizer?.organizationName && (
                     <p className="text-[10px] text-gray-500 font-semibold">{event.organizer?.organizationName}</p>
+                  )}
+                  {event.contactDetails && (
+                    <p className="text-[10px] text-slate-500 font-medium mt-1 truncate">
+                      Contact: {event.contactDetails}
+                    </p>
                   )}
                 </div>
               </div>
@@ -332,6 +337,12 @@ export default function EventDetailsModal({ event, onClose }) {
                     <p className="text-[11px] text-gray-500 font-medium">
                       {event.time} {event.eventEndTime && `- ${event.eventEndTime}`}
                     </p>
+                    {event.registrationDeadline && (
+                      <div className="text-[10px] text-rose-600 font-bold mt-1.5 flex items-center space-x-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+                        <span>Deadline: {new Date(event.registrationDeadline).toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'})}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -340,7 +351,7 @@ export default function EventDetailsModal({ event, onClose }) {
                     <MapPin className="h-4 w-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-gray-800">Venue</p>
+                    <p class="text-xs font-bold text-gray-800">Venue</p>
                     <p className="text-[11px] text-gray-500 font-medium leading-relaxed">{event.venue}</p>
                   </div>
                 </div>

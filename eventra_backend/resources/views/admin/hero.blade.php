@@ -168,10 +168,16 @@
                 <label for="image" class="block text-xs font-bold uppercase tracking-wider text-slate-600">Select Image (Max 5MB)</label>
                 <input type="file" name="image" id="image" required class="w-full text-xs font-semibold text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-brand-accent hover:file:bg-emerald-100" />
             </div>
-            <!-- Title -->
-            <div class="space-y-1">
-                <label for="title" class="block text-xs font-bold uppercase tracking-wider text-slate-600">Title (Optional)</label>
-                <input type="text" name="title" id="title" class="w-full px-4 py-2 border border-slate-200 focus:outline-none focus:border-brand-accent rounded-xl text-sm font-semibold" />
+            <!-- Title & Date -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-1">
+                    <label for="title" class="block text-xs font-bold uppercase tracking-wider text-slate-600">Title (Optional)</label>
+                    <input type="text" name="title" id="title" class="w-full px-4 py-2 border border-slate-200 focus:outline-none focus:border-brand-accent rounded-xl text-sm font-semibold" />
+                </div>
+                <div class="space-y-1">
+                    <label for="date" class="block text-xs font-bold uppercase tracking-wider text-slate-600">Date (e.g. 25 JUN)</label>
+                    <input type="text" name="date" id="date" placeholder="e.g. 25 JUN" class="w-full px-4 py-2 border border-slate-200 focus:outline-none focus:border-brand-accent rounded-xl text-sm font-semibold" />
+                </div>
             </div>
             <!-- Description -->
             <div class="space-y-1">
@@ -213,10 +219,16 @@
                 <label for="edit_image" class="block text-xs font-bold uppercase tracking-wider text-slate-600">Replace Image (Optional)</label>
                 <input type="file" name="image" id="edit_image" class="w-full text-xs font-semibold text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-brand-accent hover:file:bg-emerald-100" />
             </div>
-            <!-- Title -->
-            <div class="space-y-1">
-                <label for="edit_title" class="block text-xs font-bold uppercase tracking-wider text-slate-600">Title</label>
-                <input type="text" name="title" id="edit_title" class="w-full px-4 py-2 border border-slate-200 focus:outline-none focus:border-brand-accent rounded-xl text-sm font-semibold" />
+            <!-- Title & Date -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-1">
+                    <label for="edit_title" class="block text-xs font-bold uppercase tracking-wider text-slate-600">Title</label>
+                    <input type="text" name="title" id="edit_title" class="w-full px-4 py-2 border border-slate-200 focus:outline-none focus:border-brand-accent rounded-xl text-sm font-semibold" />
+                </div>
+                <div class="space-y-1">
+                    <label for="edit_date" class="block text-xs font-bold uppercase tracking-wider text-slate-600">Date (e.g. 25 JUN)</label>
+                    <input type="text" name="date" id="edit_date" placeholder="e.g. 25 JUN" class="w-full px-4 py-2 border border-slate-200 focus:outline-none focus:border-brand-accent rounded-xl text-sm font-semibold" />
+                </div>
             </div>
             <!-- Description -->
             <div class="space-y-1">
@@ -256,6 +268,7 @@
         form.action = `/admin/hero/slides/${slide.id}`;
 
         document.getElementById('edit_title').value = slide.title || '';
+        document.getElementById('edit_date').value = slide.date || '';
         document.getElementById('edit_description').value = slide.description || '';
         document.getElementById('edit_display_order').value = slide.display_order || 0;
         document.getElementById('edit_is_active').checked = !!slide.is_active;

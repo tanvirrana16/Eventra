@@ -25,6 +25,106 @@ const iconMap = {
   Mail, MapPin, Zap, Lightbulb: LightbulbIcon
 };
 
+const MOCK_TEAM_MEMBERS = [
+  {
+    name: 'Alexander Vance',
+    role: 'Founder & CEO',
+    image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&h=300&q=80',
+    bio: 'Visionary entrepreneur with 10+ years managing large-scale global event technologies. Driven by connecting people through innovation.',
+    socials: { linkedin: '#', twitter: '#', github: '#' }
+  },
+  {
+    name: 'Elena Rostova',
+    role: 'Project Manager',
+    image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&h=300&q=80',
+    bio: 'Certified Scrum Master ensuring timeline enforcement, vendor compliance, and seamless on-day management checklists.',
+    socials: { linkedin: '#', twitter: '#', facebook: '#' }
+  },
+  {
+    name: 'Sarah Jenkins',
+    role: 'UI/UX Lead Designer',
+    image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&h=300&q=80',
+    bio: 'Passionate about building highly intuitive, premium user experiences and layout grids that make event discovery enjoyable.',
+    socials: { linkedin: '#', twitter: '#' }
+  },
+  {
+    name: 'Marcus Cole',
+    role: 'Lead Frontend Developer',
+    image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&h=300&q=80',
+    bio: 'Vite and React specialist crafting smooth micro-interactions, responsive CSS components, and highly accessible structures.',
+    socials: { linkedin: '#', github: '#', twitter: '#' }
+  }
+];
+
+const MOCK_CHOOSE_FEATURES = [
+  { title: 'Modern Event Management', desc: 'Easily organize events from a unified portal with smart settings and layout customization.', icon: 'Settings' },
+  { title: 'Easy Event Discovery', desc: 'Instantly filter events based on tags, categories, live status, and physical location.', icon: 'Search' },
+  { title: 'Secure Registration', desc: 'High-grade registration forms and payment portals keeping client details completely private.', icon: 'ShieldCheck' },
+  { title: 'Digital Certificates', desc: 'Secure cryptographic certificate generation validating participant achievements instantly.', icon: 'Award' },
+  { title: 'Professional Support', desc: 'Our coordination helpdesk operates 24/7 assisting organizers with logistics setup.', icon: 'MessageSquare' },
+  { title: 'Smart Event Analytics', desc: 'Track attendees, ticket sales, registration trends, and feedback ratings in real-time.', icon: 'LineChart' },
+  { title: 'Responsive Platform', desc: 'Optimized mobile drawer viewports and fluid designs suitable for any size device screen.', icon: 'Laptop' },
+  { title: 'Trusted by Communities', desc: 'Active integration networks with university clubs, tech communities, and corporate brands.', icon: 'Users' }
+];
+
+const MOCK_TIMELINE_STEPS = [
+  { year: '2025', title: 'Idea Born', desc: 'Eventra project conceived to build an unified event coordinator platform.', icon: 'Lightbulb' },
+  { year: '2026', title: 'Official Launch', desc: 'Version 1.0 released globally with instant search and ticket registry systems.', icon: 'Zap' },
+  { year: '2026', title: 'Community Growth', desc: 'Hosted over 100+ community meets and deployed secure digital certificate systems.', icon: 'Trophy' },
+  { year: 'Future', title: 'Global Expansion', desc: 'Integrating automated AI matchmaking and expanding corporate events portfolios.', icon: 'Globe' }
+];
+
+const MOCK_PARTNERS = [
+  { name: 'Apex University', logoText: 'APEX', desc: 'Academic Partner' },
+  { name: 'Delta Startups', logoText: 'DELTA', desc: 'Startup Ecosystem' },
+  { name: 'Zenith Corp', logoText: 'ZENITH', desc: 'Corporate Sponsor' },
+  { name: 'Omni Media', logoText: 'OMNI', desc: 'Media Broadcaster' },
+  { name: 'NextTech', logoText: 'NEXT', desc: 'Tech Incubator' },
+  { name: 'Genesis Lab', logoText: 'GENESIS', desc: 'Research Partner' }
+];
+
+const MOCK_TESTIMONIALS = [
+  {
+    name: 'Professor Albert Sterling',
+    org: 'Dean of Computer Science at Stanford',
+    photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=100&h=100&q=80',
+    rating: 5,
+    review: 'Eventra made organizing our university tech conference effortless. The platform is intuitive, reliable, and professional. The digital certificate generation was highly appreciated by the students.'
+  },
+  {
+    name: 'Clara Oswald',
+    org: 'Co-Founder of Zenith Tech Meetups',
+    photo: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=100&h=100&q=80',
+    rating: 5,
+    review: 'As an event organizer, tracking registrations used to be a nightmare. Deployed Eventra for our tech hackathon and the experience was absolute bliss. Dynamic check-ins ran without a lag.'
+  },
+  {
+    name: 'Julian Sterling',
+    org: 'Director of HR at Nexa Corp',
+    photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&h=100&q=80',
+    rating: 5,
+    review: 'The annual corporate team camp we hosted using Eventra was coordinated flawlessly. The scheduling flows and feedback analytics gave us key insights into team engagement.'
+  }
+];
+
+const MOCK_FAQ_ITEMS = [
+  { question: 'What is Eventra?', answer: 'Eventra is a modern, premium event management platform built to simplify event discovery, registration, scheduling, and digital certificate verification. We serve communities, corporate groups, startups, and academic groups alike.' },
+  { question: 'How do I create an event?', answer: 'You can create an event by registering an Organizer profile. Once approved by our compliance review team, you will receive full access to our dashboard to draft schedules, customize landing pages, upload maps, and track invites.' },
+  { question: 'Is Eventra free to use?', answer: 'Eventra offers a free tier for community meetups and standard local events. For premium features such as sound/lighting equipment bookings, custom LED rendering, certificate generation, or payment portals, we offer flexible subscription packages.' },
+  { question: 'Can organizations use Eventra?', answer: 'Absolutely! Eventra has a dedicated organizational suite built to handle high-volume user traffic, VIP scheduling, sponsor banners, multiple on-site coordinators, and detailed post-event analytical spreadsheets.' },
+  { question: 'How do certificate verification and registration work?', answer: 'When a participant completes an event, a unique Certificate ID is registered in our database. The participant receives a digital link. Anyone can verify this link or input the Certificate ID on our Certificate Verification page to retrieve instant registry validation.' },
+  { question: 'How can I become a partner?', answer: 'We welcome partnerships with universities, corporate sponsors, tech incubators, and media networks. Click the \'Contact Us\' button in our call-to-action banner below, or reach out to partners@eventra.com to request collaboration terms.' }
+];
+
+const MOCK_STATS = [
+  { count: 100, label: 'Events Organized', suffix: '+', color: 'text-indigo-600 bg-indigo-50 border-indigo-100' },
+  { count: 10000, label: 'Participants Connected', suffix: '+', color: 'text-emerald-700 bg-emerald-50 border-emerald-100' },
+  { count: 150, label: 'Registered Organizers', suffix: '+', color: 'text-amber-700 bg-amber-50 border-amber-100' },
+  { count: 98, label: 'Satisfaction Rate', suffix: '%', color: 'text-rose-600 bg-rose-50 border-rose-100' },
+  { count: 500, label: 'Certificates Issued', suffix: '+', color: 'text-purple-600 bg-purple-50 border-purple-100' },
+  { count: 25, label: 'Partner Organizations', suffix: '+', color: 'text-teal-600 bg-teal-50 border-teal-100' }
+];
+
 export default function AboutUsPage() {
   const navigate = useNavigate();
   const [activeTestimonial, setActiveTestimonial] = useState(0);
@@ -46,17 +146,21 @@ export default function AboutUsPage() {
         setIsLoading(false);
         if (data.stats && data.stats.length > 0) {
           setCounts(data.stats.map(() => 0));
+        } else {
+          setCounts(MOCK_STATS.map(() => 0));
         }
       })
       .catch(err => {
         console.error('Failed to load about-us page data', err);
         setIsLoading(false);
+        setCounts(MOCK_STATS.map(() => 0));
       });
   }, []);
 
   // Counter animation logic triggered when pageData loads
   useEffect(() => {
-    if (!pageData || !pageData.stats || pageData.stats.length === 0) return;
+    const statsList = pageData?.stats || MOCK_STATS;
+    if (statsList.length === 0) return;
 
     const duration = 2000; // 2 seconds counting
     const steps = 50;
@@ -65,7 +169,7 @@ export default function AboutUsPage() {
 
     const timer = setInterval(() => {
       currentStep++;
-      setCounts(pageData.stats.map((stat) => {
+      setCounts(statsList.map((stat) => {
         const target = stat.count;
         const currentVal = Math.round((target / steps) * currentStep);
         return currentVal >= target ? target : currentVal;
@@ -84,13 +188,13 @@ export default function AboutUsPage() {
   };
 
   const handlePrevTestimonial = () => {
-    if (!pageData?.testimonials) return;
-    setActiveTestimonial((prev) => (prev - 1 + pageData.testimonials.length) % pageData.testimonials.length);
+    const list = pageData?.testimonials || MOCK_TESTIMONIALS;
+    setActiveTestimonial((prev) => (prev - 1 + list.length) % list.length);
   };
 
   const handleNextTestimonial = () => {
-    if (!pageData?.testimonials) return;
-    setActiveTestimonial((prev) => (prev + 1) % pageData.testimonials.length);
+    const list = pageData?.testimonials || MOCK_TESTIMONIALS;
+    setActiveTestimonial((prev) => (prev + 1) % list.length);
   };
 
   if (isLoading) {
@@ -106,13 +210,13 @@ export default function AboutUsPage() {
   const heroSubtitle = pageData?.hero?.subtitle || 'Connecting people through meaningful events.';
   const heroBgColor = pageData?.hero?.background_color || '#0C3B2E';
   
-  const teamMembers = pageData?.team_members || [];
-  const chooseFeatures = pageData?.choose_features || [];
-  const timelineSteps = pageData?.timeline_steps || [];
-  const partners = pageData?.partners || [];
-  const testimonials = pageData?.testimonials || [];
-  const faqItems = pageData?.faq_items || [];
-  const stats = pageData?.stats || [];
+  const teamMembers = pageData?.team_members || MOCK_TEAM_MEMBERS;
+  const chooseFeatures = pageData?.choose_features || MOCK_CHOOSE_FEATURES;
+  const timelineSteps = pageData?.timeline_steps || MOCK_TIMELINE_STEPS;
+  const partners = pageData?.partners || MOCK_PARTNERS;
+  const testimonials = pageData?.testimonials || MOCK_TESTIMONIALS;
+  const faqItems = pageData?.faq_items || MOCK_FAQ_ITEMS;
+  const stats = pageData?.stats || MOCK_STATS;
 
   return (
     <div className="flex-grow bg-slate-50 font-outfit select-none overflow-x-hidden">

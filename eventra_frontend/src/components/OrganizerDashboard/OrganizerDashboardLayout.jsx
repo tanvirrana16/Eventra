@@ -43,6 +43,13 @@ export default function OrganizerDashboardLayout({ setIsLoggedIn }) {
 
   // Modal / Detail States
   const [selectedDetailEvent, setSelectedDetailEvent] = useState(null);
+  const [eventToEdit, setEventToEdit] = useState(null);
+
+  useEffect(() => {
+    if (activeTab !== 'launch-event') {
+      setEventToEdit(null);
+    }
+  }, [activeTab]);
 
   // Search States
   const [searchQuery, setSearchQuery] = useState('');
@@ -252,8 +259,14 @@ export default function OrganizerDashboardLayout({ setIsLoggedIn }) {
             API_BASE_URL={API_BASE_URL} 
             token={token} 
             onEventCreated={() => {
+              setEventToEdit(null);
               setActiveTab('my-events');
               fetchAllOrganizerData();
+            }}
+            eventToEdit={eventToEdit}
+            onCancelEdit={() => {
+              setEventToEdit(null);
+              setActiveTab('my-events');
             }}
           />
         );
@@ -266,6 +279,10 @@ export default function OrganizerDashboardLayout({ setIsLoggedIn }) {
             onDeleteSuccess={fetchAllOrganizerData}
             setActiveTab={setActiveTab}
             onViewEvent={(evt) => setSelectedDetailEvent(evt)}
+            onEditEvent={(evt) => {
+              setEventToEdit(evt);
+              setActiveTab('launch-event');
+            }}
           />
         );
       case 'participants':

@@ -93,6 +93,30 @@
                 @endif
             </a>
 
+            <!-- Services Settings -->
+            <a href="{{ route('admin.services') }}" class="flex items-center space-x-3.5 px-4.5 py-3 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('admin.services') ? 'bg-brand-accent text-white shadow-md shadow-emerald-900/40' : 'text-emerald-100/80 hover:bg-white/5 hover:text-white' }}">
+                <i data-lucide="briefcase" class="h-5 w-5"></i>
+                <span>Services Settings</span>
+            </a>
+
+            <!-- Verification FAQ -->
+            <a href="{{ route('admin.verification') }}" class="flex items-center space-x-3.5 px-4.5 py-3 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('admin.verification') ? 'bg-brand-accent text-white shadow-md shadow-emerald-900/40' : 'text-emerald-100/80 hover:bg-white/5 hover:text-white' }}">
+                <i data-lucide="file-check-2" class="h-5 w-5"></i>
+                <span>Verification FAQ</span>
+            </a>
+
+            <!-- About Us Settings -->
+            <a href="{{ route('admin.about') }}" class="flex items-center space-x-3.5 px-4.5 py-3 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('admin.about') ? 'bg-brand-accent text-white shadow-md shadow-emerald-900/40' : 'text-emerald-100/80 hover:bg-white/5 hover:text-white' }}">
+                <i data-lucide="info" class="h-5 w-5"></i>
+                <span>About Us Settings</span>
+            </a>
+
+            <!-- Contact Settings -->
+            <a href="{{ route('admin.contact') }}" class="flex items-center space-x-3.5 px-4.5 py-3 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('admin.contact') ? 'bg-brand-accent text-white shadow-md shadow-emerald-900/40' : 'text-emerald-100/80 hover:bg-white/5 hover:text-white' }}">
+                <i data-lucide="phone" class="h-5 w-5"></i>
+                <span>Contact Settings</span>
+            </a>
+
             <!-- Footer Details -->
             <a href="{{ route('admin.footer') }}" class="flex items-center space-x-3.5 px-4.5 py-3 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('admin.footer') ? 'bg-brand-accent text-white shadow-md shadow-emerald-900/40' : 'text-emerald-100/80 hover:bg-white/5 hover:text-white' }}">
                 <i data-lucide="menu-square" class="h-5 w-5"></i>

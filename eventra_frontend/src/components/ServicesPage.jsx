@@ -18,6 +18,226 @@ const iconMap = {
   Clock, DollarSign, Award, MessageSquare, Check, Plus, Minus, Calendar, Settings
 };
 
+const MOCK_CORE_SERVICES = [
+  {
+    title: 'Wedding Planning',
+    icon: 'Heart',
+    gradient: 'from-purple-500/10 to-indigo-500/5 border-purple-500/15 text-purple-700 hover:border-purple-400/40 hover:shadow-purple-500/5',
+    badgeBg: 'bg-purple-50 text-purple-700',
+    description: 'We manage every aspect of your wedding, including decor, guest lists, catering, and schedule planning for your special day.',
+    features: ['Venue Selection', 'Custom Decoration', 'Catering & Menu Design', 'Guest Invitations', 'On-Day Coordination', 'Photography Setup']
+  },
+  {
+    title: 'Corporate Events',
+    icon: 'Briefcase',
+    gradient: 'from-amber-500/10 to-orange-500/5 border-amber-500/15 text-amber-700 hover:border-amber-400/40 hover:shadow-amber-500/5',
+    badgeBg: 'bg-amber-50 text-amber-700',
+    description: 'Professional corporate event organization from product launches, annual dinners, board meetups, to team-building activities.',
+    features: ['AV Setup & Support', 'Guest Speaker booking', 'Catering & Logistics', 'Branding & Signage', 'On-Site Management', 'VIP Coordination']
+  },
+  {
+    title: 'Conferences & Seminars',
+    icon: 'Presentation',
+    gradient: 'from-teal-500/10 to-emerald-500/5 border-teal-500/15 text-teal-700 hover:border-teal-400/40 hover:shadow-teal-500/5',
+    badgeBg: 'bg-teal-50 text-teal-700',
+    description: 'Flawless seminar execution featuring high-end streaming setups, registration, speaker support, and feedback management.',
+    features: ['Digital Registration', 'Live Streaming Setups', 'Speaker Coordination', 'Feedback Forms', 'Stage Design', 'Security Services']
+  },
+  {
+    title: 'Concert Management',
+    icon: 'Music',
+    gradient: 'from-purple-500/10 to-indigo-500/5 border-purple-500/15 text-purple-700 hover:border-purple-400/40 hover:shadow-purple-500/5',
+    badgeBg: 'bg-purple-50 text-purple-700',
+    description: 'Large scale concert logistics, including stadium booking, ticket portal integration, professional audio systems, and security.',
+    features: ['Acoustics & Lighting', 'Ticket Portal Setup', 'Artist Management', 'Crowd Security', 'VIP Seating Deck', 'Permit Management']
+  },
+  {
+    title: 'Cultural Programs',
+    icon: 'Tv',
+    gradient: 'from-amber-500/10 to-orange-500/5 border-amber-500/15 text-amber-700 hover:border-amber-400/40 hover:shadow-amber-500/5',
+    badgeBg: 'bg-amber-50 text-amber-700',
+    description: 'Vibrant traditional and national cultural program setups featuring customized theme decor, local artists, and stage design.',
+    features: ['Custom Stage Sets', 'Traditional Decor', 'Artist Management', 'Event Flow Control', 'Photography & Video', 'Sound Engineering']
+  },
+  {
+    title: 'Birthday Parties',
+    icon: 'Cake',
+    gradient: 'from-teal-500/10 to-emerald-500/5 border-teal-500/15 text-teal-700 hover:border-teal-400/40 hover:shadow-teal-500/5',
+    badgeBg: 'bg-teal-50 text-teal-700',
+    description: 'Creating magical birthday setups matching your customized themes, catering, entertainment shows, and cake presentation.',
+    features: ['Theme Decoration', 'Kids Entertainment', 'Cake Setup Design', 'Photo Booths', 'Catering Services', 'Invitation Cards']
+  },
+  {
+    title: 'Startup & Tech Events',
+    icon: 'Code',
+    gradient: 'from-purple-500/10 to-indigo-500/5 border-purple-500/15 text-purple-700 hover:border-purple-400/40 hover:shadow-purple-500/5',
+    badgeBg: 'bg-purple-50 text-purple-700',
+    description: 'Hackathons, networking sessions, pitch cups, and product demos. We coordinate power backups, high-speed networks, and VC invites.',
+    features: ['Pitch Deck Stages', 'VC Coordinator', 'High Speed Internet', 'Power Backups', 'Live Demo Zones', 'Event Promotion']
+  },
+  {
+    title: 'Sports Events',
+    icon: 'Dumbbell',
+    gradient: 'from-amber-500/10 to-orange-500/5 border-amber-500/15 text-amber-700 hover:border-amber-400/40 hover:shadow-amber-500/5',
+    badgeBg: 'bg-amber-50 text-amber-700',
+    description: 'Planning tournaments, championships, runs, or marathons. We coordinate stadium logistics, safety, and athlete badges.',
+    features: ['Stadium Booking', 'Athlete Badges', 'Medical/Safety staff', 'Score Boards', 'Sponsorship Banners', 'Press Deck Setup']
+  },
+  {
+    title: 'Community Meetups',
+    icon: 'Users',
+    gradient: 'from-teal-500/10 to-emerald-500/5 border-teal-500/15 text-teal-700 hover:border-teal-400/40 hover:shadow-teal-500/5',
+    badgeBg: 'bg-teal-50 text-teal-700',
+    description: 'Intimate and social group gatherings. We find cozy cafes, organize discussion cards, registration tables, and catering setups.',
+    features: ['Cafe Bookings', 'Icebreakers Cards', 'Guest Support', 'Catering & Snacks', 'Promotion Services', 'Audio Microphones']
+  }
+];
+
+const MOCK_ADDITIONAL_SERVICES = [
+  { name: 'Photography & Videography', icon: 'Camera' },
+  { name: 'Catering Services', icon: 'Utensils' },
+  { name: 'Event Decoration', icon: 'Paintbrush' },
+  { name: 'Stage Design', icon: 'Layers' },
+  { name: 'Lighting Setup', icon: 'Lightbulb' },
+  { name: 'Professional Sound System', icon: 'Volume2' },
+  { name: 'DJ & Live Entertainment', icon: 'Music' },
+  { name: 'LED Display Solutions', icon: 'Tv' },
+  { name: 'Ticket Management', icon: 'Tickets' },
+  { name: 'Event Registration', icon: 'FileText' },
+  { name: 'Security Services', icon: 'ShieldAlert' },
+  { name: 'Furniture Rental', icon: 'Armchair' },
+  { name: 'Floral Decoration', icon: 'Flower' },
+  { name: 'Custom Invitation Design', icon: 'PenTool' }
+];
+
+const MOCK_TIMELINE_STEPS = [
+  { step: 'Step 1', title: 'Consultation', description: 'We meet to understand your vision, goals, and budget constraints.', icon: 'MessageSquare' },
+  { step: 'Step 2', title: 'Planning', description: 'Our team designs a detailed roadmap and secures top-tier resources.', icon: 'Calendar' },
+  { step: 'Step 3', title: 'Execution', description: 'We bring the plan to life with flawless on-site coordination.', icon: 'Zap' },
+  { step: 'Step 4', title: 'Successful Event', description: 'Relax and enjoy a seamlessly delivered, unforgettable guest experience.', icon: 'Trophy' }
+];
+
+const MOCK_WHY_CHOOSE_US = [
+  { title: 'Experienced Event Managers', description: 'Our certified planners have coordinated over 500+ events globally.', icon: 'Users' },
+  { title: 'Customized Event Planning', description: 'Every roadmap, stage design, and decor is built tailored specifically to your needs.', icon: 'PenTool' },
+  { title: 'Transparent Pricing', description: 'No hidden charges, flexible packages, and transparent quotations upfront.', icon: 'DollarSign' },
+  { title: 'Modern Equipment', description: 'Utilizing top-grade audio systems, LED displays, and custom laser lighting.', icon: 'Settings' },
+  { title: 'Creative Event Concepts', description: 'Innovative themes and designs that leave a lasting memory on all attendees.', icon: 'Lightbulb' },
+  { title: 'Trusted by Organizations', description: 'Active partners with over 80+ top multinational corporate brands.', icon: 'Award' },
+  { title: 'Professional Team', description: 'Dedicated on-site coordinators who manage all micro-logistics on event day.', icon: 'ShieldCheck' },
+  { title: 'On-Time Event Execution', description: 'Strict timeline compliance and prompt execution schedules.', icon: 'Clock' }
+];
+
+const MOCK_PORTFOLIO_PROJECTS = [
+  {
+    title: 'Annual Tech Innovators Summit 2026',
+    category: 'Conferences',
+    image: 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80',
+    location: 'Convention Hall A, San Francisco',
+    attendees: '1,200 Attendees',
+    date: 'March 15, 2026'
+  },
+  {
+    title: 'Serenade Woods Luxury Wedding',
+    category: 'Wedding Planning',
+    image: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80',
+    location: 'Whispering Pines Forest, Oregon',
+    attendees: '350 Guests',
+    date: 'May 28, 2026'
+  },
+  {
+    title: 'Neon Horizon Music & Arts Fest',
+    category: 'Concerts',
+    image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80',
+    location: 'Riverfront Arena Amphitheatre',
+    attendees: '8,500 Attendees',
+    date: 'June 05, 2026'
+  }
+];
+
+const MOCK_PRICING_PACKAGES = [
+  {
+    name: 'Basic',
+    price: '$1,500',
+    suitable: 'Suitable for small events',
+    features: [
+      'Initial Event Planning & Strategy',
+      'Standard Backdrop & Stage Decor',
+      'Basic Photography (4 hours coverage)',
+      'Standard Guest Support Check-in',
+      'Catering Vendor Selection Support'
+    ],
+    buttonText: 'Choose Plan',
+    popular: false
+  },
+  {
+    name: 'Professional',
+    price: '$4,500',
+    suitable: 'Suitable for medium-sized events',
+    features: [
+      'Premium Stage Backdrop & Theme Decor',
+      'High-Res Photography & Videography',
+      'Full Catering Logistics Coordination',
+      'Stage Lighting & Basic Sound Setup',
+      'Digital Invites & RSVP Management',
+      '2 Dedicated On-Site Coordinators'
+    ],
+    buttonText: 'Choose Plan',
+    popular: true
+  },
+  {
+    name: 'Enterprise',
+    price: '$10,000',
+    suitable: 'Suitable for large corporate events',
+    features: [
+      'Dedicated Full-Time Event Director',
+      'Custom Visual 3D Stage Rendering',
+      'VIP/Premium Guest Care Services',
+      'High-Grade Security & Crowd Management',
+      'LED Screen & Professional Sound Arrays',
+      'Live Streaming & AV Setup',
+      'Custom End-to-End Solutions'
+    ],
+    buttonText: 'Contact Sales',
+    popular: false
+  }
+];
+
+const MOCK_TESTIMONIALS = [
+  {
+    name: 'Rachel Morrison',
+    org: 'VP of Operations at Google Cloud',
+    photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&h=80&q=80',
+    rating: 5,
+    review: 'Eventra managed our annual tech conference flawlessly. The team was highly professional, incredibly organized, and exceeded all our expectations from scheduling down to stage setups.'
+  },
+  {
+    name: 'Michael Chen',
+    org: 'Founder of Delta Startups',
+    photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=80&h=80&q=80',
+    rating: 5,
+    review: 'The pitch cup and mixer organized by Eventra was a massive success! Their AV support was perfect, internet speed ran smoothly, and on-site logistics went without a single issue.'
+  },
+  {
+    name: 'Sophie & Daniel',
+    org: 'Married Couples',
+    photo: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=80&h=80&q=80',
+    rating: 5,
+    review: 'Our wedding decor and execution were absolutely magical. Eventra handled all guest check-ins, food coordinate timings, and decor layout exactly as we had designed in the roadmaps.'
+  }
+];
+
+const MOCK_FAQ_ITEMS = [
+  { question: 'How do I book an event management service?', answer: 'You can book by clicking the \'Book a Service\' button in our hero section or navigating to our Contact page. Our executive event planners will set up an online video call to draft initial proposals.' },
+  { question: 'Can I customize my package?', answer: 'Absolutely! All basic, professional, and enterprise plans serve as structured guides. We customize every detail—decoration themes, speaker decks, permits, catering—to match your exact target goals.' },
+  { question: 'Do you organize corporate events?', answer: 'Yes, corporate events are one of our core specialties. We host conferences, seminars, stakeholder meetups, team-building camps, and formal award dinners.' },
+  { question: 'Do you provide catering services?', answer: 'While we do not prepare food directly in-house, we coordinate directly with elite, licensed local catering vendors. We draft menus, sample food quality, and direct catering serving timelines.' },
+  { question: 'How early should I book?', answer: 'For large conferences, weddings, or concerts, we highly recommend booking at least 3 to 6 months in advance. For minor workshops, startup mixers, or birthday parties, 1 month is generally sufficient.' },
+  { question: 'Can you manage university events?', answer: 'Yes, we coordinate university convocations, talent sports cups, and tech hackathons. We offer discounted pricing models specifically for academic institutions.' },
+  { question: 'What payment methods do you accept?', answer: 'We accept bank wire transfers, major credit cards, mobile wallets, and corporate cheques. Payments are generally structured in a 50% booking advance and a 50% post-event clearance format.' },
+  { question: 'Can I cancel or reschedule my booking?', answer: 'Yes. Cancelations up to 30 days before the event receive full refunds minus deposits. Rescheduling is free of charge up to 15 days prior, subject to venue availability.' }
+];
+
 export default function ServicesPage() {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [expandedFaq, setExpandedFaq] = useState(null);
@@ -45,13 +265,13 @@ export default function ServicesPage() {
   };
 
   const handlePrevTestimonial = () => {
-    if (!pageData?.testimonials) return;
-    setActiveTestimonial((prev) => (prev - 1 + pageData.testimonials.length) % pageData.testimonials.length);
+    const list = pageData?.testimonials || MOCK_TESTIMONIALS;
+    setActiveTestimonial((prev) => (prev - 1 + list.length) % list.length);
   };
 
   const handleNextTestimonial = () => {
-    if (!pageData?.testimonials) return;
-    setActiveTestimonial((prev) => (prev + 1) % pageData.testimonials.length);
+    const list = pageData?.testimonials || MOCK_TESTIMONIALS;
+    setActiveTestimonial((prev) => (prev + 1) % list.length);
   };
 
   if (isLoading) {
@@ -67,14 +287,14 @@ export default function ServicesPage() {
   const heroSubtitle = pageData?.hero?.subtitle || 'Complete high-end event management solutions tailored to your unique requirements.';
   const heroBgColor = pageData?.hero?.background_color || '#0C3B2E';
 
-  const coreServices = pageData?.core_services || [];
-  const additionalServices = pageData?.additional_services || [];
-  const timelineSteps = pageData?.timeline_steps || [];
-  const whyChooseUs = pageData?.why_choose_us || [];
-  const portfolioProjects = pageData?.portfolio_projects || [];
-  const pricingPackages = pageData?.pricing_packages || [];
-  const testimonials = pageData?.testimonials || [];
-  const faqItems = pageData?.faq_items || [];
+  const coreServices = pageData?.core_services || MOCK_CORE_SERVICES;
+  const additionalServices = pageData?.additional_services || MOCK_ADDITIONAL_SERVICES;
+  const timelineSteps = pageData?.timeline_steps || MOCK_TIMELINE_STEPS;
+  const whyChooseUs = pageData?.why_choose_us || MOCK_WHY_CHOOSE_US;
+  const portfolioProjects = pageData?.portfolio_projects || MOCK_PORTFOLIO_PROJECTS;
+  const pricingPackages = pageData?.pricing_packages || MOCK_PRICING_PACKAGES;
+  const testimonials = pageData?.testimonials || MOCK_TESTIMONIALS;
+  const faqItems = pageData?.faq_items || MOCK_FAQ_ITEMS;
 
   return (
     <div className="flex-grow bg-slate-50 font-outfit select-none">

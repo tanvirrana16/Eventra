@@ -51,4 +51,29 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
     Route::post('/footer/links', [AdminController::class, 'storeFooterLink'])->name('footer.links.store');
     Route::put('/footer/links/{link}', [AdminController::class, 'updateFooterLink'])->name('footer.links.update');
     Route::delete('/footer/links/{link}', [AdminController::class, 'destroyFooterLink'])->name('footer.links.destroy');
+
+    // Services settings
+    Route::get('/services', [AdminController::class, 'servicesSettings'])->name('services');
+    Route::post('/services/{section}', [AdminController::class, 'addPageItem'])->name('services.add');
+    Route::put('/services/{section}/{index}', [AdminController::class, 'updatePageItem'])->name('services.update');
+    Route::delete('/services/{section}/{index}', [AdminController::class, 'deletePageItem'])->name('services.delete');
+
+    // Certificate Verification settings
+    Route::get('/verification', [AdminController::class, 'verificationSettings'])->name('verification');
+    Route::post('/verification/{section}', [AdminController::class, 'addPageItem'])->name('verification.add');
+    Route::put('/verification/{section}/{index}', [AdminController::class, 'updatePageItem'])->name('verification.update');
+    Route::delete('/verification/{section}/{index}', [AdminController::class, 'deletePageItem'])->name('verification.delete');
+
+    // About Us settings
+    Route::get('/about', [AdminController::class, 'aboutSettings'])->name('about');
+    Route::post('/about/{section}', [AdminController::class, 'addPageItem'])->name('about.add');
+    Route::put('/about/{section}/{index}', [AdminController::class, 'updatePageItem'])->name('about.update');
+    Route::delete('/about/{section}/{index}', [AdminController::class, 'deletePageItem'])->name('about.delete');
+
+    // Contact settings
+    Route::get('/contact', [AdminController::class, 'contactSettings'])->name('contact');
+    Route::post('/contact/{section}', [AdminController::class, 'addPageItem'])->name('contact.add');
+    Route::put('/contact/{section}/{index}', [AdminController::class, 'updatePageItem'])->name('contact.update');
+    Route::delete('/contact/{section}/{index}', [AdminController::class, 'deletePageItem'])->name('contact.delete');
+    Route::delete('/contact/messages/{id}', [AdminController::class, 'deleteContactMessage'])->name('contact.messages.delete');
 });

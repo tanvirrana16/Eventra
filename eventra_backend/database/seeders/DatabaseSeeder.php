@@ -102,26 +102,84 @@ class DatabaseSeeder extends Seeder
         Setting::setValue('hero_btn2_url', '/signup');
  
         // 3. Seed Hero Slides
-        HeroSlide::updateOrCreate(
-            ['title' => 'Tech Summit 2026'],
+        $sliderItems = [
             [
-                'image_path' => 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800&q=80',
-                'description' => 'Join the biggest developer summit of the year.',
+                'title' => 'Corporate Events',
+                'description' => 'Networking with industry leaders and global companies.',
+                'image_path' => 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&h=800&q=80',
+                'date' => '25 JUN',
                 'link' => '/events',
                 'display_order' => 1,
                 'is_active' => true,
-            ]
-        );
-        HeroSlide::updateOrCreate(
-            ['title' => 'Design Workshop'],
+            ],
             [
-                'image_path' => 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=800&q=80',
-                'description' => 'Master UI/UX with professional Figma design grids.',
+                'title' => 'Hands-on Workshops',
+                'description' => 'Gain practical experience from subject matter experts.',
+                'image_path' => 'https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=1200&h=800&q=80',
+                'date' => '02 JUL',
                 'link' => '/events',
                 'display_order' => 2,
                 'is_active' => true,
+            ],
+            [
+                'title' => 'Tech Conferences',
+                'description' => 'Discover emerging trends in technology and innovation.',
+                'image_path' => 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=1200&h=800&q=80',
+                'date' => '14 JUL',
+                'link' => '/events',
+                'display_order' => 3,
+                'is_active' => true,
+            ],
+            [
+                'title' => 'Startup Meetups',
+                'description' => 'Pitch to investors and form strategic co-founder partnerships.',
+                'image_path' => 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&h=800&q=80',
+                'date' => '18 JUL',
+                'link' => '/events',
+                'display_order' => 4,
+                'is_active' => true,
+            ],
+            [
+                'title' => 'Cultural Programs',
+                'description' => 'Experience the vibrant arts and traditional community events.',
+                'image_path' => 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&h=800&q=80',
+                'date' => '30 JUL',
+                'link' => '/events',
+                'display_order' => 5,
+                'is_active' => true,
+            ],
+            [
+                'title' => 'Live Concerts',
+                'description' => 'Feel the beat and experience high-octane live music.',
+                'image_path' => 'https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=1200&h=800&q=80',
+                'date' => '05 AUG',
+                'link' => '/events',
+                'display_order' => 6,
+                'is_active' => true,
+            ],
+            [
+                'title' => 'University Events',
+                'description' => 'Empowering young students and supporting tech talent.',
+                'image_path' => 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1200&h=800&q=80',
+                'date' => '12 AUG',
+                'link' => '/events',
+                'display_order' => 7,
+                'is_active' => true,
+            ],
+            [
+                'title' => 'Community Gatherings',
+                'description' => 'Connect locally, build relationships, and share interests.',
+                'image_path' => 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&h=800&q=80',
+                'date' => '20 AUG',
+                'link' => '/events',
+                'display_order' => 8,
+                'is_active' => true,
             ]
-        );
+        ];
+
+        foreach ($sliderItems as $item) {
+            HeroSlide::updateOrCreate(['title' => $item['title']], $item);
+        }
  
         // 4. Seed Reusable Page Heroes
         PageHero::updateOrCreate(
@@ -183,6 +241,12 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Party', 'icon_name' => 'GlassWater'],
             ['name' => 'Pop Culture', 'icon_name' => 'Compass'],
             ['name' => 'Movie / Drama', 'icon_name' => 'Film'],
+            ['name' => 'Travel and Outdoor', 'icon_name' => 'Compass'],
+            ['name' => 'Social Activities', 'icon_name' => 'Users'],
+            ['name' => 'Hobbies and Passions', 'icon_name' => 'Heart'],
+            ['name' => 'Sports and Fitness', 'icon_name' => 'Dumbbell'],
+            ['name' => 'Health and Wellbeing', 'icon_name' => 'Activity'],
+            ['name' => 'Startup Meetups', 'icon_name' => 'Rocket'],
         ];
  
         $categories = [];
@@ -295,7 +359,7 @@ class DatabaseSeeder extends Seeder
                 'location' => 'Venture Capital Tower, Chicago',
                 'image_path' => 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80',
                 'status' => 'published',
-                'category_name' => 'Conferences',
+                'category_name' => 'Startup Meetups',
                 'seats_left' => 15,
                 'total_seats' => 50,
                 'ticket_type' => 'free',
@@ -368,7 +432,7 @@ class DatabaseSeeder extends Seeder
                 'location' => 'The Writer\'s Coffee Lounge, Portland',
                 'image_path' => 'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=800&q=80',
                 'status' => 'published',
-                'category_name' => 'Workshops',
+                'category_name' => 'Hobbies and Passions',
                 'seats_left' => 10,
                 'total_seats' => 40,
                 'ticket_type' => 'free',
@@ -404,7 +468,7 @@ class DatabaseSeeder extends Seeder
                 'location' => 'Redwood Valley Reserve, Seattle',
                 'image_path' => 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80',
                 'status' => 'published',
-                'category_name' => 'Sports',
+                'category_name' => 'Travel and Outdoor',
                 'seats_left' => 6,
                 'total_seats' => 20,
                 'ticket_type' => 'paid',
@@ -440,7 +504,7 @@ class DatabaseSeeder extends Seeder
                 'location' => 'Serenity Zen Gardens, Denver',
                 'image_path' => 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
                 'status' => 'published',
-                'category_name' => 'Workshops',
+                'category_name' => 'Health and Wellbeing',
                 'seats_left' => 18,
                 'total_seats' => 25,
                 'ticket_type' => 'paid',
@@ -476,7 +540,7 @@ class DatabaseSeeder extends Seeder
                 'location' => 'Athletic Club Stadium, Dallas',
                 'image_path' => 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
                 'status' => 'published',
-                'category_name' => 'Sports',
+                'category_name' => 'Sports and Fitness',
                 'seats_left' => 35,
                 'total_seats' => 200,
                 'ticket_type' => 'paid',

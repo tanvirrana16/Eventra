@@ -7,10 +7,11 @@ import {
   PlusCircle, 
   Layers, 
   Eye, 
-  Loader2
+  Loader2,
+  Pencil
 } from 'lucide-react';
 
-export default function MyEvents({ events, API_BASE_URL, token, onDeleteSuccess, setActiveTab, onViewEvent }) {
+export default function MyEvents({ events, API_BASE_URL, token, onDeleteSuccess, setActiveTab, onViewEvent, onEditEvent }) {
   const [activeAction, setActiveAction] = useState(null);
 
   const handleDelete = (id) => {
@@ -125,24 +126,35 @@ export default function MyEvents({ events, API_BASE_URL, token, onDeleteSuccess,
                   </div>
 
                   {/* Actions Row */}
-                  <div className="pt-4 border-t border-slate-50 flex items-center justify-between gap-2">
+                  <div className="pt-4 border-t border-slate-50 flex items-center justify-between gap-1.5">
                     <button
                       onClick={() => onViewEvent(evt)}
-                      className="flex-1 flex items-center justify-center space-x-1.5 py-2 border border-slate-200 hover:border-[#2E6F40] hover:text-[#2E6F40] rounded-xl text-xs font-bold text-slate-600 transition-colors cursor-pointer"
+                      className="flex-1 flex items-center justify-center space-x-1 py-1.5 border border-slate-200 hover:border-[#2E6F40] hover:text-[#2E6F40] rounded-xl text-[10px] font-bold text-slate-650 transition-colors cursor-pointer"
+                      title="Preview details"
                     >
-                      <Eye className="h-3.5 w-3.5" />
+                      <Eye className="h-3 w-3" />
                       <span>Preview</span>
+                    </button>
+
+                    <button
+                      onClick={() => onEditEvent(evt)}
+                      className="flex-1 flex items-center justify-center space-x-1 py-1.5 border border-slate-200 hover:border-amber-500 hover:text-amber-600 rounded-xl text-[10px] font-bold text-slate-650 transition-colors cursor-pointer"
+                      title="Edit event details"
+                    >
+                      <Pencil className="h-3 w-3" />
+                      <span>Edit</span>
                     </button>
                     
                     <button
                       onClick={() => handleDelete(evt.id)}
                       disabled={activeAction === `delete-${evt.id}`}
-                      className="flex-1 flex items-center justify-center space-x-1.5 py-2 border border-rose-100 hover:bg-rose-50 hover:text-rose-600 rounded-xl text-xs font-bold text-rose-500 transition-all cursor-pointer disabled:opacity-50"
+                      className="flex-1 flex items-center justify-center space-x-1 py-1.5 border border-rose-100 hover:bg-rose-50 hover:text-rose-600 rounded-xl text-[10px] font-bold text-rose-500 transition-all cursor-pointer disabled:opacity-50"
+                      title="Delete / Archive event"
                     >
                       {activeAction === `delete-${evt.id}` ? (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        <Loader2 className="h-3 w-3 animate-spin" />
                       ) : (
-                        <Trash2 className="h-3.5 w-3.5" />
+                        <Trash2 className="h-3 w-3" />
                       )}
                       <span>Delete</span>
                     </button>

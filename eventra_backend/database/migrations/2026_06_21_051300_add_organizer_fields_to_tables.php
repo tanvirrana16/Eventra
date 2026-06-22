@@ -20,7 +20,7 @@ return new class extends Migration
 
         // 2. Add fields to users table
         Schema::table('users', function (Blueprint $table) {
-            $table->string('website')->nullable()->after('profile_photo');
+            $table->string('website')->nullable()->after('contact_info');
             $table->json('social_links')->nullable()->after('website');
         });
     }

@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 
-#[Fillable(['image_path', 'title', 'description', 'link', 'display_order', 'is_active'])]
+#[Fillable(['image_path', 'title', 'description', 'link', 'date', 'display_order', 'is_active'])]
 class HeroSlide extends Model
 {
     protected $casts = [

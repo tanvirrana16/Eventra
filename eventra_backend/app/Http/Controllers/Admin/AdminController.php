@@ -12,6 +12,7 @@ use App\Models\HeroSlide;
 use App\Models\PageHero;
 use App\Models\Setting;
 use App\Models\User;
+use App\Models\ContactMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -130,6 +131,7 @@ class AdminController extends Controller
             'title' => 'nullable|string|max:100',
             'description' => 'nullable|string',
             'link' => 'nullable|string|max:255',
+            'date' => 'nullable|string|max:20',
             'display_order' => 'integer',
         ]);
 
@@ -144,6 +146,7 @@ class AdminController extends Controller
             'title' => $request->title,
             'description' => $request->description,
             'link' => $request->link,
+            'date' => $request->date,
             'display_order' => $request->display_order ?? 0,
             'is_active' => $request->has('is_active'),
         ]);
@@ -158,6 +161,7 @@ class AdminController extends Controller
             'title' => 'nullable|string|max:100',
             'description' => 'nullable|string',
             'link' => 'nullable|string|max:255',
+            'date' => 'nullable|string|max:20',
             'display_order' => 'integer',
         ]);
 
@@ -165,6 +169,7 @@ class AdminController extends Controller
             'title' => $request->title,
             'description' => $request->description,
             'link' => $request->link,
+            'date' => $request->date,
             'display_order' => $request->display_order ?? 0,
             'is_active' => $request->has('is_active'),
         ];
@@ -286,14 +291,24 @@ class AdminController extends Controller
             'title' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
             'event_date' => 'required|date',
+            'registration_deadline' => 'nullable|date',
             'event_time' => 'required',
+            'event_end_date' => 'nullable|date',
+            'event_end_time' => 'nullable',
             'location' => 'required|string|max:255',
+            'contact_details' => 'nullable|string',
             'description' => 'nullable|string',
             'image' => 'nullable|image|max:5120',
             'status' => 'required|in:draft,published,archived',
             'total_seats' => 'nullable|integer|min:1',
             'ticket_type' => 'nullable|in:free,paid',
             'ticket_price' => 'nullable|numeric|min:0',
+            'currency' => 'nullable|string|max:10',
+            'payment_methods' => 'nullable|array',
+            'gallery.*' => 'nullable|image|max:5120',
+            'speakers' => 'nullable|string',
+            'rules' => 'nullable|string',
+            'tags' => 'nullable|string',
         ]);
 
         $imagePath = '';
@@ -305,21 +320,57 @@ class AdminController extends Controller
             $imagePath = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800&q=80';
         }
 
+        $galleryPaths = [];
+        if ($request->hasFile('gallery')) {
+            foreach ($request->file('gallery') as $file) {
+                $path = $file->store('uploads/events', 'public');
+                $galleryPaths[] = Storage::url($path);
+            }
+        }
+
+        $tags = null;
+        if ($request->filled('tags')) {
+            $tags = array_map('trim', explode(',', $request->tags));
+        }
+
+        $speakers = null;
+        if ($request->filled('speakers')) {
+            $speakers = json_decode($request->speakers, true) ?? [];
+        }
+
+        $rules = null;
+        if ($request->filled('rules')) {
+            $rules = json_decode($request->rules, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                $rules = array_filter(array_map('trim', explode("\n", $request->rules)));
+            }
+        }
+
         $totalSeats = (int) ($request->total_seats ?? 100);
         Event::create([
             'title' => $request->title,
             'slug' => Str::slug($request->title) . '-' . rand(100, 999),
             'category_id' => $request->category_id,
             'event_date' => $request->event_date,
+            'registration_deadline' => $request->registration_deadline,
             'event_time' => $request->event_time,
+            'event_end_date' => $request->event_end_date,
+            'event_end_time' => $request->event_end_time,
             'location' => $request->location,
+            'contact_details' => $request->contact_details,
             'description' => $request->description,
             'image_path' => $imagePath,
+            'gallery' => $galleryPaths,
             'status' => $request->status,
             'total_seats' => $totalSeats,
             'seats_left' => $totalSeats,
             'ticket_type' => $request->ticket_type ?? 'free',
-            'ticket_price' => $request->ticket_price ?? 0.00,
+            'ticket_price' => $request->ticket_type === 'paid' ? (float)($request->ticket_price ?? 0) : 0.00,
+            'currency' => $request->currency ?? 'USD',
+            'payment_methods' => $request->payment_methods ?? [],
+            'speakers' => $speakers,
+            'rules' => $rules,
+            'tags' => $tags,
             'created_by' => Auth::id(),
         ]);
 
@@ -332,26 +383,77 @@ class AdminController extends Controller
             'title' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
             'event_date' => 'required|date',
+            'registration_deadline' => 'nullable|date',
             'event_time' => 'required',
+            'event_end_date' => 'nullable|date',
+            'event_end_time' => 'nullable',
             'location' => 'required|string|max:255',
+            'contact_details' => 'nullable|string',
             'description' => 'nullable|string',
             'image' => 'nullable|image|max:5120',
             'status' => 'required|in:draft,published,archived',
+            'total_seats' => 'required|integer|min:1',
+            'ticket_type' => 'required|in:free,paid',
+            'ticket_price' => 'nullable|numeric|min:0',
+            'currency' => 'nullable|string|max:10',
+            'payment_methods' => 'nullable|array',
+            'gallery.*' => 'nullable|image|max:5120',
+            'speakers' => 'nullable|string',
+            'rules' => 'nullable|string',
+            'tags' => 'nullable|string',
         ]);
 
         $data = [
             'title' => $request->title,
             'category_id' => $request->category_id,
             'event_date' => $request->event_date,
+            'registration_deadline' => $request->registration_deadline,
             'event_time' => $request->event_time,
+            'event_end_date' => $request->event_end_date,
+            'event_end_time' => $request->event_end_time,
             'location' => $request->location,
+            'contact_details' => $request->contact_details,
             'description' => $request->description,
             'status' => $request->status,
+            'ticket_type' => $request->ticket_type,
+            'ticket_price' => $request->ticket_type === 'paid' ? (float)($request->ticket_price ?? 0) : 0.00,
+            'currency' => $request->currency ?? 'USD',
+            'payment_methods' => $request->payment_methods ?? [],
         ];
+
+        // Seat capacity adjustment
+        $regsCount = $event->registrations()->count();
+        $data['total_seats'] = $request->total_seats;
+        $data['seats_left'] = max(0, $request->total_seats - $regsCount);
 
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('uploads/events', 'public');
             $data['image_path'] = Storage::url($path);
+        }
+
+        if ($request->hasFile('gallery')) {
+            $galleryPaths = [];
+            foreach ($request->file('gallery') as $file) {
+                $path = $file->store('uploads/events', 'public');
+                $galleryPaths[] = Storage::url($path);
+            }
+            $data['gallery'] = $galleryPaths;
+        }
+
+        if ($request->filled('tags')) {
+            $data['tags'] = array_map('trim', explode(',', $request->tags));
+        }
+
+        if ($request->filled('speakers')) {
+            $data['speakers'] = json_decode($request->speakers, true) ?? [];
+        }
+
+        if ($request->filled('rules')) {
+            $rules = json_decode($request->rules, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                $rules = array_filter(array_map('trim', explode("\n", $request->rules)));
+            }
+            $data['rules'] = $rules;
         }
 
         $event->update($data);
@@ -507,5 +609,264 @@ class AdminController extends Controller
         $user->update(['status' => 'rejected']);
 
         return back()->with('success', "Rejected organizer application: {$user->name}.");
+    }
+
+    /**
+     * Services Page Settings view.
+     */
+    public function servicesSettings()
+    {
+        $core = json_decode(Setting::getValue('services_core', '[]'), true);
+        $additional = json_decode(Setting::getValue('services_additional', '[]'), true);
+        $timeline = json_decode(Setting::getValue('services_timeline_steps', '[]'), true);
+        $why_choose_us = json_decode(Setting::getValue('services_why_choose_us', '[]'), true);
+        $portfolio = json_decode(Setting::getValue('services_portfolio_projects', '[]'), true);
+        $pricing = json_decode(Setting::getValue('services_pricing_packages', '[]'), true);
+        $testimonials = json_decode(Setting::getValue('services_testimonials', '[]'), true);
+        $faq = json_decode(Setting::getValue('services_faq_items', '[]'), true);
+
+        return view('admin.services', compact(
+            'core', 'additional', 'timeline', 'why_choose_us', 'portfolio', 'pricing', 'testimonials', 'faq'
+        ));
+    }
+
+    /**
+     * Certificate Verification Page Settings view.
+     */
+    public function verificationSettings()
+    {
+        $faq = json_decode(Setting::getValue('certificate_verification_faq_items', '[]'), true);
+        return view('admin.verification', compact('faq'));
+    }
+
+    /**
+     * About Us Page Settings view.
+     */
+    public function aboutSettings()
+    {
+        $team = json_decode(Setting::getValue('about_us_team_members', '[]'), true);
+        $features = json_decode(Setting::getValue('about_us_choose_features', '[]'), true);
+        $timeline = json_decode(Setting::getValue('about_us_timeline_steps', '[]'), true);
+        $partners = json_decode(Setting::getValue('about_us_partners', '[]'), true);
+        $testimonials = json_decode(Setting::getValue('about_us_testimonials', '[]'), true);
+        $faq = json_decode(Setting::getValue('about_us_faq_items', '[]'), true);
+        $stats = json_decode(Setting::getValue('about_us_stats', '[]'), true);
+
+        return view('admin.about', compact(
+            'team', 'features', 'timeline', 'partners', 'testimonials', 'faq', 'stats'
+        ));
+    }
+
+    /**
+     * Contact Us Page Settings view.
+     */
+    public function contactSettings()
+    {
+        $info = json_decode(Setting::getValue('contact_info', '[]'), true);
+        $messages = ContactMessage::orderBy('created_at', 'desc')->get();
+        return view('admin.contact', compact('info', 'messages'));
+    }
+
+    /**
+     * Delete contact message from database.
+     */
+    public function deleteContactMessage($id)
+    {
+        $message = ContactMessage::find($id);
+        if ($message) {
+            $message->delete();
+            return back()->with('success', 'Message deleted successfully.');
+        }
+        return back()->with('error', 'Message not found.');
+    }
+
+    /**
+     * Helper to get database key for a page and section.
+     */
+    private function getSettingKey($page, $section)
+    {
+        $map = [
+            'about' => [
+                'team_members' => 'about_us_team_members',
+                'choose_features' => 'about_us_choose_features',
+                'timeline_steps' => 'about_us_timeline_steps',
+                'partners' => 'about_us_partners',
+                'testimonials' => 'about_us_testimonials',
+                'faq_items' => 'about_us_faq_items',
+                'stats' => 'about_us_stats',
+            ],
+            'services' => [
+                'core' => 'services_core',
+                'additional' => 'services_additional',
+                'timeline' => 'services_timeline_steps',
+                'why_choose_us' => 'services_why_choose_us',
+                'portfolio' => 'services_portfolio_projects',
+                'pricing' => 'services_pricing_packages',
+                'testimonials' => 'services_testimonials',
+                'faq' => 'services_faq_items',
+            ],
+            'contact' => [
+                'info' => 'contact_info',
+            ],
+            'verification' => [
+                'faq' => 'certificate_verification_faq_items',
+            ],
+        ];
+
+        return $map[$page][$section] ?? null;
+    }
+
+    /**
+     * Generic action to add a setting item.
+     */
+    public function addPageItem(Request $request, $section)
+    {
+        $page = $request->segment(2);
+        $settingKey = $this->getSettingKey($page, $section);
+
+        if (!$settingKey) {
+            return back()->with('error', 'Invalid section specified.');
+        }
+
+        $data = $request->except(['_token', '_method']);
+
+        // Handle image/photo file upload
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('uploads/pages', 'public');
+            $data['image'] = Storage::url($path);
+        }
+        if ($request->hasFile('photo')) {
+            $path = $request->file('photo')->store('uploads/pages', 'public');
+            $data['photo'] = Storage::url($path);
+        }
+
+        // Process features lists
+        if (isset($data['features']) && is_string($data['features'])) {
+            $data['features'] = array_filter(array_map('trim', explode("\n", $data['features'])));
+        }
+
+        // Process details lists
+        if (isset($data['details']) && is_string($data['details'])) {
+            $data['details'] = array_filter(array_map('trim', explode("\n", $data['details'])));
+        }
+
+        // Handle team socials
+        if ($section === 'team_members') {
+            $socials = [];
+            if ($request->filled('social_linkedin')) $socials['linkedin'] = $request->social_linkedin;
+            if ($request->filled('social_twitter')) $socials['twitter'] = $request->social_twitter;
+            if ($request->filled('social_facebook')) $socials['facebook'] = $request->social_facebook;
+            if ($request->filled('social_github')) $socials['github'] = $request->social_github;
+            
+            $data['socials'] = $socials;
+            unset($data['social_linkedin'], $data['social_twitter'], $data['social_facebook'], $data['social_github']);
+        }
+
+        // Popular pricing boolean
+        if (isset($data['popular'])) {
+            $data['popular'] = filter_var($data['popular'], FILTER_VALIDATE_BOOLEAN);
+        } else if ($section === 'pricing') {
+            $data['popular'] = false;
+        }
+
+        $items = json_decode(Setting::getValue($settingKey, '[]'), true);
+        $items[] = $data;
+
+        Setting::setValue($settingKey, json_encode($items));
+
+        return back()->with('success', 'Item created successfully.');
+    }
+
+    /**
+     * Generic action to update a setting item.
+     */
+    public function updatePageItem(Request $request, $section, $index)
+    {
+        $page = $request->segment(2);
+        $settingKey = $this->getSettingKey($page, $section);
+
+        if (!$settingKey) {
+            return back()->with('error', 'Invalid section specified.');
+        }
+
+        $items = json_decode(Setting::getValue($settingKey, '[]'), true);
+
+        if (!isset($items[$index])) {
+            return back()->with('error', 'Item not found.');
+        }
+
+        $existingItem = $items[$index];
+        $data = $request->except(['_token', '_method']);
+
+        // Handle image/photo file upload
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('uploads/pages', 'public');
+            $data['image'] = Storage::url($path);
+        }
+        if ($request->hasFile('photo')) {
+            $path = $request->file('photo')->store('uploads/pages', 'public');
+            $data['photo'] = Storage::url($path);
+        }
+
+        // Process features lists
+        if (isset($data['features']) && is_string($data['features'])) {
+            $data['features'] = array_filter(array_map('trim', explode("\n", $data['features'])));
+        }
+
+        // Process details lists
+        if (isset($data['details']) && is_string($data['details'])) {
+            $data['details'] = array_filter(array_map('trim', explode("\n", $data['details'])));
+        }
+
+        // Handle team socials
+        if ($section === 'team_members') {
+            $socials = [];
+            if ($request->filled('social_linkedin')) $socials['linkedin'] = $request->social_linkedin;
+            if ($request->filled('social_twitter')) $socials['twitter'] = $request->social_twitter;
+            if ($request->filled('social_facebook')) $socials['facebook'] = $request->social_facebook;
+            if ($request->filled('social_github')) $socials['github'] = $request->social_github;
+            
+            $data['socials'] = $socials;
+            unset($data['social_linkedin'], $data['social_twitter'], $data['social_facebook'], $data['social_github']);
+        }
+
+        // Popular pricing boolean
+        if (isset($data['popular'])) {
+            $data['popular'] = filter_var($data['popular'], FILTER_VALIDATE_BOOLEAN);
+        } else if ($section === 'pricing') {
+            $data['popular'] = false;
+        }
+
+        $newItem = array_merge($existingItem, $data);
+        $items[$index] = $newItem;
+
+        Setting::setValue($settingKey, json_encode($items));
+
+        return back()->with('success', 'Item details updated successfully.');
+    }
+
+    /**
+     * Generic action to delete a setting item.
+     */
+    public function deletePageItem(Request $request, $section, $index)
+    {
+        $page = $request->segment(2);
+        $settingKey = $this->getSettingKey($page, $section);
+
+        if (!$settingKey) {
+            return back()->with('error', 'Invalid section specified.');
+        }
+
+        $items = json_decode(Setting::getValue($settingKey, '[]'), true);
+
+        if (!isset($items[$index])) {
+            return back()->with('error', 'Item not found.');
+        }
+
+        array_splice($items, $index, 1);
+
+        Setting::setValue($settingKey, json_encode($items));
+
+        return back()->with('success', 'Item deleted successfully.');
     }
 }

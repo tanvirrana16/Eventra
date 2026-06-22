@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   ArrowLeft, 
   ArrowRight, 
@@ -45,7 +45,7 @@ const CATEGORY_TAGS = {
   'Movie / Drama': ['Movie', 'Drama', 'Film', 'Cinema', 'Screening', 'Theater', 'Acting']
 };
 
-export default function LaunchEvent({ API_BASE_URL, token, onEventCreated }) {
+export default function LaunchEvent({ API_BASE_URL, token, onEventCreated, eventToEdit = null, onCancelEdit = null }) {
   const [step, setStep] = useState(1);
   const [errorMsg, setErrorMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -75,6 +75,105 @@ export default function LaunchEvent({ API_BASE_URL, token, onEventCreated }) {
   // Capacity
   const [totalSeats, setTotalSeats] = useState(100);
   const [deadline, setDeadline] = useState('');
+  const [contactDetails, setContactDetails] = useState('');
+
+  // Helper: Convert 12-hour format or database time to standard HH:MM
+  const convertTime12to24 = (timeStr) => {
+    if (!timeStr) return '';
+    if (/^\d{2}:\d{2}(:\d{2})?$/.test(timeStr)) {
+      return timeStr.substring(0, 5);
+    }
+    const match = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+    if (match) {
+      let hours = parseInt(match[1]);
+      const minutes = match[2];
+      const ampm = match[3].toUpperCase();
+      if (ampm === 'PM' && hours < 12) hours += 12;
+      if (ampm === 'AM' && hours === 12) hours = 0;
+      return `${hours.toString().padStart(2, '0')}:${minutes}`;
+    }
+    return timeStr;
+  };
+
+  useEffect(() => {
+    if (eventToEdit) {
+      setTitle(eventToEdit.title || '');
+      setCategory(eventToEdit.category || '');
+      setDescription(eventToEdit.description || '');
+      setTags(eventToEdit.tags || []);
+      setPosterBase64(eventToEdit.image || '');
+      setGalleryBase64(eventToEdit.gallery || []);
+      setStartDate(eventToEdit.event_date || eventToEdit.date || '');
+      setStartTime(eventToEdit.event_time ? convertTime12to24(eventToEdit.event_time) : (eventToEdit.time ? convertTime12to24(eventToEdit.time) : ''));
+      setEndDate(eventToEdit.event_end_date || eventToEdit.eventEndDate || '');
+      setEndTime(eventToEdit.event_end_time ? convertTime12to24(eventToEdit.event_end_time) : (eventToEdit.eventEndTime ? convertTime12to24(eventToEdit.eventEndTime) : ''));
+      
+      // Split location back to venueName, address, city
+      if (eventToEdit.location) {
+        const parts = eventToEdit.location.split(',').map(p => p.trim());
+        if (parts.length >= 3) {
+          setVenueName(parts[0]);
+          setAddress(parts[1]);
+          setCity(parts[2]);
+        } else {
+          setVenueName(eventToEdit.location);
+          setAddress('');
+          setCity('');
+        }
+      } else if (eventToEdit.venue) {
+        const parts = eventToEdit.venue.split(',').map(p => p.trim());
+        if (parts.length >= 3) {
+          setVenueName(parts[0]);
+          setAddress(parts[1]);
+          setCity(parts[2]);
+        } else {
+          setVenueName(eventToEdit.venue);
+          setAddress('');
+          setCity('');
+        }
+      }
+
+      setTotalSeats(eventToEdit.total_seats ?? eventToEdit.totalSeats ?? 100);
+      setDeadline(eventToEdit.registration_deadline ?? eventToEdit.registrationDeadline ?? '');
+      setContactDetails(eventToEdit.contact_details ?? eventToEdit.contactDetails ?? '');
+      setTicketType(eventToEdit.ticket_type ?? eventToEdit.ticketType ?? 'free');
+      setTicketPrice(eventToEdit.ticket_price ?? eventToEdit.ticketPrice ?? '');
+      setCurrency(eventToEdit.currency || 'USD');
+      setPaymentMethods(eventToEdit.payment_methods ?? eventToEdit.paymentMethods ?? ['Visa', 'bKash']);
+      setRules(eventToEdit.rules || []);
+      setSpeakers(eventToEdit.speakers || []);
+      setStep(1);
+    } else {
+      setTitle('');
+      setCategory('');
+      setDescription('');
+      setTags([]);
+      setPosterBase64('');
+      setGalleryBase64([]);
+      setStartDate('');
+      setStartTime('');
+      setEndDate('');
+      setEndTime('');
+      setVenueName('');
+      setAddress('');
+      setCity('');
+      setTotalSeats(100);
+      setDeadline('');
+      setContactDetails('');
+      setTicketType('free');
+      setTicketPrice('');
+      setCurrency('USD');
+      setPaymentMethods(['Visa', 'bKash']);
+      setRules([
+        'Bring valid ID card.',
+        'Registration is non-transferable.',
+        'No refund after registration.',
+        'Follow venue regulations.'
+      ]);
+      setSpeakers([]);
+      setStep(1);
+    }
+  }, [eventToEdit]);
 
   // Pricing
   const [ticketType, setTicketType] = useState('free'); // free | paid
@@ -251,6 +350,8 @@ export default function LaunchEvent({ API_BASE_URL, token, onEventCreated }) {
       event_time: startTime,
       event_end_date: endDate || null,
       event_end_time: endTime || null,
+      registration_deadline: deadline || null,
+      contact_details: contactDetails || null,
       location: formattedLocation,
       total_seats: totalSeats,
       ticket_type: ticketType,
@@ -264,8 +365,14 @@ export default function LaunchEvent({ API_BASE_URL, token, onEventCreated }) {
       status: publishStatus,
     };
 
-    fetch(`${API_BASE_URL}/organizer/events`, {
-      method: 'POST',
+    const url = eventToEdit 
+      ? `${API_BASE_URL}/organizer/events/${eventToEdit.id}` 
+      : `${API_BASE_URL}/organizer/events`;
+      
+    const method = eventToEdit ? 'PUT' : 'POST';
+
+    fetch(url, {
+      method,
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
@@ -277,7 +384,7 @@ export default function LaunchEvent({ API_BASE_URL, token, onEventCreated }) {
         const data = await res.json();
         setIsSubmitting(false);
         if (res.ok) {
-          alert(`Event successfully ${publishStatus === 'published' ? 'published' : 'saved as draft'}!`);
+          alert(`Event successfully ${eventToEdit ? 'updated' : (publishStatus === 'published' ? 'published' : 'saved as draft')}!`);
           onEventCreated();
         } else {
           setErrorMsg(data.message || 'Failed to submit event. Try again.');
@@ -317,14 +424,26 @@ export default function LaunchEvent({ API_BASE_URL, token, onEventCreated }) {
       {/* ── Wizard Header ── */}
       <div className="pb-5 border-b border-slate-100 flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-extrabold text-slate-800 tracking-tight">Launch Event Wizard</h2>
+          <h2 className="text-xl font-extrabold text-slate-800 tracking-tight">
+            {eventToEdit ? 'Edit Event Wizard' : 'Launch Event Wizard'}
+          </h2>
           <p className="text-xs sm:text-sm text-slate-400 font-semibold mt-1">
-            Follow the 10-step wizard to configure, preview, and host your premium event.
+            {eventToEdit ? 'Update details of your existing event.' : 'Follow the 10-step wizard to configure, preview, and host your premium event.'}
           </p>
         </div>
-        <span className="text-xs font-black text-white bg-[#0C3B2E] px-3.5 py-1.5 rounded-full select-none shadow-sm">
-          Step {step} of 10
-        </span>
+        <div className="flex items-center space-x-2">
+          {eventToEdit && onCancelEdit && (
+            <button
+              onClick={onCancelEdit}
+              className="text-xs font-bold text-rose-600 hover:text-white border border-rose-200 hover:bg-rose-600 px-3 py-1.5 rounded-full transition-colors cursor-pointer mr-2"
+            >
+              Cancel Edit
+            </button>
+          )}
+          <span className="text-xs font-black text-white bg-[#0C3B2E] px-3.5 py-1.5 rounded-full select-none shadow-sm">
+            Step {step} of 10
+          </span>
+        </div>
       </div>
 
       {/* ── Step Indicators Row ── */}
@@ -626,10 +745,21 @@ export default function LaunchEvent({ API_BASE_URL, token, onEventCreated }) {
                   type="date" 
                   value={deadline}
                   onChange={(e) => setDeadline(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white text-gray-900 rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-[#2E6F40]/30 focus:border-transparent transition-all shadow-xs"
+                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white text-gray-900 placeholder-gray-400 rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-[#2E6F40]/30 focus:border-transparent transition-all shadow-xs"
                 />
                 <Calendar className="absolute left-3.5 top-3 h-5 w-5 text-gray-400" />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-black text-gray-700 uppercase tracking-wider block">Contact Details (Optional)</label>
+              <input 
+                type="text" 
+                placeholder="e.g. Email: info@domain.com, Phone: +88012345"
+                value={contactDetails}
+                onChange={(e) => setContactDetails(e.target.value)}
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white text-gray-900 placeholder-gray-400 rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-[#2E6F40]/30 focus:border-transparent transition-all shadow-xs"
+              />
             </div>
           </div>
         )}
@@ -958,14 +1088,14 @@ export default function LaunchEvent({ API_BASE_URL, token, onEventCreated }) {
                 disabled={isSubmitting}
                 className="w-full py-3 border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl transition-all cursor-pointer disabled:opacity-50"
               >
-                Save Draft
+                {eventToEdit ? 'Save as Draft' : 'Save Draft'}
               </button>
               <button 
                 onClick={() => handleSubmitEvent('published')}
                 disabled={isSubmitting}
                 className="w-full py-3 bg-[#2E6F40] hover:bg-emerald-800 text-white text-xs font-bold rounded-xl shadow-md hover:shadow-lg transition-all cursor-pointer disabled:opacity-50"
               >
-                Publish Event
+                {eventToEdit ? 'Update Event' : 'Publish Event'}
               </button>
             </div>
           </div>

@@ -12,6 +12,7 @@ use App\Models\HeroSlide;
 use App\Models\PageHero;
 use App\Models\Setting;
 use App\Models\User;
+use App\Models\ContactMessage;
 use Illuminate\Http\Request;
 
 class PublicApiController extends Controller
@@ -39,6 +40,7 @@ class PublicApiController extends Controller
                 'title' => $slide->title,
                 'description' => $slide->description,
                 'link' => $slide->link,
+                'date' => $slide->date,
             ];
         });
 
@@ -213,7 +215,7 @@ class PublicApiController extends Controller
             'Movie / Drama' => ['Movie', 'Drama', 'Film', 'Cinema', 'Screening', 'Theater', 'Acting']
         ];
         $categoryName = $event->category->name;
-        $tags = $categoryTags[$categoryName] ?? ($event->tags ?? []);
+        $tags = $event->tags ?? $categoryTags[$categoryName] ?? [];
 
         // Map organizer avatars dynamically based on name
         $organizerAvatars = [
@@ -253,6 +255,10 @@ class PublicApiController extends Controller
             'ticket_price' => (float) $event->ticket_price,
             'eventEndDate' => $event->event_end_date ? $event->event_end_date->format('Y-m-d') : null,
             'eventEndTime' => $event->event_end_time ? date('h:i A', strtotime($event->event_end_time)) : null,
+            'registrationDeadline' => $event->registration_deadline ? $event->registration_deadline->format('Y-m-d') : null,
+            'registration_deadline' => $event->registration_deadline ? $event->registration_deadline->format('Y-m-d') : null,
+            'contactDetails' => $event->contact_details,
+            'contact_details' => $event->contact_details,
             'rating' => (float) $event->rating,
             'gallery' => $event->gallery ?? [],
             'speakers' => $event->speakers ?? [],
@@ -395,7 +401,14 @@ class PublicApiController extends Controller
             'phone' => 'nullable|string|max:50',
         ]);
 
-        // Simply return success since there is no database storage specified for contacts
+        ContactMessage::create([
+            'name' => $request->fullName,
+            'email' => $request->email,
+            'subject' => $request->subject,
+            'phone' => $request->phone,
+            'message' => $request->message,
+        ]);
+
         return response()->json(['message' => 'Your message was sent successfully!']);
     }
 }
