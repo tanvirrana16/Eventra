@@ -4,9 +4,9 @@ Welcome to **Eventra**! This repository is organized as a monorepo consisting of
 
 ---
 
-## Project Structure
-- `/eventra_backend` — Laravel 11 API Backend (PHP 8.5)
-- `/eventra_frontend` — React Single Page Application (Vite + Tailwind CSS)
+## Repository Layout
+- `/eventra_backend` — Handles the Laravel REST API and database operations
+- `/eventra_frontend` — Contains the React-based user interface and client-side logic
 
 ---
 
