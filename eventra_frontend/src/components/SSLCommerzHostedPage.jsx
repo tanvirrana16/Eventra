@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-useLocation;
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { 
   CreditCard, Smartphone, ShieldCheck, HelpCircle, 

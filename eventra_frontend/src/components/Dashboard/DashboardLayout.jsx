@@ -105,7 +105,7 @@ export default function DashboardLayout({ setIsLoggedIn }) {
       fetch(`${API_BASE_URL}/user/notifications`, { headers }).then(checkResponse),
       fetch(`${API_BASE_URL}/user/payments`, { headers }).then(checkResponse),
     ])
-      .then(([profileData, statsData, regsData, passesData, certsData, notifData]) => {
+      .then(([profileData, statsData, regsData, passesData, certsData, notifData, paymentsData]) => {
         setUserProfile(profileData);
         
         // Handle stats + activities + reminders
