@@ -20,6 +20,7 @@ import MyCertificates from './MyCertificates';
 import CertificatePreviewModal from './CertificatePreviewModal';
 import Notifications from './Notifications';
 import AccountSettings from './AccountSettings';
+import PaymentHistory from './PaymentHistory';
 
 export default function DashboardLayout({ setIsLoggedIn }) {
   const navigate = useNavigate();
@@ -36,6 +37,7 @@ export default function DashboardLayout({ setIsLoggedIn }) {
   const [reminders, setReminders] = useState([]);
   const [registrations, setRegistrations] = useState([]);
   const [passes, setPasses] = useState([]);
+  const [payments, setPayments] = useState([]);
   const [certificates, setCertificates] = useState([]);
   const [notifications, setNotifications] = useState([]);
 
@@ -101,6 +103,7 @@ export default function DashboardLayout({ setIsLoggedIn }) {
       fetch(`${API_BASE_URL}/user/passes`, { headers }).then(checkResponse),
       fetch(`${API_BASE_URL}/user/certificates`, { headers }).then(checkResponse),
       fetch(`${API_BASE_URL}/user/notifications`, { headers }).then(checkResponse),
+      fetch(`${API_BASE_URL}/user/payments`, { headers }).then(checkResponse),
     ])
       .then(([profileData, statsData, regsData, passesData, certsData, notifData]) => {
         setUserProfile(profileData);
@@ -112,6 +115,7 @@ export default function DashboardLayout({ setIsLoggedIn }) {
 
         setRegistrations(regsData);
         setPasses(passesData);
+        setPayments(paymentsData);
         setCertificates(certsData);
         setNotifications(notifData);
         
@@ -286,6 +290,12 @@ export default function DashboardLayout({ setIsLoggedIn }) {
           <MyEventPasses 
             passes={passes} 
             onViewFullPass={handleViewPassDetails}
+          />
+        );
+      case 'payments':
+        return (
+          <PaymentHistory 
+            payments={payments} 
           />
         );
       case 'certificates':

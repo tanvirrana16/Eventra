@@ -17,13 +17,16 @@ import LoginPage from './components/LoginPage';
 import SignupPage from './components/SignupPage';
 import DashboardLayout from './components/Dashboard/DashboardLayout';
 import OrganizerDashboardLayout from './components/OrganizerDashboard/OrganizerDashboardLayout';
+import PassVerificationPage from './components/PassVerificationPage';
+import SSLCommerzHostedPage from './components/SSLCommerzHostedPage';
 import { API_BASE_URL } from './config';
 
 function AppContent({ isLoggedIn, setIsLoggedIn }) {
   const location = useLocation();
-  const isDashboard = 
+  const isFullScreen = 
     location.pathname.replace(/\/$/, '') === '/dashboard' || 
-    location.pathname.replace(/\/$/, '') === '/organizer-dashboard';
+    location.pathname.replace(/\/$/, '') === '/organizer-dashboard' ||
+    location.pathname.replace(/\/$/, '') === '/sslcommerz/hosted-checkout';
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [homepageData, setHomepageData] = useState(null);
 
@@ -42,8 +45,8 @@ function AppContent({ isLoggedIn, setIsLoggedIn }) {
   const handleOpenDetails = (event) => setSelectedEvent(event);
   const handleCloseDetails = () => setSelectedEvent(null);
 
-  // Dashboard: full-screen, no Navbar/Footer
-  if (isDashboard) {
+  // Full-screen pages: no Navbar/Footer
+  if (isFullScreen) {
     return (
       <Routes>
         <Route path="/dashboard" element={
@@ -51,6 +54,9 @@ function AppContent({ isLoggedIn, setIsLoggedIn }) {
         } />
         <Route path="/organizer-dashboard" element={
           <OrganizerDashboardLayout setIsLoggedIn={setIsLoggedIn} />
+        } />
+        <Route path="/sslcommerz/hosted-checkout" element={
+          <SSLCommerzHostedPage />
         } />
       </Routes>
     );
@@ -94,6 +100,7 @@ function AppContent({ isLoggedIn, setIsLoggedIn }) {
             <Route path="/contact-us" element={<ContactUsPage />} />
             <Route path="/login" element={<LoginPage setIsLoggedIn={setIsLoggedIn} />} />
             <Route path="/signup" element={<SignupPage setIsLoggedIn={setIsLoggedIn} />} />
+            <Route path="/pass/verify" element={<PassVerificationPage />} />
           </Routes>
         </div>
       </div>

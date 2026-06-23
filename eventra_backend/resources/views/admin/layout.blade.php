@@ -117,6 +117,18 @@
                 <span>Contact Settings</span>
             </a>
 
+            <!-- Registrations & Payments -->
+            <a href="{{ route('admin.registrations') }}" class="flex items-center space-x-3.5 px-4.5 py-3 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('admin.registrations') ? 'bg-brand-accent text-white shadow-md shadow-emerald-900/40' : 'text-emerald-100/80 hover:bg-white/5 hover:text-white' }}">
+                <i data-lucide="file-spreadsheet" class="h-5 w-5"></i>
+                <span>Registrations & Payments</span>
+            </a>
+
+            <!-- Settings & Rules -->
+            <a href="{{ route('admin.settings') }}" class="flex items-center space-x-3.5 px-4.5 py-3 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('admin.settings') ? 'bg-brand-accent text-white shadow-md shadow-emerald-900/40' : 'text-emerald-100/80 hover:bg-white/5 hover:text-white' }}">
+                <i data-lucide="settings" class="h-5 w-5"></i>
+                <span>System Configurations</span>
+            </a>
+
             <!-- Footer Details -->
             <a href="{{ route('admin.footer') }}" class="flex items-center space-x-3.5 px-4.5 py-3 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('admin.footer') ? 'bg-brand-accent text-white shadow-md shadow-emerald-900/40' : 'text-emerald-100/80 hover:bg-white/5 hover:text-white' }}">
                 <i data-lucide="menu-square" class="h-5 w-5"></i>

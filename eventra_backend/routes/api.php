@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\PublicApiController;
 use App\Http\Controllers\Api\EventRegistrationController;
 use App\Http\Controllers\Api\UserDashboardController;
 use App\Http\Controllers\Api\OrganizerDashboardController;
+use App\Http\Controllers\Api\SSLCommerzController;
 use Illuminate\Support\Facades\Route;
 
 // Public Feed and Pages API
@@ -22,6 +23,12 @@ Route::get('/categories', [PublicApiController::class, 'getCategories']);
 // Certificate Verification & Contact Submission
 Route::post('/certificates/verify', [PublicApiController::class, 'verifyCertificate']);
 Route::post('/contact', [PublicApiController::class, 'submitContactForm']);
+Route::get('/pass/verify', [PublicApiController::class, 'verifyPass']);
+
+// SSLCommerz Public Callbacks & Details
+Route::get('/sslcommerz/details', [SSLCommerzController::class, 'details']);
+Route::post('/sslcommerz/success', [SSLCommerzController::class, 'success']);
+Route::post('/sslcommerz/cancel', [SSLCommerzController::class, 'cancel']);
 
 // Authentication APIs
 Route::post('/auth/signup', [AuthController::class, 'signup']);
@@ -32,11 +39,13 @@ Route::post('/events/{event}/register', [EventRegistrationController::class, 're
 
 // Authenticated Participant Dashboard Routes
 Route::middleware('api.token')->group(function () {
+    Route::post('/sslcommerz/initiate', [SSLCommerzController::class, 'initiate']);
     Route::get('/user/dashboard', [UserDashboardController::class, 'dashboard']);
     Route::get('/user/profile', [UserDashboardController::class, 'profile']);
     Route::put('/user/profile', [UserDashboardController::class, 'updateProfile']);
     Route::get('/user/registrations', [UserDashboardController::class, 'registrations']);
     Route::get('/user/passes', [UserDashboardController::class, 'passes']);
+    Route::get('/user/payments', [UserDashboardController::class, 'payments']);
     Route::get('/user/certificates', [UserDashboardController::class, 'certificates']);
     Route::get('/user/notifications', [UserDashboardController::class, 'notifications']);
     Route::put('/user/notifications/read-all', [UserDashboardController::class, 'markAllRead']);

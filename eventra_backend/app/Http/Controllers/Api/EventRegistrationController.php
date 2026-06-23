@@ -52,6 +52,7 @@ class EventRegistrationController extends Controller
         $rules = [
             'payment_method' => 'nullable|string|in:Visa,MasterCard,bKash,Nagad',
             'payment_amount' => 'nullable|numeric|min:0',
+            'transaction_id' => 'nullable|string|max:100',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -92,6 +93,8 @@ class EventRegistrationController extends Controller
             'security_token' => $securityToken,
             'pass_status' => 'Active',
             'registered_at' => now(),
+            'transaction_id' => $request->transaction_id ?? null,
+            'payment_date' => $paymentMethod ? now() : null,
         ]);
 
         $event->decrement('seats_left');
@@ -100,6 +103,8 @@ class EventRegistrationController extends Controller
         $emailSubject = "Registration Confirmation & Digital Pass: {$event->title}";
         $instructions = !empty($event->rules) ? implode("\n - ", $event->rules) : "Follow organizer instructions.";
         $organizerName = $event->organizer?->name ?? 'Eventra Team';
+        $transactionIdStr = $registration->transaction_id ?? 'N/A';
+        $paymentDateStr = $registration->payment_date ? $registration->payment_date->toDateTimeString() : 'N/A';
         
         $emailContent = <<<EOT
 =========================================
@@ -121,12 +126,15 @@ Pass Identification:
 - Registration Code: {$registrationCode}
 - Pass Status: Active
 - Ticket Type: {$event->ticket_type} (Paid Amount: \${$paymentAmount})
+- Transaction ID: {$transactionIdStr}
+- Transaction Date: {$paymentDateStr}
 
 QR Code Payload Metadata:
 - Registration ID: {$registration->id}
 - User ID: {$user->id}
 - Event ID: {$event->id}
 - Security Token: {$securityToken}
+- Pass Verification URL: http://localhost:5173/pass/verify?reg_id={$registration->id}&token={$securityToken}
 
 Event Instructions & Rules:
  - {$instructions}
@@ -152,6 +160,8 @@ EOT;
                 'payment_amount' => $paymentAmount,
                 'payment_status' => $paymentStatus,
                 'security_token' => $securityToken,
+                'transaction_id' => $registration->transaction_id,
+                'payment_date' => $registration->payment_date ? $registration->payment_date->toDateTimeString() : null,
             ],
             'event' => [
                 'id' => $event->id,
@@ -166,7 +176,7 @@ EOT;
                 'name' => $user->name,
                 'email' => $user->email,
             ],
-            'qr_data' => "reg_id={$registration->id}&user_id={$user->id}&event_id={$event->id}&token={$securityToken}"
+            'qr_data' => "http://localhost:5173/pass/verify?reg_id={$registration->id}&token={$securityToken}"
         ], 201);
     }
 }

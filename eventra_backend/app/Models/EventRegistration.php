@@ -17,11 +17,14 @@ class EventRegistration extends Model
         'payment_status',
         'security_token',
         'pass_status',
-        'registered_at'
+        'registered_at',
+        'transaction_id',
+        'payment_date'
     ];
 
     protected $casts = [
         'registered_at' => 'datetime',
+        'payment_date' => 'datetime',
     ];
 
     public function event()

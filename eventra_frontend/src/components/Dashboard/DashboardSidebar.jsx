@@ -8,7 +8,8 @@ import {
   Settings, 
   LogOut,
   X,
-  ExternalLink
+  ExternalLink,
+  DollarSign
 } from 'lucide-react';
 import logo from '../../assets/logo.png';
 
@@ -24,6 +25,7 @@ export default function DashboardSidebar({
     { id: 'profile',        name: 'My Profile',        icon: User },
     { id: 'registrations',  name: 'My Registrations',  icon: FileSpreadsheet },
     { id: 'passes',         name: 'My Event Passes',   icon: Ticket },
+    { id: 'payments',       name: 'Payment History',   icon: DollarSign },
     { id: 'certificates',   name: 'My Certificates',   icon: Award },
     { id: 'notifications',  name: 'Notifications',     icon: Bell, badge: true },
     { id: 'settings',       name: 'Account Settings',  icon: Settings },

@@ -22,6 +22,7 @@ import Analytics from './Analytics';
 import OrganizerNotifications from './OrganizerNotifications';
 import OrganizerProfile from './OrganizerProfile';
 import OrganizerAccountSettings from './OrganizerAccountSettings';
+import VerifyPass from './VerifyPass';
 
 export default function OrganizerDashboardLayout({ setIsLoggedIn }) {
   const navigate = useNavigate();
@@ -288,6 +289,15 @@ export default function OrganizerDashboardLayout({ setIsLoggedIn }) {
       case 'participants':
         return (
           <Participants 
+            participants={participants}
+            API_BASE_URL={API_BASE_URL}
+            token={token}
+            onCheckInSuccess={fetchAllOrganizerData}
+          />
+        );
+      case 'verify-qr':
+        return (
+          <VerifyPass 
             participants={participants}
             API_BASE_URL={API_BASE_URL}
             token={token}

@@ -550,6 +550,10 @@
                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Included Features (One feature per line)</label>
                 <textarea name="features" rows="3" required placeholder="Theme Decor&#10;VIP Seating&#10;Audio Logistcs" class="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none"></textarea>
             </div>
+            <div class="space-y-1">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Modal Details Description (One point/paragraph per line)</label>
+                <textarea name="details" rows="3" placeholder="Enter detailed copy or highlights for the modal..." class="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none"></textarea>
+            </div>
             <div class="pt-4 border-t border-slate-100 flex items-center justify-end space-x-3">
                 <button type="button" onclick="toggleModal('add-core-modal')" class="px-4 py-2 text-xs font-bold text-slate-500 bg-slate-100 rounded-xl">Cancel</button>
                 <button type="submit" class="px-4 py-2 text-xs font-bold text-white bg-brand-accent hover:bg-brand-sidebar rounded-xl">Create Service</button>
@@ -596,6 +600,10 @@
                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Included Features (One feature per line)</label>
                 <textarea name="features" id="edit_core_features" rows="3" required class="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none"></textarea>
             </div>
+            <div class="space-y-1">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Modal Details Description (One point/paragraph per line)</label>
+                <textarea name="details" id="edit_core_details" rows="3" class="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none"></textarea>
+            </div>
             <div class="pt-4 border-t border-slate-100 flex items-center justify-end space-x-3">
                 <button type="button" onclick="toggleModal('edit-core-modal')" class="px-4 py-2 text-xs font-bold text-slate-500 bg-slate-100 rounded-xl">Cancel</button>
                 <button type="submit" class="px-4 py-2 text-xs font-bold text-white bg-brand-accent hover:bg-brand-sidebar rounded-xl">Save Changes</button>
@@ -620,6 +628,10 @@
             <div class="space-y-1">
                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Lucide Icon Reference</label>
                 <input type="text" name="icon" required placeholder="e.g. Camera, Utensils, Paintbrush" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none" />
+            </div>
+            <div class="space-y-1">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Modal Details Description (One point/paragraph per line)</label>
+                <textarea name="details" rows="3" placeholder="Enter extra details for the detail popup..." class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none"></textarea>
             </div>
             <div class="pt-4 border-t border-slate-100 flex items-center justify-end space-x-3">
                 <button type="button" onclick="toggleModal('add-additional-modal')" class="px-4 py-2 text-xs font-bold text-slate-500 bg-slate-100 rounded-xl">Cancel</button>
@@ -646,6 +658,10 @@
             <div class="space-y-1">
                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Lucide Icon Reference</label>
                 <input type="text" name="icon" id="edit_additional_icon" required class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none" />
+            </div>
+            <div class="space-y-1">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Modal Details Description (One point/paragraph per line)</label>
+                <textarea name="details" id="edit_additional_details" rows="3" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none"></textarea>
             </div>
             <div class="pt-4 border-t border-slate-100 flex items-center justify-end space-x-3">
                 <button type="button" onclick="toggleModal('edit-additional-modal')" class="px-4 py-2 text-xs font-bold text-slate-500 bg-slate-100 rounded-xl">Cancel</button>
@@ -681,6 +697,10 @@
             <div class="space-y-1">
                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Description</label>
                 <textarea name="description" rows="3" required class="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none"></textarea>
+            </div>
+            <div class="space-y-1">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Modal Details Description (One point/paragraph per line)</label>
+                <textarea name="details" rows="3" placeholder="Enter roadmap step extra details..." class="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none"></textarea>
             </div>
             <div class="pt-4 border-t border-slate-100 flex items-center justify-end space-x-3">
                 <button type="button" onclick="toggleModal('add-timeline-modal')" class="px-4 py-2 text-xs font-bold text-slate-500 bg-slate-100 rounded-xl">Cancel</button>
@@ -718,6 +738,10 @@
                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Description</label>
                 <textarea name="description" id="edit_timeline_description" rows="3" required class="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none"></textarea>
             </div>
+            <div class="space-y-1">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Modal Details Description (One point/paragraph per line)</label>
+                <textarea name="details" id="edit_timeline_details" rows="3" class="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none"></textarea>
+            </div>
             <div class="pt-4 border-t border-slate-100 flex items-center justify-end space-x-3">
                 <button type="button" onclick="toggleModal('edit-timeline-modal')" class="px-4 py-2 text-xs font-bold text-slate-500 bg-slate-100 rounded-xl">Cancel</button>
                 <button type="submit" class="px-4 py-2 text-xs font-bold text-white bg-brand-accent hover:bg-brand-sidebar rounded-xl">Save Changes</button>
@@ -748,6 +772,10 @@
             <div class="space-y-1">
                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Description</label>
                 <textarea name="description" rows="3" required class="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none"></textarea>
+            </div>
+            <div class="space-y-1">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Modal Details Description (One point/paragraph per line)</label>
+                <textarea name="details" rows="3" placeholder="Enter why choose us modal details..." class="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none"></textarea>
             </div>
             <div class="pt-4 border-t border-slate-100 flex items-center justify-end space-x-3">
                 <button type="button" onclick="toggleModal('add-why-modal')" class="px-4 py-2 text-xs font-bold text-slate-500 bg-slate-100 rounded-xl">Cancel</button>
@@ -780,6 +808,10 @@
             <div class="space-y-1">
                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Description</label>
                 <textarea name="description" id="edit_why_description" rows="3" required class="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none"></textarea>
+            </div>
+            <div class="space-y-1">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Modal Details Description (One point/paragraph per line)</label>
+                <textarea name="details" id="edit_why_details" rows="3" class="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none"></textarea>
             </div>
             <div class="pt-4 border-t border-slate-100 flex items-center justify-end space-x-3">
                 <button type="button" onclick="toggleModal('edit-why-modal')" class="px-4 py-2 text-xs font-bold text-slate-500 bg-slate-100 rounded-xl">Cancel</button>
@@ -827,6 +859,10 @@
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Project Cover Image</label>
                     <input type="file" name="image" required class="w-full text-xs font-semibold text-slate-500 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-brand-accent" />
                 </div>
+            </div>
+            <div class="space-y-1">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Modal Case Study Details (One point/paragraph per line)</label>
+                <textarea name="details" rows="3" placeholder="Enter case study details..." class="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none"></textarea>
             </div>
             <div class="pt-4 border-t border-slate-100 flex items-center justify-end space-x-3">
                 <button type="button" onclick="toggleModal('add-portfolio-modal')" class="px-4 py-2 text-xs font-bold text-slate-500 bg-slate-100 rounded-xl">Cancel</button>
@@ -876,6 +912,10 @@
                     <input type="file" name="image" class="w-full text-xs font-semibold text-slate-500 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-brand-accent" />
                 </div>
             </div>
+            <div class="space-y-1">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Modal Case Study Details (One point/paragraph per line)</label>
+                <textarea name="details" id="edit_portfolio_details" rows="3" class="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none"></textarea>
+            </div>
             <div class="pt-4 border-t border-slate-100 flex items-center justify-end space-x-3">
                 <button type="button" onclick="toggleModal('edit-portfolio-modal')" class="px-4 py-2 text-xs font-bold text-slate-500 bg-slate-100 rounded-xl">Cancel</button>
                 <button type="submit" class="px-4 py-2 text-xs font-bold text-white bg-brand-accent hover:bg-brand-sidebar rounded-xl">Save Changes</button>
@@ -920,6 +960,10 @@
             <div class="space-y-1">
                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Included Features (One feature per line)</label>
                 <textarea name="features" rows="4" required class="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none"></textarea>
+            </div>
+            <div class="space-y-1">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Modal Details Description (One point/paragraph per line)</label>
+                <textarea name="details" rows="3" placeholder="Enter plan modal extra details..." class="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none"></textarea>
             </div>
             <div class="pt-4 border-t border-slate-100 flex items-center justify-end space-x-3">
                 <button type="button" onclick="toggleModal('add-pricing-modal')" class="px-4 py-2 text-xs font-bold text-slate-500 bg-slate-100 rounded-xl">Cancel</button>
@@ -966,6 +1010,10 @@
             <div class="space-y-1">
                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Included Features (One feature per line)</label>
                 <textarea name="features" id="edit_pricing_features" rows="4" required class="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none"></textarea>
+            </div>
+            <div class="space-y-1">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Modal Details Description (One point/paragraph per line)</label>
+                <textarea name="details" id="edit_pricing_details" rows="3" class="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none"></textarea>
             </div>
             <div class="pt-4 border-t border-slate-100 flex items-center justify-end space-x-3">
                 <button type="button" onclick="toggleModal('edit-pricing-modal')" class="px-4 py-2 text-xs font-bold text-slate-500 bg-slate-100 rounded-xl">Cancel</button>
@@ -1162,6 +1210,14 @@
         }
         document.getElementById('edit_core_features').value = featuresText;
 
+        let detailsText = '';
+        if (item.details && Array.isArray(item.details)) {
+            detailsText = item.details.join('\n');
+        } else if (item.details) {
+            detailsText = item.details;
+        }
+        document.getElementById('edit_core_details').value = detailsText;
+
         toggleModal('edit-core-modal');
     }
 
@@ -1171,6 +1227,14 @@
 
         document.getElementById('edit_additional_name').value = item.name || '';
         document.getElementById('edit_additional_icon').value = item.icon || '';
+
+        let detailsText = '';
+        if (item.details && Array.isArray(item.details)) {
+            detailsText = item.details.join('\n');
+        } else if (item.details) {
+            detailsText = item.details;
+        }
+        document.getElementById('edit_additional_details').value = detailsText;
 
         toggleModal('edit-additional-modal');
     }
@@ -1184,6 +1248,14 @@
         document.getElementById('edit_timeline_icon').value = item.icon || '';
         document.getElementById('edit_timeline_description').value = item.description || '';
 
+        let detailsText = '';
+        if (item.details && Array.isArray(item.details)) {
+            detailsText = item.details.join('\n');
+        } else if (item.details) {
+            detailsText = item.details;
+        }
+        document.getElementById('edit_timeline_details').value = detailsText;
+
         toggleModal('edit-timeline-modal');
     }
 
@@ -1194,6 +1266,14 @@
         document.getElementById('edit_why_title').value = item.title || '';
         document.getElementById('edit_why_icon').value = item.icon || '';
         document.getElementById('edit_why_description').value = item.description || '';
+
+        let detailsText = '';
+        if (item.details && Array.isArray(item.details)) {
+            detailsText = item.details.join('\n');
+        } else if (item.details) {
+            detailsText = item.details;
+        }
+        document.getElementById('edit_why_details').value = detailsText;
 
         toggleModal('edit-why-modal');
     }
@@ -1207,6 +1287,14 @@
         document.getElementById('edit_portfolio_attendees').value = item.attendees || '';
         document.getElementById('edit_portfolio_location').value = item.location || '';
         document.getElementById('edit_portfolio_date').value = item.date || '';
+
+        let detailsText = '';
+        if (item.details && Array.isArray(item.details)) {
+            detailsText = item.details.join('\n');
+        } else if (item.details) {
+            detailsText = item.details;
+        }
+        document.getElementById('edit_portfolio_details').value = detailsText;
 
         toggleModal('edit-portfolio-modal');
     }
@@ -1227,6 +1315,14 @@
             featuresText = item.features.join('\n');
         }
         document.getElementById('edit_pricing_features').value = featuresText;
+
+        let detailsText = '';
+        if (item.details && Array.isArray(item.details)) {
+            detailsText = item.details.join('\n');
+        } else if (item.details) {
+            detailsText = item.details;
+        }
+        document.getElementById('edit_pricing_details').value = detailsText;
 
         toggleModal('edit-pricing-modal');
     }

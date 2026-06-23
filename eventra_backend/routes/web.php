@@ -45,6 +45,14 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
     Route::post('/organizers/{user}/approve', [AdminController::class, 'approveOrganizer'])->name('organizers.approve');
     Route::post('/organizers/{user}/reject', [AdminController::class, 'rejectOrganizer'])->name('organizers.reject');
 
+    // Registrations & Transactions logs
+    Route::get('/registrations', [AdminController::class, 'registrations'])->name('registrations');
+
+    // Settings, active payment methods & system notification builder
+    Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
+    Route::post('/settings/rules', [AdminController::class, 'saveRules'])->name('settings.rules');
+    Route::post('/settings/notify', [AdminController::class, 'broadcastNotification'])->name('settings.notify');
+
     // Footer settings
     Route::get('/footer', [AdminController::class, 'footerSettings'])->name('footer');
     Route::post('/footer', [AdminController::class, 'updateFooterSettings'])->name('footer.update');
@@ -74,6 +82,6 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
     Route::get('/contact', [AdminController::class, 'contactSettings'])->name('contact');
     Route::post('/contact/{section}', [AdminController::class, 'addPageItem'])->name('contact.add');
     Route::put('/contact/{section}/{index}', [AdminController::class, 'updatePageItem'])->name('contact.update');
-    Route::delete('/contact/{section}/{index}', [AdminController::class, 'deletePageItem'])->name('contact.delete');
     Route::delete('/contact/messages/{id}', [AdminController::class, 'deleteContactMessage'])->name('contact.messages.delete');
+    Route::delete('/contact/{section}/{index}', [AdminController::class, 'deletePageItem'])->name('contact.delete');
 });

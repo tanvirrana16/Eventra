@@ -12,7 +12,8 @@ import {
   Settings, 
   ExternalLink, 
   LogOut,
-  X
+  X,
+  QrCode
 } from 'lucide-react';
 import logo from '../../assets/logo.png';
 
@@ -28,6 +29,7 @@ export default function OrganizerSidebar({
     { id: 'launch-event',   name: 'Launch Event',     icon: PlusCircle },
     { id: 'my-events',      name: 'My Events',        icon: Calendar },
     { id: 'participants',   name: 'Participants',     icon: Users },
+    { id: 'verify-qr',      name: 'Verify QR Pass',   icon: QrCode },
     { id: 'speakers',       name: 'Speakers',         icon: Mic },
     { id: 'certificates',   name: 'Certificates',     icon: Award },
     { id: 'revenue',        name: 'Revenue & Payments', icon: DollarSign },

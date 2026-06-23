@@ -310,7 +310,7 @@ class UserDashboardController extends Controller
 
         $passes = $registrations->map(function ($reg) {
             $event = $reg->event;
-            $qrData = "reg_id={$reg->id}&user_id={$reg->user_id}&event_id={$event->id}&token={$reg->security_token}";
+            $qrData = "http://localhost:5173/pass/verify?reg_id={$reg->id}&token={$reg->security_token}";
             $qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" . urlencode($qrData);
 
             return [
@@ -332,6 +332,34 @@ class UserDashboardController extends Controller
         });
 
         return response()->json($passes);
+    }
+
+    /**
+     * Get payment history (transactions list) for participant.
+     */
+    public function payments()
+    {
+        $user = Auth::user();
+        $registrations = $user->registrations()
+            ->with('event')
+            ->whereNotNull('payment_method')
+            ->orderBy('registered_at', 'desc')
+            ->get();
+
+        $formatted = $registrations->map(function ($reg) {
+            return [
+                'id' => $reg->id,
+                'registration_code' => $reg->registration_code,
+                'event_title' => $reg->event->title ?? 'N/A',
+                'payment_method' => $reg->payment_method,
+                'payment_amount' => (float)$reg->payment_amount,
+                'payment_status' => $reg->payment_status,
+                'transaction_id' => $reg->transaction_id ?? 'N/A',
+                'payment_date' => $reg->payment_date ? $reg->payment_date->format('Y-m-d H:i') : ($reg->registered_at ? $reg->registered_at->format('Y-m-d H:i') : 'N/A')
+            ];
+        });
+
+        return response()->json($formatted);
     }
 
     /**

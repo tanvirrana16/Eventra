@@ -597,7 +597,34 @@ class AdminController extends Controller
 
         $user->update(['status' => 'approved']);
 
-        return back()->with('success', "Approved organizer: {$user->name}. They can now host events.");
+        // Retrieve admin configured organizer rules and regulations
+        $rules = Setting::getValue('organizer_rules_regulations', "1. Maintain professional conduct at all times.\n2. Ensure accurate venue capacity listings.\n3. Complete certificate payouts transparently.");
+
+        $emailSubject = "Approved: Your Organizer Account on Eventra is Live!";
+        $emailContent = <<<EOT
+=========================================
+EMAIL SIMULATION DISPATCH (ORGANIZER APPROVAL)
+To: {$user->email}
+Subject: {$emailSubject}
+-----------------------------------------
+Hello {$user->name},
+
+Congratulations! Your organizer request has been reviewed and approved by the Eventra Administration.
+
+You can now log in to the Organizer Dashboard at http://localhost:5173/login using your credentials to create events, manage registrations, and track analytics.
+
+Rules & Regulations for Event Hosts:
+-----------------------------------------
+{$rules}
+
+Best regards,
+The Eventra Administration Team
+=========================================
+EOT;
+
+        \Illuminate\Support\Facades\Log::info($emailContent);
+
+        return back()->with('success', "Approved organizer: {$user->name}. Confirmation email with rules has been dispatched to log.");
     }
 
     public function rejectOrganizer(User $user)
@@ -868,5 +895,110 @@ class AdminController extends Controller
         Setting::setValue($settingKey, json_encode($items));
 
         return back()->with('success', 'Item deleted successfully.');
+    }
+
+    /**
+     * View all registrations and transaction records.
+     */
+    public function registrations(Request $request)
+    {
+        $query = EventRegistration::with(['user', 'event']);
+
+        // Search filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('registration_code', 'like', "%{$search}%")
+                  ->orWhere('transaction_id', 'like', "%{$search}%")
+                  ->orWhereHas('user', function($uq) use ($search) {
+                      $uq->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('event', function($eq) use ($search) {
+                      $eq->where('title', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Method filter
+        if ($request->filled('method')) {
+            $query->where('payment_method', $request->method);
+        }
+
+        $registrations = $query->orderBy('registered_at', 'desc')->paginate(15);
+
+        // Calculate analytical metrics
+        $metrics = [
+            'total_registrations' => EventRegistration::count(),
+            'total_revenue' => (float) EventRegistration::where('payment_status', 'paid')->sum('payment_amount'),
+            'bKash_revenue' => (float) EventRegistration::where('payment_method', 'bKash')->sum('payment_amount'),
+            'nagad_revenue' => (float) EventRegistration::where('payment_method', 'Nagad')->sum('payment_amount'),
+            'card_revenue' => (float) EventRegistration::whereIn('payment_method', ['Visa', 'MasterCard'])->sum('payment_amount'),
+            'checked_in_count' => EventRegistration::where('pass_status', 'Checked-in')->count()
+        ];
+
+        return view('admin.registrations', compact('registrations', 'metrics'));
+    }
+
+    /**
+     * Settings configurations page.
+     */
+    public function settings()
+    {
+        $rules = Setting::getValue('organizer_rules_regulations', '');
+        $activeMethods = json_decode(Setting::getValue('active_payment_methods', '["Visa", "MasterCard", "bKash", "Nagad"]'), true);
+        if (!$activeMethods) {
+            $activeMethods = ["Visa", "MasterCard", "bKash", "Nagad"];
+        }
+        
+        return view('admin.settings', compact('rules', 'activeMethods'));
+    }
+
+    /**
+     * Save organizer rules configurations.
+     */
+    public function saveRules(Request $request)
+    {
+        $request->validate([
+            'organizer_rules_regulations' => 'required|string',
+            'payment_methods' => 'nullable|array'
+        ]);
+
+        Setting::setValue('organizer_rules_regulations', $request->organizer_rules_regulations);
+        
+        $methods = $request->payment_methods ?? [];
+        Setting::setValue('active_payment_methods', json_encode($methods));
+
+        return back()->with('success', 'Configurations updated successfully.');
+    }
+
+    /**
+     * Broadcast notification to targeted group.
+     */
+    public function broadcastNotification(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:150',
+            'message' => 'required|string',
+            'target_role' => 'required|in:all,participant,organizer'
+        ]);
+
+        // Insert notification entries in the database
+        $role = $request->target_role;
+        $usersQuery = User::query();
+        if ($role !== 'all') {
+            $usersQuery->where('role', $role);
+        }
+        $users = $usersQuery->get();
+
+        foreach ($users as $user) {
+            $user->notifications()->create([
+                'type' => 'System Broadcaster',
+                'title' => $request->title,
+                'message' => $request->message
+            ]);
+        }
+
+        return back()->with('success', 'Broadcast notifications successfully dispatched to ' . $users->count() . ' accounts.');
     }
 }

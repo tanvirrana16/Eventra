@@ -54,6 +54,12 @@ export default function EventDetailsModal({ event, onClose }) {
   const [registrationError, setRegistrationError] = useState('');
   const [registrationSuccessData, setRegistrationSuccessData] = useState(null);
 
+  // High fidelity sub-state payment checkout views
+  const [paymentStep, setPaymentStep] = useState('method'); // 'method', 'card-entry', 'mobile-wallet-entry', 'mobile-otp', 'mobile-pin', 'processing'
+  const [otpCode, setOtpCode] = useState('');
+  const [pinCode, setPinCode] = useState('');
+  const [generatedTxnId, setGeneratedTxnId] = useState('');
+
   useEffect(() => {
     // Trigger entrance animation on mount
     const timeout = setTimeout(() => {
@@ -149,12 +155,12 @@ export default function EventDetailsModal({ event, onClose }) {
   };
 
   // Call backend registration API
-  const executeRegistration = (paymentMethodOverride = '') => {
+  const executeRegistration = (txnId = '') => {
     setIsRegistering(true);
     setRegistrationError('');
 
     const token = localStorage.getItem('token');
-    const method = paymentMethodOverride || selectedPaymentMethod;
+    const method = selectedPaymentMethod;
 
     fetch(`${API_BASE_URL}/events/${event.id}/register`, {
       method: 'POST',
@@ -164,7 +170,8 @@ export default function EventDetailsModal({ event, onClose }) {
       },
       body: JSON.stringify({
         payment_method: method || null,
-        payment_amount: event.ticketPrice || 0
+        payment_amount: event.ticketPrice || 0,
+        transaction_id: txnId || null
       })
     })
       .then(async (res) => {
@@ -176,6 +183,45 @@ export default function EventDetailsModal({ event, onClose }) {
           setViewState('pass');
         } else {
           setRegistrationError(data.message || 'Registration failed. Please try again.');
+          setPaymentStep('method');
+        }
+      })
+      .catch((err) => {
+        setIsRegistering(false);
+        setRegistrationError('Network error. Check if backend is active.');
+        setPaymentStep('method');
+        console.error(err);
+      });
+  };
+
+  // SSLCommerz initiation API request
+  const executeSSLCommerzInitiation = () => {
+    setIsRegistering(true);
+    setRegistrationError('');
+
+    const token = localStorage.getItem('token');
+
+    fetch(`${API_BASE_URL}/sslcommerz/initiate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        event_id: event.id
+      })
+    })
+      .then(async (res) => {
+        const data = await res.json();
+        setIsRegistering(false);
+        if (res.ok) {
+          if (data.gateway_url) {
+            window.location.href = data.gateway_url;
+          } else {
+            setRegistrationError('Gateway initialization URL not found.');
+          }
+        } else {
+          setRegistrationError(data.message || 'Payment initiation failed.');
         }
       })
       .catch((err) => {
@@ -183,44 +229,6 @@ export default function EventDetailsModal({ event, onClose }) {
         setRegistrationError('Network error. Check if backend is active.');
         console.error(err);
       });
-  };
-
-  // Payment Form Submission Handler
-  const handlePaymentSubmit = (e) => {
-    e.preventDefault();
-    setPaymentError('');
-
-    if (!selectedPaymentMethod) {
-      setPaymentError('Please select a payment method.');
-      return;
-    }
-
-    // Verify fields are entered (mock verification)
-    if (['Visa', 'MasterCard'].includes(selectedPaymentMethod)) {
-      if (!paymentDetails.number || !paymentDetails.name || !paymentDetails.expiry || !paymentDetails.cvv) {
-        setPaymentError('Please fill out all card information fields.');
-        return;
-      }
-      if (paymentDetails.number.replace(/\s/g, '').length < 16) {
-        setPaymentError('Please enter a valid 16-digit card number.');
-        return;
-      }
-    } else {
-      if (!paymentDetails.number) {
-        setPaymentError('Please enter your mobile account number.');
-        return;
-      }
-      if (paymentDetails.number.length < 11) {
-        setPaymentError('Please enter a valid 11-digit mobile wallet number.');
-        return;
-      }
-    }
-
-    // Simulate verification delay
-    setIsRegistering(true);
-    setTimeout(() => {
-      executeRegistration();
-    }, 1500);
   };
 
   // Format QR Code URL
@@ -582,136 +590,50 @@ export default function EventDetailsModal({ event, onClose }) {
       {/* Payment Selection and Gateway view */}
       {viewState === 'payment' && (
         <div className={`relative w-full max-w-lg bg-white rounded-3xl p-6 sm:p-8 shadow-2xl transition-all duration-300 text-left font-outfit ${animationClass}`}>
-          <form onSubmit={handlePaymentSubmit} className="space-y-6">
-            <div className="flex justify-between items-center pb-4 border-b border-gray-100">
-              <div className="flex items-center space-x-2.5 text-[#2E6F40]">
-                <CreditCard className="h-6 w-6" />
-                <h3 className="text-lg font-black text-gray-900 uppercase tracking-wide">Secure Payment Gateways</h3>
-              </div>
-              <button type="button" onClick={() => setViewState('rules')} className="p-1.5 hover:bg-slate-100 rounded-full transition-colors cursor-pointer text-gray-400 hover:text-gray-700">
-                <X className="h-5 w-5" />
-              </button>
+          {/* Header */}
+          <div className="flex justify-between items-center pb-4 border-b border-gray-100 mb-6">
+            <div className="flex items-center space-x-2.5 text-[#2E6F40]">
+              <CreditCard className="h-6 w-6" />
+              <h3 className="text-lg font-black text-gray-900 uppercase tracking-wide">
+                Secure Checkout
+              </h3>
             </div>
+            <button 
+              type="button" 
+              onClick={() => setViewState('rules')} 
+              className="p-1.5 hover:bg-slate-100 rounded-full transition-colors cursor-pointer text-gray-400 hover:text-gray-700"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
 
-            {/* Error banner */}
-            {(paymentError || registrationError) && (
-              <div className="p-3.5 bg-rose-50 text-rose-700 rounded-2xl border border-rose-150 flex items-start space-x-2.5 text-xs font-semibold animate-shake">
-                <AlertCircle className="h-4.5 w-4.5 shrink-0 text-rose-500 mt-0.5" />
-                <span>{paymentError || registrationError}</span>
+          {/* Error Banner */}
+          {registrationError && (
+            <div className="mb-4 p-3.5 bg-rose-50 text-rose-700 rounded-2xl border border-rose-150 flex items-start space-x-2.5 text-xs font-semibold animate-shake">
+              <AlertCircle className="h-4.5 w-4.5 shrink-0 text-rose-500 mt-0.5" />
+              <span>{registrationError}</span>
+            </div>
+          )}
+
+          {/* Summary Details */}
+          <div className="space-y-4 font-outfit">
+            <p className="text-xs text-gray-500 font-medium">
+              You will be redirected to the secure **SSLCommerz Payment Gateway** to complete your ticket purchase.
+            </p>
+
+            <div className="p-4 bg-slate-50 border border-slate-200/60 rounded-2xl space-y-3.5">
+              <div className="flex justify-between items-center text-xs font-bold">
+                <span className="text-slate-400 uppercase tracking-wider">Event Title</span>
+                <span className="text-slate-800 text-right truncate max-w-[200px]">{event.title}</span>
               </div>
-            )}
-
-            <div className="space-y-4">
-              <p className="text-xs text-gray-500 font-medium">Select a Payment Method:</p>
-              
-              {/* Payment Methods Grid */}
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { id: 'Visa', label: 'Visa Card', icon: CreditCard, color: 'text-blue-600 bg-blue-50 border-blue-200' },
-                  { id: 'MasterCard', label: 'MasterCard', icon: CreditCard, color: 'text-red-500 bg-red-50 border-red-200' },
-                  { id: 'bKash', label: 'bKash Mobile', icon: Smartphone, color: 'text-pink-600 bg-pink-50 border-pink-200' },
-                  { id: 'Nagad', label: 'Nagad Account', icon: Smartphone, color: 'text-orange-600 bg-orange-50 border-orange-200' }
-                ].map(method => {
-                  const isChecked = selectedPaymentMethod === method.id;
-                  return (
-                    <label 
-                      key={method.id} 
-                      className={`flex flex-col items-center justify-center p-3.5 rounded-2xl border-2 transition-all cursor-pointer text-center group ${
-                        isChecked 
-                          ? 'border-[#2E6F40] bg-emerald-50/20' 
-                          : 'border-slate-100 hover:border-slate-300 bg-white'
-                      }`}
-                    >
-                      <input 
-                        type="radio" 
-                        name="payment_method" 
-                        value={method.id} 
-                        checked={isChecked} 
-                        onChange={() => { setSelectedPaymentMethod(method.id); setPaymentError(''); }} 
-                        className="sr-only" 
-                      />
-                      <method.icon className={`h-6 w-6 mb-2 ${method.color.split(' ')[0]}`} />
-                      <span className="text-xs font-extrabold text-gray-900">{method.label}</span>
-                    </label>
-                  );
-                })}
+              <div className="flex justify-between items-center text-xs font-bold border-t border-slate-200/60 pt-3">
+                <span className="text-slate-400 uppercase tracking-wider">Ticket Fee</span>
+                <span className="text-slate-800">${paymentAmount.toFixed(2)} USD</span>
               </div>
-
-              {/* Dynamic Payment input details */}
-              {selectedPaymentMethod && (
-                <div className="p-4 bg-slate-50 rounded-2xl border border-gray-100 space-y-3 animate-slide-up">
-                  <div className="flex justify-between items-center border-b border-gray-200 pb-2 mb-2">
-                    <span className="text-xs font-bold text-gray-500 uppercase tracking-wide">Charge Amount</span>
-                    <span className="text-sm font-black text-gray-900">${paymentAmount.toFixed(2)}</span>
-                  </div>
-
-                  {['Visa', 'MasterCard'].includes(selectedPaymentMethod) ? (
-                    <div className="space-y-3">
-                      <div className="text-[10px] text-emerald-700 bg-emerald-50/50 border border-emerald-100 p-2.5 rounded-xl font-bold uppercase tracking-wider text-center">
-                        Recipient A/C: Sonali Bank • 0338401002885
-                      </div>
-                      <div>
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Card Number</label>
-                        <input 
-                          type="text" 
-                          placeholder="4111 2222 3333 4444" 
-                          value={paymentDetails.number}
-                          onChange={(e) => setPaymentDetails({...paymentDetails, number: e.target.value.replace(/[^0-9]/g, '').replace(/(.{4})/g, '$1 ').trim().slice(0, 19)})}
-                          className="w-full bg-white border border-gray-200 focus:border-[#2E6F40] text-xs font-bold p-2.5 rounded-xl outline-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Cardholder Name</label>
-                        <input 
-                          type="text" 
-                          placeholder="John Doe" 
-                          value={paymentDetails.name}
-                          onChange={(e) => setPaymentDetails({...paymentDetails, name: e.target.value})}
-                          className="w-full bg-white border border-gray-200 focus:border-[#2E6F40] text-xs font-bold p-2.5 rounded-xl outline-none"
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Expiry Date</label>
-                          <input 
-                            type="text" 
-                            placeholder="MM/YY" 
-                            value={paymentDetails.expiry}
-                            onChange={(e) => setPaymentDetails({...paymentDetails, expiry: e.target.value.replace(/[^0-9]/g, '').replace(/(.{2})/, '$1/').slice(0, 5)})}
-                            className="w-full bg-white border border-gray-200 focus:border-[#2E6F40] text-xs font-bold p-2.5 rounded-xl outline-none text-center"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">CVV / CVC</label>
-                          <input 
-                            type="password" 
-                            placeholder="•••" 
-                            maxLength="3"
-                            value={paymentDetails.cvv}
-                            onChange={(e) => setPaymentDetails({...paymentDetails, cvv: e.target.value.replace(/[^0-9]/g, '')})}
-                            className="w-full bg-white border border-gray-200 focus:border-[#2E6F40] text-xs font-bold p-2.5 rounded-xl outline-none text-center"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div>
-                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Mobile Account Number (11-digit)</label>
-                      <input 
-                        type="text" 
-                        placeholder="01712345678" 
-                        maxLength="11"
-                        value={paymentDetails.number}
-                        onChange={(e) => setPaymentDetails({...paymentDetails, number: e.target.value.replace(/[^0-9]/g, '')})}
-                        className="w-full bg-white border border-gray-200 focus:border-[#2E6F40] text-xs font-bold p-2.5 rounded-xl outline-none"
-                      />
-                      <div className="text-[10px] text-emerald-700 bg-emerald-50/50 border border-emerald-100 p-2.5 rounded-xl font-bold uppercase tracking-wider text-center mt-3">
-                        Recipient Wallet: bKash/Nagad • 01533138489
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
+              <div className="flex justify-between items-center text-xs font-bold border-t border-slate-200/60 pt-3 text-emerald-700">
+                <span className="uppercase tracking-wider">Equivalent Charge</span>
+                <span>৳{(paymentAmount * 117).toLocaleString()} BDT</span>
+              </div>
             </div>
 
             <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
@@ -723,21 +645,25 @@ export default function EventDetailsModal({ event, onClose }) {
                 Back
               </button>
               <button 
-                type="submit" 
+                type="button" 
+                onClick={executeSSLCommerzInitiation}
                 disabled={isRegistering}
-                className="py-3.5 px-8 bg-[#2E6F40] hover:bg-[#2E6F40]/90 disabled:bg-slate-400 text-white font-bold text-xs rounded-xl shadow-md hover:shadow-lg transition-all cursor-pointer flex items-center space-x-2"
+                className="py-3 px-8 bg-[#2E6F40] hover:bg-[#2E6F40]/90 text-white font-bold text-xs rounded-xl shadow-md hover:shadow-lg transition-all cursor-pointer flex items-center space-x-2 disabled:opacity-50"
               >
                 {isRegistering ? (
-                  <span>Processing...</span>
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin text-white" />
+                    <span>Redirecting...</span>
+                  </>
                 ) : (
                   <>
-                    <Lock className="h-3.5 w-3.5 text-emerald-100" />
-                    <span>Pay & Complete Registration</span>
+                    <span>Proceed to Gateway</span>
+                    <ArrowRight className="h-4 w-4" />
                   </>
                 )}
               </button>
             </div>
-          </form>
+          </div>
         </div>
       )}
 

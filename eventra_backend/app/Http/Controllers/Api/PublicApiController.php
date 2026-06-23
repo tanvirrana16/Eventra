@@ -411,4 +411,53 @@ class PublicApiController extends Controller
 
         return response()->json(['message' => 'Your message was sent successfully!']);
     }
+
+    /**
+     * Verify and return event pass details (publicly accessible via QR scan link).
+     */
+    public function verifyPass(Request $request)
+    {
+        $request->validate([
+            'reg_id' => 'required|integer',
+            'token' => 'required|string',
+        ]);
+
+        $registration = \App\Models\EventRegistration::with(['user', 'event.organizer', 'event.category'])->find($request->reg_id);
+
+        if (!$registration || $registration->security_token !== $request->token) {
+            return response()->json(['message' => 'Invalid or expired entry pass code.'], 404);
+        }
+
+        $event = $registration->event;
+        $date = \Carbon\Carbon::parse($event->event_date);
+        
+        return response()->json([
+            'registration' => [
+                'id' => $registration->id,
+                'registration_code' => $registration->registration_code,
+                'registered_at' => $registration->registered_at,
+                'pass_status' => $registration->pass_status,
+                'payment_method' => $registration->payment_method,
+                'payment_amount' => (float)$registration->payment_amount,
+                'payment_status' => $registration->payment_status,
+                'security_token' => $registration->security_token,
+                'transaction_id' => $registration->transaction_id,
+                'payment_date' => $registration->payment_date ? $registration->payment_date->toDateTimeString() : null,
+            ],
+            'event' => [
+                'id' => $event->id,
+                'title' => $event->title,
+                'dateText' => $date->format('l, F j, Y'),
+                'time' => date('h:i A', strtotime($event->event_time)),
+                'venue' => $event->location,
+                'organizer_name' => $event->organizer?->name ?? 'Eventra Team',
+                'ticket_type' => $event->ticket_type,
+            ],
+            'user' => [
+                'name' => $registration->user->name ?? 'Unknown Attendee',
+                'email' => $registration->user->email ?? 'N/A',
+            ],
+            'qr_data' => "http://localhost:5173/pass/verify?reg_id={$registration->id}&token={$registration->security_token}"
+        ]);
+    }
 }

@@ -122,24 +122,17 @@ export default function SignupPage({ setIsLoggedIn }) {
         if (res.ok) {
           setIsLoading(false);
           setStatus('success');
-          // Handle organizer approval message
+          // Handle redirect message
           const msg = role === 'organizer' 
             ? 'Registration successful! Your organizer account is pending admin approval.'
-            : 'Account created successfully! Logging you in...';
+            : 'Registration successful! Redirecting to Login page...';
           setStatusMsg(msg);
           setAlertVisible(true);
           
-          if (role !== 'organizer') {
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
-            setIsLoggedIn(true);
-            navigate('/dashboard');
-          } else {
-            // Organizer redirects to login after 1.5 seconds since they are pending approval
-            setTimeout(() => {
-              navigate('/login');
-            }, 1500);
-          }
+          // Redirect all roles to login page after 1.5 seconds
+          setTimeout(() => {
+            navigate('/login');
+          }, 1500);
         } else {
           setIsLoading(false);
           setStatus('error');
