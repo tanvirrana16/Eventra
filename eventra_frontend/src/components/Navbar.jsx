@@ -128,10 +128,10 @@ export default function Navbar({ isLoggedIn, setIsLoggedIn }) {
 
   const getNotifIcon = (type) => {
     switch (type) {
-      case 'event':       return <Calendar    className="h-3.5 w-3.5 text-emerald-600" />;
-      case 'certificate': return <Award       className="h-3.5 w-3.5 text-purple-500" />;
-      case 'warning':     return <AlertCircle className="h-3.5 w-3.5 text-amber-500" />;
-      default:            return <Info        className="h-3.5 w-3.5 text-blue-500"  />;
+      case 'event':       return <Calendar    className="h-3.5 w-3.5 text-green-600" />;
+      case 'certificate': return <Award       className="h-3.5 w-3.5 text-blue-500" />;
+      case 'warning':     return <AlertCircle className="h-3.5 w-3.5 text-orange-500" />;
+      default:            return <Info        className="h-3.5 w-3.5 text-purple-500"  />;
     }
   };
 
