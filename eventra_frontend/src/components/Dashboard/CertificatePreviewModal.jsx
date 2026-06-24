@@ -452,12 +452,12 @@ export default function CertificatePreviewModal({ cert, onClose }) {
                 <!-- Center: Gold Seal -->
                 <div class="cert-seal-box">
                   <div class="cert-seal-outer">
-                    {/* Ribbon Left */}
+                    <!-- Ribbon Left -->
                     <svg class="cert-seal-ribbon-l" viewBox="0 0 20 50">
                       <path d="M 0 0 L 20 0 L 20 40 L 10 32 L 0 40 Z" />
                       <path d="M 3 0 L 3 34 L 10 28 L 17 34 L 17 0" fill="#C5A880" />
                     </svg>
-                    {/* Ribbon Right */}
+                    <!-- Ribbon Right -->
                     <svg class="cert-seal-ribbon-r" viewBox="0 0 20 50">
                       <path d="M 0 0 L 20 0 L 20 40 L 10 32 L 0 40 Z" />
                       <path d="M 3 0 L 3 34 L 10 28 L 17 34 L 17 0" fill="#C5A880" />
