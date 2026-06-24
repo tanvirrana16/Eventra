@@ -310,7 +310,7 @@
 
     function editInfo(index, item) {
         const form = document.getElementById('edit-info-form');
-        form.action = `/admin/contact/info/${index}`;
+        form.action = "{{ route('admin.contact.update', ['info', ':index']) }}".replace(':index', index);
 
         document.getElementById('edit_title').value = item.title;
         document.getElementById('edit_icon').value = item.icon;
@@ -346,7 +346,7 @@
 
         // Set up the delete action on the modal
         const form = document.getElementById('msg_delete_form');
-        form.action = `/admin/contact/messages/${msg.id}`;
+        form.action = "{{ route('admin.contact.messages.delete', ':id') }}".replace(':id', msg.id);
 
         toggleModal('view-message-modal');
     }

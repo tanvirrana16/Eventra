@@ -129,6 +129,14 @@ class PublicApiController extends Controller
             });
         }
 
+        if ($request->has('id')) {
+            $query->where('id', $request->id);
+        }
+
+        if ($request->has('slug')) {
+            $query->where('slug', $request->slug);
+        }
+
         $events = $query->orderBy('event_date', 'asc')->get()->map(function($event) {
             return $this->formatEventCard($event);
         });
@@ -377,14 +385,27 @@ class PublicApiController extends Controller
             return response()->json(['message' => 'Certificate not found'], 404);
         }
 
+        $configJson = \App\Models\Setting::getValue("certificate_config_event_{$certificate->event->id}");
+        $config = $configJson ? json_decode($configJson, true) : null;
+
         return response()->json([
             'id' => $certificate->certificate_code,
             'participantName' => $certificate->user->name,
             'eventName' => $certificate->event->title,
             'eventCategory' => $certificate->event->category->name,
-            'organizer' => $certificate->event->organizer->organization_name ?? $certificate->event->organizer->name,
+            'organizer' => $config['president_name'] ?? $certificate->event->organizer->name ?? 'Representative',
+            'organization_name' => $config['organization_name'] ?? $certificate->event->organizer->organization_name ?? 'Eventra Platform',
+            'supported_by' => $config['supported_by'] ?? 'Supported by Eventra',
+            'description' => $config['description'] ?? '',
+            'president_name' => $config['president_name'] ?? $certificate->event->organizer->name ?? 'Representative',
+            'president_title' => $config['president_title'] ?? 'Director',
+            'chairman_name' => $config['chairman_name'] ?? 'John Doe',
+            'chairman_title' => $config['chairman_title'] ?? 'Chairman of Eventra',
+            'theme' => $config['theme'] ?? 'dark-emerald',
             'issueDate' => $certificate->issued_at ? $certificate->issued_at->format('F j, Y') : now()->format('F j, Y'),
             'status' => 'Verified',
+            'eventId' => $certificate->event->id,
+            'eventSlug' => $certificate->event->slug,
         ]);
     }
 

@@ -271,6 +271,32 @@ class PaymentAndVerificationTest extends TestCase
             'id' => $registration->id,
             'pass_status' => 'Checked-in',
         ]);
+
+        // 3. Verify certificate is created automatically
+        $this->assertDatabaseHas('certificates', [
+            'event_id' => $event->id,
+            'user_id' => $participant->id,
+        ]);
+
+        // 4. Try duplicate scan / check-in
+        $responseDuplicate = $this->putJson("/api/organizer/registrations/{$registration->id}/check-in", [], [
+            'Authorization' => 'Bearer ' . $organizer->api_token,
+        ]);
+        $responseDuplicate->assertStatus(409);
+        $responseDuplicate->assertJsonPath('message', 'This pass has already been checked-in. Duplicate scan prevented.');
+
+        // 5. Cancel check-in
+        $responseCancel = $this->putJson("/api/organizer/registrations/{$registration->id}/check-in?action=cancel", [], [
+            'Authorization' => 'Bearer ' . $organizer->api_token,
+        ]);
+        $responseCancel->assertStatus(200);
+        $responseCancel->assertJsonPath('registration.pass_status', 'Active');
+
+        // 6. Verify certificate is deleted upon cancellation
+        $this->assertDatabaseMissing('certificates', [
+            'event_id' => $event->id,
+            'user_id' => $participant->id,
+        ]);
     }
 
     /**
@@ -369,6 +395,37 @@ class PaymentAndVerificationTest extends TestCase
         
         $this->assertDatabaseMissing('contact_messages', [
             'id' => $message->id,
+        ]);
+    }
+
+    /**
+     * Test certificate verification endpoint.
+     */
+    public function test_certificate_verification_api(): void
+    {
+        $participant = User::where('role', 'participant')->first();
+        $event = Event::first();
+
+        // Create a certificate
+        $certificate = \App\Models\Certificate::create([
+            'certificate_code' => 'EVT-2026-ABCDEF',
+            'event_id' => $event->id,
+            'user_id' => $participant->id,
+            'issued_at' => now(),
+        ]);
+
+        $response = $this->postJson('/api/certificates/verify', [
+            'certificate_code' => 'EVT-2026-ABCDEF',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'id' => 'EVT-2026-ABCDEF',
+            'participantName' => $participant->name,
+            'eventName' => $event->title,
+            'eventId' => $event->id,
+            'eventSlug' => $event->slug,
+            'status' => 'Verified',
         ]);
     }
 }

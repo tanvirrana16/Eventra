@@ -81,9 +81,11 @@ class UserDashboardController extends Controller
 
         // Stats calculation
         $totalRegistrations = $user->registrations()->count();
-        $upcomingEvents = $user->registrations()->whereHas('event', function ($q) {
-            $q->where('event_date', '>=', now()->toDateString());
-        })->count();
+        $upcomingEvents = $user->registrations()
+            ->where('pass_status', '!=', 'Cancelled')
+            ->whereHas('event', function ($q) {
+                $q->where('event_date', '>=', now()->toDateString());
+            })->count();
         $eventPasses = $user->registrations()->where('pass_status', 'Active')->count();
         $certificatesEarned = $user->certificates()->count();
 
@@ -95,6 +97,7 @@ class UserDashboardController extends Controller
 
         // Dynamic event reminders
         $upcomingRegs = $user->registrations()->with('event')
+            ->where('pass_status', '!=', 'Cancelled')
             ->whereHas('event', function ($q) {
                 $q->where('event_date', '>=', now()->toDateString());
             })->get();
@@ -190,7 +193,26 @@ class UserDashboardController extends Controller
         // Process profile photo base64 payload
         if ($request->filled('profile_photo')) {
             $photoData = $request->profile_photo;
-            if (str_starts_with($photoData, 'data:image')) {
+            if ($photoData === 'remove') {
+                // Delete existing local photo if exists
+                if ($user->profile_photo && str_contains($user->profile_photo, 'profile_photos')) {
+                    $fileName = basename($user->profile_photo);
+                    $filePath = public_path('storage/profile_photos/' . $fileName);
+                    if (file_exists($filePath)) {
+                        @unlink($filePath);
+                    }
+                }
+                $data['profile_photo'] = null;
+            } elseif (str_starts_with($photoData, 'data:image')) {
+                // Delete old local photo if replacing
+                if ($user->profile_photo && str_contains($user->profile_photo, 'profile_photos')) {
+                    $fileName = basename($user->profile_photo);
+                    $filePath = public_path('storage/profile_photos/' . $fileName);
+                    if (file_exists($filePath)) {
+                        @unlink($filePath);
+                    }
+                }
+
                 // Decode and store image in public/profile_photos directory
                 $extension = explode('/', explode(':', substr($photoData, 0, strpos($photoData, ';')))[1])[1];
                 $replace = substr($photoData, 0, strpos($photoData, ',') + 1);
@@ -242,11 +264,11 @@ class UserDashboardController extends Controller
 
             // Dynamically calculate status matching frontend EventCard logic
             $now = now();
-            $startStr = $event->event_date . ' ' . $event->event_time;
+            $startStr = $event->event_date->format('Y-m-d') . ' ' . $event->event_time;
             $start = \Carbon\Carbon::parse($startStr);
 
             if ($event->event_end_date && $event->event_end_time) {
-                $endStr = $event->event_end_date . ' ' . $event->event_end_time;
+                $endStr = $event->event_end_date->format('Y-m-d') . ' ' . $event->event_end_time;
                 $end = \Carbon\Carbon::parse($endStr);
             } else {
                 $end = (clone $start)->addHours(3);
@@ -390,6 +412,9 @@ class UserDashboardController extends Controller
 
         $formatted = $certificates->map(function ($cert) {
             $event = $cert->event;
+            $configJson = \App\Models\Setting::getValue("certificate_config_event_{$event->id}");
+            $config = $configJson ? json_decode($configJson, true) : null;
+
             return [
                 'id' => $cert->id,
                 'event_name' => $event->title,
@@ -397,7 +422,15 @@ class UserDashboardController extends Controller
                 'issue_date' => $cert->issued_at ? $cert->issued_at->format('Y-m-d') : null,
                 'issue_date_text' => $cert->issued_at ? $cert->issued_at->format('F j, Y') : null,
                 'status' => 'Issued',
-                'organizer' => $event->organizer?->name ?? 'Eventra Team',
+                'organizer' => $config['president_name'] ?? $event->organizer?->name ?? 'Representative',
+                'organization_name' => $config['organization_name'] ?? $event->organizer?->organization_name ?? 'Eventra Platform',
+                'supported_by' => $config['supported_by'] ?? 'Supported by Eventra',
+                'description' => $config['description'] ?? '',
+                'president_name' => $config['president_name'] ?? $event->organizer?->name ?? 'Representative',
+                'president_title' => $config['president_title'] ?? 'Director',
+                'chairman_name' => $config['chairman_name'] ?? 'John Doe',
+                'chairman_title' => $config['chairman_title'] ?? 'Chairman of Eventra',
+                'theme' => $config['theme'] ?? 'dark-emerald',
                 'participant_name' => Auth::user()->name,
             ];
         });
@@ -411,6 +444,37 @@ class UserDashboardController extends Controller
     public function notifications()
     {
         $user = Auth::user();
+
+        // Seed initial notifications if they are empty
+        if ($user->notifications()->count() === 0) {
+            $user->notifications()->createMany([
+                [
+                    'type' => 'Registration Approved',
+                    'title' => 'Registration Confirmed',
+                    'message' => 'Your registration for the upcoming Tech Innovation Summit has been approved! We look forward to seeing you.',
+                    'created_at' => now()->subHours(2),
+                ],
+                [
+                    'type' => 'Event Reminder',
+                    'title' => 'Event Starting Tomorrow',
+                    'message' => 'Reminder: The UI/UX Masterclass starts tomorrow at 10:00 AM. Please make sure to check in using your QR pass.',
+                    'created_at' => now()->subDay(),
+                ],
+                [
+                    'type' => 'Certificate Generated',
+                    'title' => 'Certificate Issued',
+                    'message' => 'Congratulations! Your certificate for the React Advanced Workshop has been generated. You can now download it.',
+                    'created_at' => now()->subDays(3),
+                ],
+                [
+                    'type' => 'New Event Recommendation',
+                    'title' => 'New Event Just for You',
+                    'message' => 'Based on your interests, we recommend checking out the Global Music Fest happening next month.',
+                    'created_at' => now()->subDays(5),
+                ],
+            ]);
+        }
+
         $notifications = $user->notifications()->orderBy('created_at', 'desc')->get();
         return response()->json($notifications);
     }
@@ -602,7 +666,7 @@ class UserDashboardController extends Controller
         
         // Ensure event start date is in the future
         $now = now();
-        $startStr = $event->event_date . ' ' . $event->event_time;
+        $startStr = $event->event_date->format('Y-m-d') . ' ' . $event->event_time;
         $start = \Carbon\Carbon::parse($startStr);
         if ($now->gte($start)) {
             return response()->json(['message' => 'Cannot cancel registrations for live or past events.'], 422);

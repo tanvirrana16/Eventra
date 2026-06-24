@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   X, MapPin, Calendar, ArrowRight, ShieldCheck, 
   Ticket, Share2, CreditCard, Smartphone, Copy, 
-  ExternalLink, Lock, CheckCircle2, AlertCircle
+  ExternalLink, Lock, CheckCircle2, AlertCircle, Loader2
 } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 
@@ -133,6 +133,7 @@ export default function EventDetailsModal({ event, onClose }) {
     const token = localStorage.getItem('token');
     if (!token) {
       alert("You must log in before registering for an event.");
+      onClose();
       navigate('/login');
       return;
     }

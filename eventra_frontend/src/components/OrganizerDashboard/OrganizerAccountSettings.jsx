@@ -71,7 +71,11 @@ export default function OrganizerAccountSettings({
           setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
         } else {
           setPwdStatus('error');
-          setPwdStatusMsg(data.message || 'Failed to update password.');
+          let msg = data.message || 'Failed to update password.';
+          if (data.errors) {
+            msg = Object.values(data.errors).flat().join(' ');
+          }
+          setPwdStatusMsg(msg);
         }
       })
       .catch((err) => {

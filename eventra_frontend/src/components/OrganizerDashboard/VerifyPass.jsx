@@ -64,7 +64,10 @@ export default function VerifyPass({
     if (!verifiedPass) return;
 
     setIsLoading(true);
-    fetch(`${API_BASE_URL}/organizer/registrations/${verifiedPass.id}/check-in`, {
+    const isCheckedIn = verifiedPass.ticket_status === 'Checked-in';
+    const url = `${API_BASE_URL}/organizer/registrations/${verifiedPass.id}/check-in${isCheckedIn ? '?action=cancel' : ''}`;
+
+    fetch(url, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -78,7 +81,7 @@ export default function VerifyPass({
           alert(data.message);
           
           // Update local state status
-          const updatedStatus = verifiedPass.ticket_status === 'Checked-in' ? 'Active' : 'Checked-in';
+          const updatedStatus = isCheckedIn ? 'Active' : 'Checked-in';
           setVerifiedPass(prev => ({ ...prev, ticket_status: updatedStatus }));
           
           // Propagate change

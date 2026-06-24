@@ -8,11 +8,26 @@ export default function PassDetailsModal({ pass, onClose }) {
   if (!pass) return null;
 
   const handlePrint = () => {
-    const printContents = printAreaRef.current.innerHTML;
+    // Remove any existing print iframe
+    const existingFrame = document.getElementById('print-iframe');
+    if (existingFrame) {
+      existingFrame.remove();
+    }
 
-    // Create custom window writing to keep layout intact
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(`
+    // Create a hidden iframe
+    const iframe = document.createElement('iframe');
+    iframe.id = 'print-iframe';
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow.document || iframe.contentDocument;
+    doc.open();
+    doc.write(`
       <html>
         <head>
           <title>Eventra Pass - ${pass.event_name}</title>
@@ -25,6 +40,7 @@ export default function PassDetailsModal({ pass, onClose }) {
               display: flex;
               justify-content: center;
               align-items: center;
+              height: 80vh;
             }
             .boarding-pass {
               width: 680px;
@@ -117,14 +133,81 @@ export default function PassDetailsModal({ pass, onClose }) {
           </style>
         </head>
         <body>
-          ${printContents}
-          <script>
-            window.onload = function() { window.print(); }
-          </script>
+          <div class="boarding-pass">
+            <div class="main-content">
+              <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px;">
+                <span class="brand">EVENTRA</span>
+                <span style="background: #2E6F40; color: #white; font-size: 9px; font-weight: 950; padding: 4px 10px; border-radius: 9999px; text-transform: uppercase; letter-spacing: 1px; color: #fff;">${pass.pass_status} PASS</span>
+              </div>
+              <div class="event-title">${pass.event_name}</div>
+              <div class="meta-grid">
+                <div>
+                  <div class="label">Participant</div>
+                  <div style="font-size: 14px; font-weight: 800; color: #0f172a;">${pass.participant_name}</div>
+                </div>
+                <div>
+                  <div class="label">Registration Code</div>
+                  <div style="font-size: 14px; font-weight: 800; color: #0f172a; font-family: monospace;">${pass.registration_code}</div>
+                </div>
+                <div>
+                  <div class="label">Date</div>
+                  <div>${pass.event_date}</div>
+                </div>
+                <div>
+                  <div class="label">Time</div>
+                  <div>${pass.event_time}</div>
+                </div>
+                <div style="grid-column: span 2;">
+                  <div class="label">Venue Location</div>
+                  <div style="color: #334155; line-height: 1.4;">${pass.venue}</div>
+                </div>
+              </div>
+            </div>
+            <div class="stub">
+              <div style="text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; width: 100%;">
+                <div class="brand-stub">BOARDING PASS</div>
+                <div style="font-size: 9px; color: rgba(255,255,255,0.6); font-weight: bold; margin-top: 2px;">${pass.organizer}</div>
+              </div>
+              <div style="text-align: center; margin: 20px 0;">
+                <div class="qr-container">
+                  <img class="qr-code" src="${pass.qr_code_url}" style="width: 110px; height: 110px; display: block;" alt="QR Code" />
+                </div>
+                <div style="font-size: 9px; font-weight: bold; color: #a7f3d0; text-transform: uppercase; letter-spacing: 1px; margin-top: 8px;">Scan at Entrance</div>
+              </div>
+              <div style="text-align: center; width: 100%;">
+                <div class="label-stub">Verification Token</div>
+                <div style="font-family: monospace; font-size: 11px; font-weight: bold; color: rgba(255,255,255,0.9); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-w: 160px; margin: 0 auto;">${pass.verification_number}</div>
+              </div>
+            </div>
+          </div>
         </body>
       </html>
     `);
-    printWindow.document.close();
+    doc.close();
+
+    const handlePrintReady = () => {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+      setTimeout(() => {
+        const frame = document.getElementById('print-iframe');
+        if (frame) {
+          frame.remove();
+        }
+      }, 1000);
+    };
+
+    // Wait for the QR code image to load inside the iframe
+    const img = doc.querySelector('.qr-code');
+    if (img) {
+      if (img.complete) {
+        setTimeout(handlePrintReady, 300);
+      } else {
+        img.onload = () => setTimeout(handlePrintReady, 300);
+        img.onerror = () => setTimeout(handlePrintReady, 300);
+      }
+    } else {
+      setTimeout(handlePrintReady, 500);
+    }
   };
 
   return (

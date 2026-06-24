@@ -13,9 +13,26 @@ import {
 export default function MyEventPasses({ passes, onViewFullPass }) {
   
   const handlePrint = (pass) => {
-    // Open a new window with a printable boarding pass layout
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(`
+    // Remove any existing print iframe
+    const existingFrame = document.getElementById('print-iframe');
+    if (existingFrame) {
+      existingFrame.remove();
+    }
+
+    // Create a hidden iframe
+    const iframe = document.createElement('iframe');
+    iframe.id = 'print-iframe';
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow.document || iframe.contentDocument;
+    doc.open();
+    doc.write(`
       <html>
         <head>
           <title>Print Pass - ${pass.event_name}</title>
@@ -134,17 +151,37 @@ export default function MyEventPasses({ passes, onViewFullPass }) {
               <img class="qr-code" src="${pass.qr_code_url}" alt="QR Pass" />
             </div>
           </div>
-          <script>
-            window.onload = function() { window.print(); }
-          </script>
         </body>
       </html>
     `);
-    printWindow.document.close();
+    doc.close();
+
+    const handlePrintReady = () => {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+      setTimeout(() => {
+        const frame = document.getElementById('print-iframe');
+        if (frame) {
+          frame.remove();
+        }
+      }, 1000);
+    };
+
+    // Wait for the QR code image to load inside the iframe
+    const img = doc.querySelector('.qr-code');
+    if (img) {
+      if (img.complete) {
+        setTimeout(handlePrintReady, 300);
+      } else {
+        img.onload = () => setTimeout(handlePrintReady, 300);
+        img.onerror = () => setTimeout(handlePrintReady, 300);
+      }
+    } else {
+      setTimeout(handlePrintReady, 500);
+    }
   };
 
   const handleDownload = (pass) => {
-    // Generate an image representation or trigger printing window which supports download as PDF natively.
     handlePrint(pass);
   };
 

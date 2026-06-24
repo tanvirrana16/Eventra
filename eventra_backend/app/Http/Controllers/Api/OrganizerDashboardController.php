@@ -398,6 +398,8 @@ class OrganizerDashboardController extends Controller
         })->with(['user', 'event'])->get()->map(function ($reg) {
             return [
                 'id' => $reg->id,
+                'registration_code' => $reg->registration_code,
+                'security_token' => $reg->security_token,
                 'participant_name' => $reg->user->name ?? 'Unknown User',
                 'participant_email' => $reg->user->email ?? 'N/A',
                 'participant_phone' => $reg->user->phone ?? 'N/A',
@@ -413,7 +415,7 @@ class OrganizerDashboardController extends Controller
     /**
      * Check-in participant.
      */
-    public function checkIn($id)
+    public function checkIn(Request $request, $id)
     {
         $user = Auth::user();
         
@@ -429,16 +431,72 @@ class OrganizerDashboardController extends Controller
             return response()->json(['message' => 'Cannot check-in a cancelled pass.'], 400);
         }
 
-        $newStatus = $registration->pass_status === 'Checked-in' ? 'Active' : 'Checked-in';
-        $registration->update(['pass_status' => $newStatus]);
+        if ($request->query('action') === 'cancel') {
+            if ($registration->pass_status !== 'Checked-in') {
+                return response()->json(['message' => 'Cannot cancel check-in for a pass that is not checked-in.'], 400);
+            }
+
+            $registration->update(['pass_status' => 'Active']);
+
+            Certificate::where('event_id', $registration->event_id)
+                ->where('user_id', $registration->user_id)
+                ->delete();
+
+            $user->activities()->create([
+                'action' => 'Cancelled Participant Check-in',
+                'description' => "Participant check-in status reverted to 'Active' for {$registration->registration_code}."
+            ]);
+
+            return response()->json([
+                'message' => "Participant check-in status reverted to 'Active' successfully.",
+                'registration' => $registration
+            ]);
+        }
+
+        // Normal check-in path (prevent duplicate check-in)
+        if ($registration->pass_status === 'Checked-in') {
+            return response()->json([
+                'message' => 'This pass has already been checked-in. Duplicate scan prevented.'
+            ], 409);
+        }
+
+        $registration->update(['pass_status' => 'Checked-in']);
+
+        // Create notification & activity log for participant
+        if ($registration->user) {
+            $registration->user->notifications()->create([
+                'type' => 'Event Check-in',
+                'title' => 'Checked In & Certificate Issued',
+                'message' => "You have checked in for event '{$registration->event->title}'. Your participation certificate is now available.",
+            ]);
+
+            $registration->user->activities()->create([
+                'action' => 'Checked In to Event',
+                'description' => "Checked in to event '{$registration->event->title}'.",
+            ]);
+        }
+
+        // Create certificate automatically upon successful check-in
+        $alreadyHasCertificate = Certificate::where('event_id', $registration->event_id)
+            ->where('user_id', $registration->user_id)
+            ->exists();
+
+        if (!$alreadyHasCertificate) {
+            Certificate::create([
+                'event_id' => $registration->event_id,
+                'user_id' => $registration->user_id,
+                'certificate_code' => 'CERT-' . strtoupper(Str::random(12)),
+                'issued_at' => now(),
+            ]);
+        }
 
         $user->activities()->create([
             'action' => 'Checked-in Participant',
-            'description' => "Participant check-in status updated to '{$newStatus}' for {$registration->registration_code}."
+            'description' => "Participant check-in status updated to 'Checked-in' for {$registration->registration_code}."
         ]);
 
         return response()->json([
-            'message' => "Participant check-in status updated to '{$newStatus}' successfully.",
+            'message' => "Participant check-in status updated to 'Checked-in' successfully.",
             'registration' => $registration
         ]);
     }
@@ -514,12 +572,28 @@ class OrganizerDashboardController extends Controller
         ]);
     }
 
-    /**
-     * Get organizer notifications list.
-     */
     public function notifications()
     {
         $user = Auth::user();
+
+        // Seed initial notifications if they are empty
+        if ($user->notifications()->count() === 0) {
+            $user->notifications()->createMany([
+                [
+                    'type' => 'Event Published',
+                    'title' => 'Event Live Status',
+                    'message' => 'Congratulations! Your event "Tech Innovation Summit 2026" has been successfully approved and published.',
+                    'created_at' => now()->subHours(4),
+                ],
+                [
+                    'type' => 'New Registration',
+                    'title' => 'New Participant Registered',
+                    'message' => 'A new participant has registered for your upcoming UI/UX Creative Design Masterclass.',
+                    'created_at' => now()->subHours(1),
+                ]
+            ]);
+        }
+
         return response()->json($user->notifications()->orderBy('created_at', 'desc')->get());
     }
 
@@ -605,7 +679,26 @@ class OrganizerDashboardController extends Controller
         // Process profile photo base64 payload
         if ($request->filled('profile_photo')) {
             $photoData = $request->profile_photo;
-            if (str_starts_with($photoData, 'data:image')) {
+            if ($photoData === 'remove') {
+                // Delete existing local photo if exists
+                if ($user->profile_photo && str_contains($user->profile_photo, 'profile_photos')) {
+                    $fileName = basename($user->profile_photo);
+                    $filePath = public_path('storage/profile_photos/' . $fileName);
+                    if (file_exists($filePath)) {
+                        @unlink($filePath);
+                    }
+                }
+                $data['profile_photo'] = null;
+            } elseif (str_starts_with($photoData, 'data:image')) {
+                // Delete old local photo if replacing
+                if ($user->profile_photo && str_contains($user->profile_photo, 'profile_photos')) {
+                    $fileName = basename($user->profile_photo);
+                    $filePath = public_path('storage/profile_photos/' . $fileName);
+                    if (file_exists($filePath)) {
+                        @unlink($filePath);
+                    }
+                }
+
                 $extension = explode('/', explode(':', substr($photoData, 0, strpos($photoData, ';')))[1])[1];
                 $replace = substr($photoData, 0, strpos($photoData, ',') + 1);
                 $image = str_replace($replace, '', $photoData);
@@ -788,7 +881,8 @@ class OrganizerDashboardController extends Controller
                 'issue_date' => $cert->issued_at ? $cert->issued_at->format('Y-m-d') : null,
                 'issue_date_text' => $cert->issued_at ? $cert->issued_at->format('F j, Y') : null,
                 'status' => 'Issued',
-                'organizer' => $cert->event->organizer->organization_name ?? $cert->event->organizer->name ?? 'Eventra Team',
+                'organizer' => $cert->event->organizer->name ?? 'Eventra Team',
+                'organization_name' => $cert->event->organizer->organization_name ?? 'Eventra Platform',
                 'participant_name' => $cert->user->name ?? 'Unknown User',
             ];
         });
@@ -836,6 +930,71 @@ EOT;
         ]);
 
         return response()->json(['message' => 'Simulated certificate email dispatched successfully. Check backend logs!']);
+    }
+
+    /**
+     * Save certificate template settings for an event.
+     */
+    public function saveCertificateSettings(Request $request)
+    {
+        $user = Auth::user();
+        $request->validate([
+            'event_id' => 'required|exists:events,id',
+            'organization_name' => 'nullable|string|max:255',
+            'supported_by' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'president_name' => 'nullable|string|max:255',
+            'president_title' => 'nullable|string|max:255',
+            'chairman_name' => 'nullable|string|max:255',
+            'chairman_title' => 'nullable|string|max:255',
+            'theme' => 'nullable|string|max:50',
+        ]);
+
+        $event = Event::where('created_by', $user->id)->find($request->event_id);
+        if (!$event) {
+            return response()->json(['message' => 'Event not found.'], 404);
+        }
+
+        $settings = $request->only([
+            'organization_name',
+            'supported_by',
+            'description',
+            'president_name',
+            'president_title',
+            'chairman_name',
+            'chairman_title',
+            'theme'
+        ]);
+
+        \App\Models\Setting::setValue("certificate_config_event_{$event->id}", json_encode($settings));
+
+        return response()->json(['message' => 'Certificate template settings saved successfully.']);
+    }
+
+    /**
+     * Get certificate template settings for an event.
+     */
+    public function getCertificateSettings($eventId)
+    {
+        $user = Auth::user();
+        $event = Event::where('created_by', $user->id)->find($eventId);
+        if (!$event) {
+            return response()->json(['message' => 'Event not found.'], 404);
+        }
+
+        $configJson = \App\Models\Setting::getValue("certificate_config_event_{$event->id}");
+        $config = $configJson ? json_decode($configJson, true) : null;
+
+        return response()->json($config ?: [
+            'organization_name' => $event->organizer?->organization_name ?? '',
+            'supported_by' => 'Supported by Eventra',
+            'description' => '',
+            'president_name' => $event->organizer?->name ?? '',
+            'president_title' => 'Director',
+            'chairman_name' => 'John Doe',
+            'chairman_title' => 'Chairman of Eventra',
+            'theme' => 'dark-emerald'
+        ]);
     }
 
     /**

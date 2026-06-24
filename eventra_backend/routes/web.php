@@ -80,8 +80,8 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
 
     // Contact settings
     Route::get('/contact', [AdminController::class, 'contactSettings'])->name('contact');
+    Route::delete('/contact/messages/{id}', [AdminController::class, 'deleteContactMessage'])->name('contact.messages.delete');
     Route::post('/contact/{section}', [AdminController::class, 'addPageItem'])->name('contact.add');
     Route::put('/contact/{section}/{index}', [AdminController::class, 'updatePageItem'])->name('contact.update');
-    Route::delete('/contact/messages/{id}', [AdminController::class, 'deleteContactMessage'])->name('contact.messages.delete');
     Route::delete('/contact/{section}/{index}', [AdminController::class, 'deletePageItem'])->name('contact.delete');
 });

@@ -42,6 +42,7 @@
         <!-- Sidebar Header -->
         <div class="p-6 border-b border-emerald-800/40 flex items-center justify-between">
             <a href="{{ route('admin.dashboard') }}" class="flex items-center space-x-3">
+                <img src="{{ asset('assets/logo.png') }}" alt="Eventra Logo" class="h-9 w-auto brightness-0 invert">
                 <span class="text-xl font-black tracking-widest text-white">EVENTRA ADMIN</span>
             </a>
             <button onclick="toggleSidebar()" class="md:hidden text-emerald-300 hover:text-white focus:outline-none">
@@ -168,7 +169,10 @@
     <main class="flex-1 min-w-0 flex flex-col min-h-screen">
         <!-- Top navbar for tablet and mobile -->
         <header class="bg-white border-b border-slate-200 h-16 shrink-0 flex items-center justify-between px-6 md:hidden relative z-20">
-            <span class="text-lg font-black tracking-widest text-brand-sidebar">EVENTRA</span>
+            <div class="flex items-center space-x-2.5">
+                <img src="{{ asset('assets/logo.png') }}" alt="Eventra Logo" class="h-8 w-auto">
+                <span class="text-lg font-black tracking-widest text-brand-sidebar">EVENTRA</span>
+            </div>
             <div class="flex items-center space-x-4">
                 <button onclick="toggleSidebar()" class="text-slate-600 hover:text-slate-900 focus:outline-none">
                     <i data-lucide="align-justify" class="h-6 w-6"></i>

@@ -75,7 +75,21 @@ class AdminController extends Controller
         $recentOrganizers = User::where('role', 'organizer')->orderBy('created_at', 'desc')->take(5)->get();
         $recentEvents = Event::with('category')->orderBy('created_at', 'desc')->take(5)->get();
 
-        return view('admin.dashboard', compact('stats', 'recentOrganizers', 'recentEvents'));
+        // Fetch full data for detail modals
+        $allEvents = Event::with(['category', 'organizer'])->orderBy('created_at', 'desc')->get();
+        $allParticipants = User::where('role', 'participant')->withCount('registrations')->orderBy('created_at', 'desc')->get();
+        $allOrganizers = User::where('role', 'organizer')->orderBy('created_at', 'desc')->get();
+        $allCertificates = Certificate::with(['event', 'user'])->orderBy('issued_at', 'desc')->get();
+
+        return view('admin.dashboard', compact(
+            'stats', 
+            'recentOrganizers', 
+            'recentEvents',
+            'allEvents',
+            'allParticipants',
+            'allOrganizers',
+            'allCertificates'
+        ));
     }
 
     /**

@@ -77,6 +77,8 @@ Route::middleware(['api.token', 'organizer'])->group(function () {
     Route::put('/organizer/settings', [OrganizerDashboardController::class, 'updateSettings']);
     Route::post('/organizer/certificates/generate', [OrganizerDashboardController::class, 'generateCertificates']);
     Route::get('/organizer/certificates', [OrganizerDashboardController::class, 'certificates']);
+    Route::post('/organizer/certificates/settings', [OrganizerDashboardController::class, 'saveCertificateSettings']);
+    Route::get('/organizer/certificates/settings/{eventId}', [OrganizerDashboardController::class, 'getCertificateSettings']);
     Route::post('/organizer/certificates/send', [OrganizerDashboardController::class, 'sendCertificates']);
 });
 
