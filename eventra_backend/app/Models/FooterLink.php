@@ -14,7 +14,7 @@ class FooterLink extends Model
     ];
 
     /**
-     * Scope active links ordered by display order.
+     * display order developed later
      */
     public function scopeActive($query)
     {
