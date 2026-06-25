@@ -2,6 +2,9 @@
 
 Welcome to **Eventra**! This repository is organized as a monorepo consisting of a React frontend and a Laravel API backend. Below are the complete step-by-step instructions to configure the database, start the backend API server, and launch the frontend web application.
 
+> [!TIP]
+> **Docker Support is Available!** If you prefer to run the entire project in Docker without configuring PHP or Node.js locally, check out the [DOCKER.md](file:///c:/laragon/www/eventra/DOCKER.md) guide.
+
 ---
 
 ## Repository Layout

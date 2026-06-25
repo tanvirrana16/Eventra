@@ -1,0 +1,56 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: eventra-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: eventra_db
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./eventra_backend
+      dockerfile: Dockerfile
+    container_name: eventra-backend
+    restart: always
+    volumes:
+      - ./eventra_backend:/var/www/html
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=eventra_db
+      - DB_USERNAME=root
+      - DB_PASSWORD=
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./eventra_frontend
+      dockerfile: Dockerfile
+    container_name: eventra-frontend
+    restart: always
+    volumes:
+      - ./eventra_frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000/api
+    depends_on:
+      - backend
+
+volumes:
+  db_data:

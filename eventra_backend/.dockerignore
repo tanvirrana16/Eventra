@@ -1,0 +1,10 @@
+vendor/
+node_modules/
+public/build/
+public/storage/
+.env
+.git/
+.github/
+.phpunit.result.cache
+phpunit_output.txt
+test_output.txt
